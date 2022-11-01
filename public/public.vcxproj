@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>17.0</VCProjectVersion>
+    <ProjectGuid>{FADFD7BE-F4AC-4685-BD71-6A6128987DA4}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>17.0.32203.90</_ProjectFileVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>..\bin\public\msdev\</OutDir>
+    <IntDir>..\bin\public\msdev\</IntDir>
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>..\bin\public\msdev\</OutDir>
+    <IntDir>..\bin\public\msdev\</IntDir>
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>HAVE_STDINT_H=1;STDINT_H="stdint.h";XASH_GAMEDIR="valve";HAVE_TGMATH_H=1;_CRT_SILENCE_NONCONFORMING_TGMATH_H=1;HAVE_MALLOC_H=1;ALLOCA_H="malloc.h";XASH_BUILD_COMMIT="c1ca2c1-dirty";XASH_LOW_MEMORY=0;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>true</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <PrecompiledHeader />
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <AdditionalIncludeDirectories>..\bin\public;.;..\bin\common;..\common;..\bin\pm_shared;..\pm_shared;..\bin\engine;..\engine;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Console</SubSystem>
+      <TargetMachine>MachineX86</TargetMachine>
+      <AdditionalDependencies>sdk_includes.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\bin\public\msdev;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>HAVE_STDINT_H=1;STDINT_H="stdint.h";XASH_GAMEDIR="valve";HAVE_TGMATH_H=1;_CRT_SILENCE_NONCONFORMING_TGMATH_H=1;HAVE_MALLOC_H=1;ALLOCA_H="malloc.h";XASH_BUILD_COMMIT="c1ca2c1-dirty";XASH_LOW_MEMORY=0;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>true</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <AdditionalIncludeDirectories>..\bin\public;.;..\bin\common;..\common;..\bin\pm_shared;..\pm_shared;..\bin\engine;..\engine;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Console</SubSystem>
+      <TargetMachine>MachineX86</TargetMachine>
+      <AdditionalDependencies>sdk_includes.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\bin\public\msdev;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>HAVE_STDINT_H=1;STDINT_H="stdint.h";XASH_GAMEDIR="valve";HAVE_TGMATH_H=1;_CRT_SILENCE_NONCONFORMING_TGMATH_H=1;HAVE_MALLOC_H=1;ALLOCA_H="malloc.h";XASH_BUILD_COMMIT="c1ca2c1-dirty";XASH_LOW_MEMORY=0;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <AdditionalIncludeDirectories>..\bin\public;.;..\bin\common;..\common;..\bin\pm_shared;..\pm_shared;..\bin\engine;..\engine;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Console</SubSystem>
+      <AdditionalDependencies>sdk_includes.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\bin\public\msdev;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <PreprocessorDefinitions>HAVE_STDINT_H=1;STDINT_H="stdint.h";XASH_GAMEDIR="valve";HAVE_TGMATH_H=1;_CRT_SILENCE_NONCONFORMING_TGMATH_H=1;HAVE_MALLOC_H=1;ALLOCA_H="malloc.h";XASH_BUILD_COMMIT="c1ca2c1-dirty";XASH_LOW_MEMORY=0;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <AdditionalIncludeDirectories>..\bin\public;.;..\bin\common;..\common;..\bin\pm_shared;..\pm_shared;..\bin\engine;..\engine;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Console</SubSystem>
+      <AdditionalDependencies>sdk_includes.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\bin\public\msdev;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="..\common\backends.h" />
+    <ClInclude Include="..\common\beamdef.h" />
+    <ClInclude Include="..\common\boneinfo.h" />
+    <ClInclude Include="..\common\bspfile.h" />
+    <ClInclude Include="..\common\cl_entity.h" />
+    <ClInclude Include="..\common\com_image.h" />
+    <ClInclude Include="..\common\com_model.h" />
+    <ClInclude Include="..\common\const.h" />
+    <ClInclude Include="..\common\con_nprint.h" />
+    <ClInclude Include="..\common\cvardef.h" />
+    <ClInclude Include="..\common\defaults.h" />
+    <ClInclude Include="..\common\demo_api.h" />
+    <ClInclude Include="..\common\dlight.h" />
+    <ClInclude Include="..\common\enginefeatures.h" />
+    <ClInclude Include="..\common\entity_state.h" />
+    <ClInclude Include="..\common\entity_types.h" />
+    <ClInclude Include="..\common\event_api.h" />
+    <ClInclude Include="..\common\event_args.h" />
+    <ClInclude Include="..\common\event_flags.h" />
+    <ClInclude Include="..\common\gameinfo.h" />
+    <ClInclude Include="..\common\hltv.h" />
+    <ClInclude Include="..\common\ivoicetweak.h" />
+    <ClInclude Include="..\common\kbutton.h" />
+    <ClInclude Include="..\common\lightstyle.h" />
+    <ClInclude Include="..\common\mathlib.h" />
+    <ClInclude Include="..\common\netadr.h" />
+    <ClInclude Include="..\common\net_api.h" />
+    <ClInclude Include="..\common\particledef.h" />
+    <ClInclude Include="..\common\pmtrace.h" />
+    <ClInclude Include="..\common\port.h" />
+    <ClInclude Include="..\common\qfont.h" />
+    <ClInclude Include="..\common\ref_params.h" />
+    <ClInclude Include="..\common\render_api.h" />
+    <ClInclude Include="..\common\r_efx.h" />
+    <ClInclude Include="..\common\r_studioint.h" />
+    <ClInclude Include="..\common\screenfade.h" />
+    <ClInclude Include="..\common\studio_event.h" />
+    <ClInclude Include="..\common\triangleapi.h" />
+    <ClInclude Include="..\common\usercmd.h" />
+    <ClInclude Include="..\common\wadfile.h" />
+    <ClInclude Include="..\common\weaponinfo.h" />
+    <ClInclude Include="..\common\wrect.h" />
+    <ClInclude Include="..\common\xash3d_types.h" />
+    <ClInclude Include="..\engine\alias.h" />
+    <ClInclude Include="..\engine\anorms.h" />
+    <ClInclude Include="..\engine\cdll_exp.h" />
+    <ClInclude Include="..\engine\cdll_int.h" />
+    <ClInclude Include="..\engine\cursor_type.h" />
+    <ClInclude Include="..\engine\custom.h" />
+    <ClInclude Include="..\engine\customentity.h" />
+    <ClInclude Include="..\engine\edict.h" />
+    <ClInclude Include="..\engine\eiface.h" />
+    <ClInclude Include="..\engine\keydefs.h" />
+    <ClInclude Include="..\engine\key_modifiers.h" />
+    <ClInclude Include="..\engine\menu_int.h" />
+    <ClInclude Include="..\engine\mobility_int.h" />
+    <ClInclude Include="..\engine\physint.h" />
+    <ClInclude Include="..\engine\progdefs.h" />
+    <ClInclude Include="..\engine\ref_api.h" />
+    <ClInclude Include="..\engine\sequence.h" />
+    <ClInclude Include="..\engine\shake.h" />
+    <ClInclude Include="..\engine\sprite.h" />
+    <ClInclude Include="..\engine\studio.h" />
+    <ClInclude Include="..\engine\vgui_api.h" />
+    <ClInclude Include="..\engine\warpsin.h" />
+    <ClInclude Include="..\pm_shared\pm_defs.h" />
+    <ClInclude Include="..\pm_shared\pm_info.h" />
+    <ClInclude Include="..\pm_shared\pm_movevars.h" />
+    <ClInclude Include="build.h" />
+    <ClInclude Include="crclib.h" />
+    <ClInclude Include="crtlib.h" />
+    <ClInclude Include="miniz.h" />
+    <ClInclude Include="pstdint.h" />
+    <ClInclude Include="xash3d_mathlib.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="build.c" />
+    <ClCompile Include="crclib.c" />
+    <ClCompile Include="crtlib.c" />
+    <ClCompile Include="matrixlib.c" />
+    <ClCompile Include="xash3d_mathlib.c" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

@@ -1,0 +1,67 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.1.32328.378
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "public", "public\public.vcxproj", "{FADFD7BE-F4AC-4685-BD71-6A6128987DA4}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "filesystem_stdio", "filesystem\filesystem_stdio.vcxproj", "{68CCD131-B5F0-4113-B408-9F3251C45273}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "xash", "engine\xash.vcxproj", "{6AF0F1CA-3518-466C-938E-57049B2FF768}"
+	ProjectSection(ProjectDependencies) = postProject
+		{C0F6D706-8EEC-4DD2-B558-9CF55836AF2C} = {C0F6D706-8EEC-4DD2-B558-9CF55836AF2C}
+		{A225097B-8EFD-4C17-9F90-1F509764722E} = {A225097B-8EFD-4C17-9F90-1F509764722E}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ref_gl", "ref\gl\ref_gl.vcxproj", "{C0F6D706-8EEC-4DD2-B558-9CF55836AF2C}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "menu", "3rdparty\mainui\menu.vcxproj", "{A225097B-8EFD-4C17-9F90-1F509764722E}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "xash3d", "game_launch\xash3d.vcxproj", "{6006F941-65C9-4F4F-B7CA-F28A681F0273}"
+	ProjectSection(ProjectDependencies) = postProject
+		{6AF0F1CA-3518-466C-938E-57049B2FF768} = {6AF0F1CA-3518-466C-938E-57049B2FF768}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "opus", "3rdparty\opus\opus.vcxproj", "{B53752FC-C3D9-437C-B4FF-4F0F1274DA98}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{FADFD7BE-F4AC-4685-BD71-6A6128987DA4}.Debug|x64.ActiveCfg = Debug|x64
+		{FADFD7BE-F4AC-4685-BD71-6A6128987DA4}.Debug|x64.Build.0 = Debug|x64
+		{FADFD7BE-F4AC-4685-BD71-6A6128987DA4}.Release|x64.ActiveCfg = Release|x64
+		{FADFD7BE-F4AC-4685-BD71-6A6128987DA4}.Release|x64.Build.0 = Release|x64
+		{68CCD131-B5F0-4113-B408-9F3251C45273}.Debug|x64.ActiveCfg = Debug|x64
+		{68CCD131-B5F0-4113-B408-9F3251C45273}.Debug|x64.Build.0 = Debug|x64
+		{68CCD131-B5F0-4113-B408-9F3251C45273}.Release|x64.ActiveCfg = Release|x64
+		{68CCD131-B5F0-4113-B408-9F3251C45273}.Release|x64.Build.0 = Release|x64
+		{6AF0F1CA-3518-466C-938E-57049B2FF768}.Debug|x64.ActiveCfg = Debug|x64
+		{6AF0F1CA-3518-466C-938E-57049B2FF768}.Debug|x64.Build.0 = Debug|x64
+		{6AF0F1CA-3518-466C-938E-57049B2FF768}.Release|x64.ActiveCfg = Release|x64
+		{6AF0F1CA-3518-466C-938E-57049B2FF768}.Release|x64.Build.0 = Release|x64
+		{C0F6D706-8EEC-4DD2-B558-9CF55836AF2C}.Debug|x64.ActiveCfg = Debug|x64
+		{C0F6D706-8EEC-4DD2-B558-9CF55836AF2C}.Debug|x64.Build.0 = Debug|x64
+		{C0F6D706-8EEC-4DD2-B558-9CF55836AF2C}.Release|x64.ActiveCfg = Release|x64
+		{C0F6D706-8EEC-4DD2-B558-9CF55836AF2C}.Release|x64.Build.0 = Release|x64
+		{A225097B-8EFD-4C17-9F90-1F509764722E}.Debug|x64.ActiveCfg = Debug|x64
+		{A225097B-8EFD-4C17-9F90-1F509764722E}.Debug|x64.Build.0 = Debug|x64
+		{A225097B-8EFD-4C17-9F90-1F509764722E}.Release|x64.ActiveCfg = Release|x64
+		{A225097B-8EFD-4C17-9F90-1F509764722E}.Release|x64.Build.0 = Release|x64
+		{6006F941-65C9-4F4F-B7CA-F28A681F0273}.Debug|x64.ActiveCfg = Debug|x64
+		{6006F941-65C9-4F4F-B7CA-F28A681F0273}.Debug|x64.Build.0 = Debug|x64
+		{6006F941-65C9-4F4F-B7CA-F28A681F0273}.Release|x64.ActiveCfg = Release|x64
+		{6006F941-65C9-4F4F-B7CA-F28A681F0273}.Release|x64.Build.0 = Release|x64
+		{B53752FC-C3D9-437C-B4FF-4F0F1274DA98}.Debug|x64.ActiveCfg = Debug|x64
+		{B53752FC-C3D9-437C-B4FF-4F0F1274DA98}.Debug|x64.Build.0 = Debug|x64
+		{B53752FC-C3D9-437C-B4FF-4F0F1274DA98}.Release|x64.ActiveCfg = Release|x64
+		{B53752FC-C3D9-437C-B4FF-4F0F1274DA98}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {D1EA9E1A-A6DB-4FEC-AFD5-DE36A1D98D4E}
+	EndGlobalSection
+EndGlobal

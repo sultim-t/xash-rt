@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<VisualStudioProject ProjectType="Visual C++" Version="8,00" Name="opus" ProjectGUID="{B53752FC-C3D9-437C-B4FF-4F0F1274DA98}" Keyword="Win32Proj" TargetFrameworkVersion="0">
+	<Platforms>
+		<Platform Name="Win32"/>
+	</Platforms>
+	<ToolFiles>
+	</ToolFiles>
+	<Configurations>
+		<Configuration Name="Debug|Win32" OutputDirectory="..\..\bin\3rdparty\opus\msdev" IntermediateDirectory="..\..\bin\3rdparty\opus\msdev" ConfigurationType="4">
+			<Tool Name="VCPreBuildEventTool"/>
+			<Tool Name="VCCustomBuildTool"/>
+			<Tool Name="VCXMLDataGeneratorTool"/>
+			<Tool Name="VCWebServiceProxyGeneratorTool"/>
+			<Tool Name="VCMIDLTool"/>
+			<Tool Name="VCCLCompilerTool" Optimization="0" PreprocessorDefinitions="USE_ALLOCA;OPUS_BUILD;FLOAT_APPROX;PACKAGE_VERSION=\&quot;1.3.1\&quot;;CUSTOM_MODES;HAVE_STDINT_H=1;STDINT_H=\&quot;stdint.h\&quot;;XASH_GAMEDIR=\&quot;valve\&quot;;HAVE_TGMATH_H=1;_CRT_SILENCE_NONCONFORMING_TGMATH_H=1;HAVE_MALLOC_H=1;ALLOCA_H=\&quot;malloc.h\&quot;;XASH_BUILD_COMMIT=\&quot;c1ca2c1-dirty\&quot;;XASH_LOW_MEMORY=0" MinimalRebuild="true" BasicRuntimeChecks="3" RuntimeLibrary="3" UsePrecompiledHeader="0" WarningLevel="3" DebugInformationFormat="4" AdditionalIncludeDirectories="opus\include\;opus\celt\;opus\silk\;opus\silk\float\"/>
+			<Tool Name="VCManagedResourceCompilerTool"/>
+			<Tool Name="VCResourceCompilerTool"/>
+			<Tool Name="VCPreLinkEventTool"/>
+			<Tool Name="VCLinkerTool" LinkIncremental="2" GenerateDebugInformation="true" SubSystem="1" TargetMachine="1"/>
+			<Tool Name="VCALinkTool"/>
+			<Tool Name="VCManifestTool"/>
+			<Tool Name="VCXDCMakeTool"/>
+			<Tool Name="VCBscMakeTool"/>
+			<Tool Name="VCFxCopTool"/>
+			<Tool Name="VCAppVerifierTool"/>
+			<Tool Name="VCPostBuildEventTool"/>
+		</Configuration>
+	</Configurations>
+	<References>
+	</References>
+	<Files>
+		<Filter Name="Header Files" Filter="h;hpp;hxx;hm;inl;inc;xsd" UniqueIdentifier="{6C261BCB-292B-418B-A30B-21071AABBD34}">
+			<File RelativePath="opus\include\opus.h"/>
+			<File RelativePath="opus\include\opus_custom.h"/>
+			<File RelativePath="opus\include\opus_defines.h"/>
+			<File RelativePath="opus\include\opus_multistream.h"/>
+			<File RelativePath="opus\include\opus_projection.h"/>
+			<File RelativePath="opus\include\opus_types.h"/>
+			<File RelativePath="opus\celt\_kiss_fft_guts.h"/>
+			<File RelativePath="opus\celt\arch.h"/>
+			<File RelativePath="opus\celt\bands.h"/>
+			<File RelativePath="opus\celt\celt.h"/>
+			<File RelativePath="opus\celt\celt_lpc.h"/>
+			<File RelativePath="opus\celt\cpu_support.h"/>
+			<File RelativePath="opus\celt\cwrs.h"/>
+			<File RelativePath="opus\celt\ecintrin.h"/>
+			<File RelativePath="opus\celt\entcode.h"/>
+			<File RelativePath="opus\celt\entdec.h"/>
+			<File RelativePath="opus\celt\entenc.h"/>
+			<File RelativePath="opus\celt\fixed_c5x.h"/>
+			<File RelativePath="opus\celt\fixed_c6x.h"/>
+			<File RelativePath="opus\celt\fixed_debug.h"/>
+			<File RelativePath="opus\celt\fixed_generic.h"/>
+			<File RelativePath="opus\celt\float_cast.h"/>
+			<File RelativePath="opus\celt\kiss_fft.h"/>
+			<File RelativePath="opus\celt\laplace.h"/>
+			<File RelativePath="opus\celt\mathops.h"/>
+			<File RelativePath="opus\celt\mdct.h"/>
+			<File RelativePath="opus\celt\mfrngcod.h"/>
+			<File RelativePath="opus\celt\modes.h"/>
+			<File RelativePath="opus\celt\os_support.h"/>
+			<File RelativePath="opus\celt\pitch.h"/>
+			<File RelativePath="opus\celt\quant_bands.h"/>
+			<File RelativePath="opus\celt\rate.h"/>
+			<File RelativePath="opus\celt\stack_alloc.h"/>
+			<File RelativePath="opus\celt\static_modes_fixed.h"/>
+			<File RelativePath="opus\celt\static_modes_fixed_arm_ne10.h"/>
+			<File RelativePath="opus\celt\static_modes_float.h"/>
+			<File RelativePath="opus\celt\static_modes_float_arm_ne10.h"/>
+			<File RelativePath="opus\celt\vq.h"/>
+			<File RelativePath="opus\silk\API.h"/>
+			<File RelativePath="opus\silk\Inlines.h"/>
+			<File RelativePath="opus\silk\MacroCount.h"/>
+			<File RelativePath="opus\silk\MacroDebug.h"/>
+			<File RelativePath="opus\silk\NSQ.h"/>
+			<File RelativePath="opus\silk\PLC.h"/>
+			<File RelativePath="opus\silk\SigProc_FIX.h"/>
+			<File RelativePath="opus\silk\control.h"/>
+			<File RelativePath="opus\silk\debug.h"/>
+			<File RelativePath="opus\silk\define.h"/>
+			<File RelativePath="opus\silk\errors.h"/>
+			<File RelativePath="opus\silk\macros.h"/>
+			<File RelativePath="opus\silk\main.h"/>
+			<File RelativePath="opus\silk\pitch_est_defines.h"/>
+			<File RelativePath="opus\silk\resampler_private.h"/>
+			<File RelativePath="opus\silk\resampler_rom.h"/>
+			<File RelativePath="opus\silk\resampler_structs.h"/>
+			<File RelativePath="opus\silk\structs.h"/>
+			<File RelativePath="opus\silk\tables.h"/>
+			<File RelativePath="opus\silk\tuning_parameters.h"/>
+			<File RelativePath="opus\silk\typedef.h"/>
+			<File RelativePath="opus\silk\float\SigProc_FLP.h"/>
+			<File RelativePath="opus\silk\float\main_FLP.h"/>
+			<File RelativePath="opus\silk\float\structs_FLP.h"/>
+		</Filter>
+		<Filter Name="Source Files" Filter="cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx" UniqueIdentifier="{94ADC758-2209-4631-8B4F-FC7BDD37BF91}">
+			<File RelativePath="opus\celt\bands.c"/>
+			<File RelativePath="opus\celt\celt.c"/>
+			<File RelativePath="opus\celt\celt_decoder.c"/>
+			<File RelativePath="opus\celt\celt_encoder.c"/>
+			<File RelativePath="opus\celt\celt_lpc.c"/>
+			<File RelativePath="opus\celt\cwrs.c"/>
+			<File RelativePath="opus\celt\entcode.c"/>
+			<File RelativePath="opus\celt\entdec.c"/>
+			<File RelativePath="opus\celt\entenc.c"/>
+			<File RelativePath="opus\celt\kiss_fft.c"/>
+			<File RelativePath="opus\celt\laplace.c"/>
+			<File RelativePath="opus\celt\mathops.c"/>
+			<File RelativePath="opus\celt\mdct.c"/>
+			<File RelativePath="opus\celt\modes.c"/>
+			<File RelativePath="opus\celt\pitch.c"/>
+			<File RelativePath="opus\celt\quant_bands.c"/>
+			<File RelativePath="opus\celt\rate.c"/>
+			<File RelativePath="opus\celt\vq.c"/>
+			<File RelativePath="opus\silk\A2NLSF.c"/>
+			<File RelativePath="opus\silk\CNG.c"/>
+			<File RelativePath="opus\silk\HP_variable_cutoff.c"/>
+			<File RelativePath="opus\silk\LPC_analysis_filter.c"/>
+			<File RelativePath="opus\silk\LPC_fit.c"/>
+			<File RelativePath="opus\silk\LPC_inv_pred_gain.c"/>
+			<File RelativePath="opus\silk\LP_variable_cutoff.c"/>
+			<File RelativePath="opus\silk\NLSF2A.c"/>
+			<File RelativePath="opus\silk\NLSF_VQ.c"/>
+			<File RelativePath="opus\silk\NLSF_VQ_weights_laroia.c"/>
+			<File RelativePath="opus\silk\NLSF_decode.c"/>
+			<File RelativePath="opus\silk\NLSF_del_dec_quant.c"/>
+			<File RelativePath="opus\silk\NLSF_encode.c"/>
+			<File RelativePath="opus\silk\NLSF_stabilize.c"/>
+			<File RelativePath="opus\silk\NLSF_unpack.c"/>
+			<File RelativePath="opus\silk\NSQ.c"/>
+			<File RelativePath="opus\silk\NSQ_del_dec.c"/>
+			<File RelativePath="opus\silk\PLC.c"/>
+			<File RelativePath="opus\silk\VAD.c"/>
+			<File RelativePath="opus\silk\VQ_WMat_EC.c"/>
+			<File RelativePath="opus\silk\ana_filt_bank_1.c"/>
+			<File RelativePath="opus\silk\biquad_alt.c"/>
+			<File RelativePath="opus\silk\bwexpander.c"/>
+			<File RelativePath="opus\silk\bwexpander_32.c"/>
+			<File RelativePath="opus\silk\check_control_input.c"/>
+			<File RelativePath="opus\silk\code_signs.c"/>
+			<File RelativePath="opus\silk\control_SNR.c"/>
+			<File RelativePath="opus\silk\control_audio_bandwidth.c"/>
+			<File RelativePath="opus\silk\control_codec.c"/>
+			<File RelativePath="opus\silk\debug.c"/>
+			<File RelativePath="opus\silk\dec_API.c"/>
+			<File RelativePath="opus\silk\decode_core.c"/>
+			<File RelativePath="opus\silk\decode_frame.c"/>
+			<File RelativePath="opus\silk\decode_indices.c"/>
+			<File RelativePath="opus\silk\decode_parameters.c"/>
+			<File RelativePath="opus\silk\decode_pitch.c"/>
+			<File RelativePath="opus\silk\decode_pulses.c"/>
+			<File RelativePath="opus\silk\decoder_set_fs.c"/>
+			<File RelativePath="opus\silk\enc_API.c"/>
+			<File RelativePath="opus\silk\encode_indices.c"/>
+			<File RelativePath="opus\silk\encode_pulses.c"/>
+			<File RelativePath="opus\silk\float\LPC_analysis_filter_FLP.c"/>
+			<File RelativePath="opus\silk\float\LPC_inv_pred_gain_FLP.c"/>
+			<File RelativePath="opus\silk\float\LTP_analysis_filter_FLP.c"/>
+			<File RelativePath="opus\silk\float\LTP_scale_ctrl_FLP.c"/>
+			<File RelativePath="opus\silk\float\apply_sine_window_FLP.c"/>
+			<File RelativePath="opus\silk\float\autocorrelation_FLP.c"/>
+			<File RelativePath="opus\silk\float\burg_modified_FLP.c"/>
+			<File RelativePath="opus\silk\float\bwexpander_FLP.c"/>
+			<File RelativePath="opus\silk\float\corrMatrix_FLP.c"/>
+			<File RelativePath="opus\silk\float\encode_frame_FLP.c"/>
+			<File RelativePath="opus\silk\float\energy_FLP.c"/>
+			<File RelativePath="opus\silk\float\find_LPC_FLP.c"/>
+			<File RelativePath="opus\silk\float\find_LTP_FLP.c"/>
+			<File RelativePath="opus\silk\float\find_pitch_lags_FLP.c"/>
+			<File RelativePath="opus\silk\float\find_pred_coefs_FLP.c"/>
+			<File RelativePath="opus\silk\float\inner_product_FLP.c"/>
+			<File RelativePath="opus\silk\float\k2a_FLP.c"/>
+			<File RelativePath="opus\silk\float\noise_shape_analysis_FLP.c"/>
+			<File RelativePath="opus\silk\float\pitch_analysis_core_FLP.c"/>
+			<File RelativePath="opus\silk\float\process_gains_FLP.c"/>
+			<File RelativePath="opus\silk\float\regularize_correlations_FLP.c"/>
+			<File RelativePath="opus\silk\float\residual_energy_FLP.c"/>
+			<File RelativePath="opus\silk\float\scale_copy_vector_FLP.c"/>
+			<File RelativePath="opus\silk\float\scale_vector_FLP.c"/>
+			<File RelativePath="opus\silk\float\schur_FLP.c"/>
+			<File RelativePath="opus\silk\float\sort_FLP.c"/>
+			<File RelativePath="opus\silk\float\warped_autocorrelation_FLP.c"/>
+			<File RelativePath="opus\silk\float\wrappers_FLP.c"/>
+			<File RelativePath="opus\silk\gain_quant.c"/>
+			<File RelativePath="opus\silk\init_decoder.c"/>
+			<File RelativePath="opus\silk\init_encoder.c"/>
+			<File RelativePath="opus\silk\inner_prod_aligned.c"/>
+			<File RelativePath="opus\silk\interpolate.c"/>
+			<File RelativePath="opus\silk\lin2log.c"/>
+			<File RelativePath="opus\silk\log2lin.c"/>
+			<File RelativePath="opus\silk\pitch_est_tables.c"/>
+			<File RelativePath="opus\silk\process_NLSFs.c"/>
+			<File RelativePath="opus\silk\quant_LTP_gains.c"/>
+			<File RelativePath="opus\silk\resampler.c"/>
+			<File RelativePath="opus\silk\resampler_down2.c"/>
+			<File RelativePath="opus\silk\resampler_down2_3.c"/>
+			<File RelativePath="opus\silk\resampler_private_AR2.c"/>
+			<File RelativePath="opus\silk\resampler_private_IIR_FIR.c"/>
+			<File RelativePath="opus\silk\resampler_private_down_FIR.c"/>
+			<File RelativePath="opus\silk\resampler_private_up2_HQ.c"/>
+			<File RelativePath="opus\silk\resampler_rom.c"/>
+			<File RelativePath="opus\silk\shell_coder.c"/>
+			<File RelativePath="opus\silk\sigm_Q15.c"/>
+			<File RelativePath="opus\silk\sort.c"/>
+			<File RelativePath="opus\silk\stereo_LR_to_MS.c"/>
+			<File RelativePath="opus\silk\stereo_MS_to_LR.c"/>
+			<File RelativePath="opus\silk\stereo_decode_pred.c"/>
+			<File RelativePath="opus\silk\stereo_encode_pred.c"/>
+			<File RelativePath="opus\silk\stereo_find_predictor.c"/>
+			<File RelativePath="opus\silk\stereo_quant_pred.c"/>
+			<File RelativePath="opus\silk\sum_sqr_shift.c"/>
+			<File RelativePath="opus\silk\table_LSF_cos.c"/>
+			<File RelativePath="opus\silk\tables_LTP.c"/>
+			<File RelativePath="opus\silk\tables_NLSF_CB_NB_MB.c"/>
+			<File RelativePath="opus\silk\tables_NLSF_CB_WB.c"/>
+			<File RelativePath="opus\silk\tables_gain.c"/>
+			<File RelativePath="opus\silk\tables_other.c"/>
+			<File RelativePath="opus\silk\tables_pitch_lag.c"/>
+			<File RelativePath="opus\silk\tables_pulses_per_block.c"/>
+			<File RelativePath="opus\src\analysis.c"/>
+			<File RelativePath="opus\src\mapping_matrix.c"/>
+			<File RelativePath="opus\src\mlp.c"/>
+			<File RelativePath="opus\src\mlp_data.c"/>
+			<File RelativePath="opus\src\opus.c"/>
+			<File RelativePath="opus\src\opus_decoder.c"/>
+			<File RelativePath="opus\src\opus_encoder.c"/>
+			<File RelativePath="opus\src\opus_multistream.c"/>
+			<File RelativePath="opus\src\opus_multistream_decoder.c"/>
+			<File RelativePath="opus\src\opus_multistream_encoder.c"/>
+			<File RelativePath="opus\src\opus_projection_decoder.c"/>
+			<File RelativePath="opus\src\opus_projection_encoder.c"/>
+			<File RelativePath="opus\src\repacketizer.c"/>
+		</Filter>
+	</Files>
+	<Globals>
+	</Globals>
+</VisualStudioProject>

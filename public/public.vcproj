@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<VisualStudioProject ProjectType="Visual C++" Version="8,00" Name="public" ProjectGUID="{FADFD7BE-F4AC-4685-BD71-6A6128987DA4}" Keyword="Win32Proj" TargetFrameworkVersion="0">
+	<Platforms>
+		<Platform Name="Win32"/>
+	</Platforms>
+	<ToolFiles>
+	</ToolFiles>
+	<Configurations>
+		<Configuration Name="Debug|Win32" OutputDirectory="..\bin\public\msdev" IntermediateDirectory="..\bin\public\msdev" ConfigurationType="4">
+			<Tool Name="VCPreBuildEventTool"/>
+			<Tool Name="VCCustomBuildTool"/>
+			<Tool Name="VCXMLDataGeneratorTool"/>
+			<Tool Name="VCWebServiceProxyGeneratorTool"/>
+			<Tool Name="VCMIDLTool"/>
+			<Tool Name="VCCLCompilerTool" Optimization="0" PreprocessorDefinitions="HAVE_STDINT_H=1;STDINT_H=\&quot;stdint.h\&quot;;XASH_GAMEDIR=\&quot;valve\&quot;;HAVE_TGMATH_H=1;_CRT_SILENCE_NONCONFORMING_TGMATH_H=1;HAVE_MALLOC_H=1;ALLOCA_H=\&quot;malloc.h\&quot;;XASH_BUILD_COMMIT=\&quot;c1ca2c1-dirty\&quot;;XASH_LOW_MEMORY=0" MinimalRebuild="true" BasicRuntimeChecks="3" RuntimeLibrary="3" UsePrecompiledHeader="0" WarningLevel="3" DebugInformationFormat="4" AdditionalIncludeDirectories="..\bin\public;.;..\bin\common;..\common;..\bin\pm_shared;..\pm_shared;..\bin\engine;..\engine"/>
+			<Tool Name="VCManagedResourceCompilerTool"/>
+			<Tool Name="VCResourceCompilerTool"/>
+			<Tool Name="VCPreLinkEventTool"/>
+			<Tool Name="VCLinkerTool" LinkIncremental="2" GenerateDebugInformation="true" SubSystem="1" TargetMachine="1" AdditionalDependencies="sdk_includes.lib" AdditionalLibraryDirectories="..\bin\public\msdev"/>
+			<Tool Name="VCALinkTool"/>
+			<Tool Name="VCManifestTool"/>
+			<Tool Name="VCXDCMakeTool"/>
+			<Tool Name="VCBscMakeTool"/>
+			<Tool Name="VCFxCopTool"/>
+			<Tool Name="VCAppVerifierTool"/>
+			<Tool Name="VCPostBuildEventTool"/>
+		</Configuration>
+	</Configurations>
+	<References>
+	</References>
+	<Files>
+		<Filter Name="Header Files" Filter="h;hpp;hxx;hm;inl;inc;xsd" UniqueIdentifier="{0EA2321D-BC9E-4F89-9399-469D38E93A35}">
+			<File RelativePath="build.h"/>
+			<File RelativePath="crclib.h"/>
+			<File RelativePath="crtlib.h"/>
+			<File RelativePath="miniz.h"/>
+			<File RelativePath="pstdint.h"/>
+			<File RelativePath="xash3d_mathlib.h"/>
+			<File RelativePath="..\common\backends.h"/>
+			<File RelativePath="..\common\beamdef.h"/>
+			<File RelativePath="..\common\boneinfo.h"/>
+			<File RelativePath="..\common\bspfile.h"/>
+			<File RelativePath="..\common\cl_entity.h"/>
+			<File RelativePath="..\common\com_image.h"/>
+			<File RelativePath="..\common\com_model.h"/>
+			<File RelativePath="..\common\con_nprint.h"/>
+			<File RelativePath="..\common\const.h"/>
+			<File RelativePath="..\common\cvardef.h"/>
+			<File RelativePath="..\common\defaults.h"/>
+			<File RelativePath="..\common\demo_api.h"/>
+			<File RelativePath="..\common\dlight.h"/>
+			<File RelativePath="..\common\enginefeatures.h"/>
+			<File RelativePath="..\common\entity_state.h"/>
+			<File RelativePath="..\common\entity_types.h"/>
+			<File RelativePath="..\common\event_api.h"/>
+			<File RelativePath="..\common\event_args.h"/>
+			<File RelativePath="..\common\event_flags.h"/>
+			<File RelativePath="..\common\gameinfo.h"/>
+			<File RelativePath="..\common\hltv.h"/>
+			<File RelativePath="..\common\ivoicetweak.h"/>
+			<File RelativePath="..\common\kbutton.h"/>
+			<File RelativePath="..\common\lightstyle.h"/>
+			<File RelativePath="..\common\mathlib.h"/>
+			<File RelativePath="..\common\net_api.h"/>
+			<File RelativePath="..\common\netadr.h"/>
+			<File RelativePath="..\common\particledef.h"/>
+			<File RelativePath="..\common\pmtrace.h"/>
+			<File RelativePath="..\common\port.h"/>
+			<File RelativePath="..\common\qfont.h"/>
+			<File RelativePath="..\common\r_efx.h"/>
+			<File RelativePath="..\common\r_studioint.h"/>
+			<File RelativePath="..\common\ref_params.h"/>
+			<File RelativePath="..\common\render_api.h"/>
+			<File RelativePath="..\common\screenfade.h"/>
+			<File RelativePath="..\common\studio_event.h"/>
+			<File RelativePath="..\common\triangleapi.h"/>
+			<File RelativePath="..\common\usercmd.h"/>
+			<File RelativePath="..\common\wadfile.h"/>
+			<File RelativePath="..\common\weaponinfo.h"/>
+			<File RelativePath="..\common\wrect.h"/>
+			<File RelativePath="..\common\xash3d_types.h"/>
+			<File RelativePath="..\pm_shared\pm_defs.h"/>
+			<File RelativePath="..\pm_shared\pm_info.h"/>
+			<File RelativePath="..\pm_shared\pm_movevars.h"/>
+			<File RelativePath="..\engine\alias.h"/>
+			<File RelativePath="..\engine\anorms.h"/>
+			<File RelativePath="..\engine\cdll_exp.h"/>
+			<File RelativePath="..\engine\cdll_int.h"/>
+			<File RelativePath="..\engine\cursor_type.h"/>
+			<File RelativePath="..\engine\custom.h"/>
+			<File RelativePath="..\engine\customentity.h"/>
+			<File RelativePath="..\engine\edict.h"/>
+			<File RelativePath="..\engine\eiface.h"/>
+			<File RelativePath="..\engine\key_modifiers.h"/>
+			<File RelativePath="..\engine\keydefs.h"/>
+			<File RelativePath="..\engine\menu_int.h"/>
+			<File RelativePath="..\engine\mobility_int.h"/>
+			<File RelativePath="..\engine\physint.h"/>
+			<File RelativePath="..\engine\progdefs.h"/>
+			<File RelativePath="..\engine\ref_api.h"/>
+			<File RelativePath="..\engine\sequence.h"/>
+			<File RelativePath="..\engine\shake.h"/>
+			<File RelativePath="..\engine\sprite.h"/>
+			<File RelativePath="..\engine\studio.h"/>
+			<File RelativePath="..\engine\vgui_api.h"/>
+			<File RelativePath="..\engine\warpsin.h"/>
+		</Filter>
+		<Filter Name="Source Files" Filter="cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx" UniqueIdentifier="{69218572-1078-48C3-8051-CA51B87ED247}">
+			<File RelativePath="build.c"/>
+			<File RelativePath="crclib.c"/>
+			<File RelativePath="crtlib.c"/>
+			<File RelativePath="matrixlib.c"/>
+			<File RelativePath="xash3d_mathlib.c"/>
+		</Filter>
+	</Files>
+	<Globals>
+	</Globals>
+</VisualStudioProject>
