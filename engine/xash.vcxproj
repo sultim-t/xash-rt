@@ -118,18 +118,14 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>HAVE_STDINT_H=1;STDINT_H="stdint.h";XASH_GAMEDIR="valve";HAVE_TGMATH_H=1;_CRT_SILENCE_NONCONFORMING_TGMATH_H=1;HAVE_MALLOC_H=1;ALLOCA_H="malloc.h";XASH_BUILD_COMMIT="c1ca2c1-dirty";XASH_LOW_MEMORY=0;XASH_SDL=2;XASH_64BIT=1;DBGHELP=1;PSAPI_VERSION=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
-      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <PrecompiledHeader>
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
-      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <AdditionalIncludeDirectories>server;client;client\vgui;..\bin\engine;.;..\bin\engine\common;common;..\bin\engine\common\imagelib;common\imagelib;..\bin\filesystem;..\filesystem;..\bin\public;..\public;..\bin\common;..\common;..\bin\pm_shared;..\pm_shared;..\bin\engine;.;..\bin\3rdparty\opus\opus\include;..\3rdparty\opus\opus\include;..\..\SDL2\include;C:\Dev\SDL2\include;..\..\SDL2\include\SDL2;C:\Dev\SDL2\include\SDL2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
       <AdditionalDependencies>user32.lib;shell32.lib;gdi32.lib;advapi32.lib;dbghelp.lib;psapi.lib;ws2_32.lib;SDL2.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>..\bin\engine\msdev;..\bin\public\msdev;..\..\SDL2\lib\x64;C:\Dev\SDL2\lib\x64;..\bin\3rdparty\opus\msdev;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
