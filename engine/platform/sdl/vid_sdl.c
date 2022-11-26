@@ -784,9 +784,15 @@ qboolean VID_CreateWindow( int width, int height, qboolean fullscreen )
 			VID_StartupGamma();
 		}
 
-		if( !GL_UpdateContext( ))
-		return false;
+		if( !GL_UpdateContext() )
+		  return false;
 
+		SDL_SysWMinfo wmInfo;
+		SDL_VERSION( &wmInfo.version );
+		SDL_GetWindowWMInfo( host.hWnd, &wmInfo );
+		HWND hwnd = wmInfo.info.win.window;
+
+		refState.rtglHwnd = hwnd;
 	}
 
 #else // SDL_VERSION_ATLEAST( 2, 0, 0 )

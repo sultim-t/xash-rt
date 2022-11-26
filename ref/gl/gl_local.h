@@ -749,6 +749,16 @@ extern cvar_t	*r_traceglow;
 extern cvar_t *r_vbo;
 extern cvar_t *r_vbo_dlightmode;
 
+#if XASH_RAYTRACING
+#define RG_USE_SURFACE_WIN32
+#include <RTGL1/RTGL1.h>
+extern RgInstance rg_instance;
+#define RG_CHECK( x )									\
+	assert( ( x ) == RG_RESULT_SUCCESS ||				\
+			( x ) == RG_RESULT_SUCCESS_FOUND_MESH ||	\
+			( x ) == RG_RESULT_SUCCESS_FOUND_TEXTURE )
+#endif
+
 
 //
 // engine shared convars

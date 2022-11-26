@@ -51,6 +51,8 @@ glconfig_t	glConfig;
 glstate_t	glState;
 glwstate_t	glw_state;
 
+RgInstance rg_instance;
+
 #ifdef XASH_GL_STATIC
 #define GL_CALL( x ) #x, NULL
 #else
@@ -912,6 +914,17 @@ void GL_RemoveCommands( void )
 	gEngfuncs.Cmd_RemoveCommand( "r_info" );
 }
 
+
+static void PrintMessage(const char* pMessage, RgMessageSeverityFlags severity, void* pUserData)
+{
+	if (severity & RG_MESSAGE_SEVERITY_ERROR)
+	{
+		gEngfuncs.Host_Error(pMessage);
+	}
+
+	gEngfuncs.Con_Printf(pMessage);
+}
+
 /*
 ===============
 R_Init
@@ -935,6 +948,48 @@ qboolean R_Init( void )
 // Why? Host_Error again???
 //		gEngfuncs.Host_Error( "Can't initialize video subsystem\nProbably driver was not installed" );
 		return false;
+	}
+
+	{
+		RgWin32SurfaceCreateInfo win32Info = {
+			.hinstance = GetModuleHandle(NULL),
+			.hwnd = gpGlobals->rtglHwnd,
+		};
+
+		#define ASSET_DIRECTORY "rt/"
+
+		RgInstanceCreateInfo info = {
+			.pAppName = "RTGL1 Test",
+			.pAppGUID = "459d6734-62a6-4d47-927a-bedcdb0445c5",
+
+			.pWin32SurfaceInfo = &win32Info,
+
+			.pfnPrint = PrintMessage,
+
+			.pShaderFolderPath = ASSET_DIRECTORY "shaders/",
+			.pBlueNoiseFilePath = ASSET_DIRECTORY "BlueNoise_LDR_RGBA_128.ktx2",
+
+			.primaryRaysMaxAlbedoLayers = 1,
+			.indirectIlluminationMaxAlbedoLayers = 1,
+
+			.rayCullBackFacingTriangles = false,
+
+			.rasterizedMaxVertexCount = 4096,
+			.rasterizedMaxIndexCount = 2048,
+
+			.rasterizedSkyCubemapSize = 256,
+
+			.maxTextureCount = 1024,
+			.pOverridenTexturesFolderPath = ASSET_DIRECTORY,
+			.overridenAlbedoAlphaTextureIsSRGB = true,
+			.pWaterNormalTexturePath = ASSET_DIRECTORY "WaterNormal_n.ktx2",
+
+			// to match the GLTF standard
+			.pbrTextureSwizzling = RG_TEXTURE_SWIZZLING_NULL_ROUGHNESS_METALLIC,
+		};
+
+		RgResult r = rgCreateInstance(&info, &rg_instance);
+		RG_CHECK(r);
 	}
 
 	r_temppool = Mem_AllocPool( "Render Zone" );
@@ -972,6 +1027,11 @@ void R_Shutdown( void )
 
 	// shut down OS specific OpenGL stuff like contexts, etc.
 	gEngfuncs.R_Free_Video();
+
+	if( rg_instance )
+	{
+		rgDestroyInstance( rg_instance );
+	}
 }
 
 /*

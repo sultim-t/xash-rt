@@ -109,6 +109,8 @@ typedef struct ref_globals_s
 	size_t		visbytes;		// cluster size
 
 	int desktopBitsPixel;
+
+	void* rtglHwnd;
 } ref_globals_t;
 
 enum
