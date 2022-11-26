@@ -1051,6 +1051,7 @@ qboolean R_Init_Video( const int type )
 	switch( type )
 	{
 	case REF_GL:
+	case REF_RT:
 		// refdll also can check extensions
 		ref.dllFuncs.GL_InitExtensions();
 		break;

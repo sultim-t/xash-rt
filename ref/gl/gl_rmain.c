@@ -1029,6 +1029,13 @@ void R_BeginFrame( qboolean clearScene )
 	// draw buffer stuff
 	pglDrawBuffer( GL_BACK );
 
+	RgStartFrameInfo info = {
+		.requestVSync		 = true,
+		.requestShaderReload = false,
+	};
+	RgResult r = rgStartFrame( rg_instance, &info );
+	RG_CHECK( r );
+
 	// update texture parameters
 	if( FBitSet( gl_texture_nearest->flags|gl_lightmap_nearest->flags|gl_texture_anisotropy->flags|gl_texture_lodbias->flags, FCVAR_CHANGED ))
 		R_SetTextureParameters();
@@ -1127,6 +1134,36 @@ void R_EndFrame( void )
 	// flush any remaining 2D bits
 	R_Set2DMode( false );
 	gEngfuncs.GL_SwapBuffers();
+
+	{
+		RgDrawFrameSkyParams skyParams = {
+			.skyType = RG_SKY_TYPE_COLOR ,
+			.skyColorDefault = { 0.71f, 0.88f, 1.0f },
+			.skyColorMultiplier = 1.0f,
+			.skyColorSaturation = 1.0f,
+			.skyViewerPosition = { 0, 0, 0 },
+		};
+
+		RgDrawFrameRenderResolutionParams resolutionParams = {
+			.upscaleTechnique = RG_RENDER_UPSCALE_TECHNIQUE_AMD_FSR2,
+			.resolutionMode = RG_RENDER_RESOLUTION_MODE_BALANCED,
+		};
+
+		RgDrawFrameInfo frameInfo = {
+			.fovYRadians = (float)M_PI * 0.5f,
+			.cameraNear = 0.1f,
+			.cameraFar = 10000.0f,
+			.rayLength = 10000.0f,
+			.rayCullMaskWorld = RG_DRAW_FRAME_RAY_CULL_WORLD_0_BIT,
+			.currentTime = gpGlobals->time,
+			.pRenderResolutionParams = &resolutionParams,
+			.pSkyParams = &skyParams,
+		};
+		//memcpy(frameInfo.view, &view[0][0], 16 * sizeof(float));
+
+		RgResult r = rgDrawFrame(rg_instance, &frameInfo);
+		RG_CHECK(r);
+	}
 }
 
 /*
