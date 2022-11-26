@@ -1006,6 +1006,8 @@ qboolean R_Init_Video( const int type )
 			return false;
 		}
 		break;
+	case REF_RT:
+		break;
 	default:
 		Host_Error( "Can't initialize unknown context type %d!\n", type );
 		break;
