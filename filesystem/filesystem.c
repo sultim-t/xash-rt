@@ -1188,6 +1188,15 @@ void FS_Rescan( void )
 		FS_AddArchive_Fullpath( str, NULL, extrasFlags );
 #endif
 
+	{
+		char rtGame[MAX_OSPATH] = "";
+
+		Q_strcat( rtGame, "rt/", sizeof( rtGame ) );
+		Q_strcat( rtGame, GI->gamefolder, sizeof( rtGame ) );
+
+		FS_AddGameHierarchy( rtGame, 0 );
+	}
+
 	if( Q_stricmp( GI->basedir, GI->gamefolder ))
 		FS_AddGameHierarchy( GI->basedir, 0 );
 	if( Q_stricmp( GI->basedir, GI->falldir ) && Q_stricmp( GI->gamefolder, GI->falldir ))
