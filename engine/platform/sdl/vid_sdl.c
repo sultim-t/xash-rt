@@ -443,6 +443,7 @@ GL_UpdateSwapInterval
 */
 void GL_UpdateSwapInterval( void )
 {
+#if !XASH_RAYTRACING
 #if SDL_VERSION_ATLEAST( 2, 0, 0 )
 	// disable VSync while level is loading
 	if( cls.state < ca_active )
@@ -458,6 +459,7 @@ void GL_UpdateSwapInterval( void )
 			Con_Reportf( S_ERROR  "SDL_GL_SetSwapInterval: %s\n", SDL_GetError( ) );
 	}
 #endif // SDL_VERSION_ATLEAST( 2, 0, 0 )
+#endif
 }
 
 /*
@@ -469,6 +471,7 @@ always return false
 */
 qboolean GL_DeleteContext( void )
 {
+#if !XASH_RAYTRACING
 #if SDL_VERSION_ATLEAST( 2, 0, 0 )
 	if( glw_state.context )
 	{
@@ -476,7 +479,8 @@ qboolean GL_DeleteContext( void )
 		glw_state.context = NULL;
 	}
 #endif // SDL_VERSION_ATLEAST( 2, 0, 0 )
-	return false;
+#endif
+    return false;
 }
 
 /*
@@ -486,6 +490,7 @@ GL_CreateContext
 */
 qboolean GL_CreateContext( void )
 {
+#if !XASH_RAYTRACING
 #if SDL_VERSION_ATLEAST(2, 0, 0)
 	if( ( glw_state.context = SDL_GL_CreateContext( host.hWnd ) ) == NULL)
 	{
@@ -493,6 +498,7 @@ qboolean GL_CreateContext( void )
 		return GL_DeleteContext();
 	}
 #endif // SDL_VERSION_ATLEAST( 2, 0, 0 )
+#endif
 	return true;
 }
 
@@ -503,6 +509,7 @@ GL_UpdateContext
 */
 qboolean GL_UpdateContext( void )
 {
+#if !XASH_RAYTRACING
 #if SDL_VERSION_ATLEAST( 2, 0, 0 )
 	if( SDL_GL_MakeCurrent( host.hWnd, glw_state.context ))
 	{
@@ -510,6 +517,7 @@ qboolean GL_UpdateContext( void )
 		return GL_DeleteContext();
 	}
 #endif // SDL_VERSION_ATLEAST( 2, 0, 0 )
+#endif
 	return true;
 }
 
@@ -518,11 +526,13 @@ void VID_SaveWindowSize( int width, int height )
 	int render_w = width, render_h = height;
 	uint rotate = vid_rotate->value;
 
+#if !XASH_RAYTRACING
 #if SDL_VERSION_ATLEAST( 2, 0, 0 )
 	if( !glw_state.software )
 		SDL_GL_GetDrawableSize( host.hWnd, &render_w, &render_h );
 	else
 		SDL_RenderSetLogicalSize( sw.renderer, width, height );
+#endif
 #endif
 
 	if( ref.dllFuncs.R_SetDisplayTransform( rotate, 0, 0, vid_scale->value, vid_scale->value ) )
@@ -625,7 +635,11 @@ qboolean VID_CreateWindow( int width, int height, qboolean fullscreen )
 {
 	static string	wndname;
 #if SDL_VERSION_ATLEAST( 2, 0, 0 )
+#if !XASH_RAYTRACING
 	Uint32 wndFlags = SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_MOUSE_FOCUS;
+#else
+	Uint32 wndFlags = SDL_WINDOW_VULKAN | SDL_WINDOW_SHOWN | SDL_WINDOW_MOUSE_FOCUS;
+#endif
 	rgbdata_t *icon = NULL;
 	qboolean iconLoaded = false;
 	char iconpath[MAX_STRING];
@@ -857,24 +871,29 @@ GL_SetupAttributes
 */
 static void GL_SetupAttributes( void )
 {
+#if !XASH_RAYTRACING
 #if SDL_VERSION_ATLEAST( 2, 0, 0 )
 	SDL_GL_ResetAttributes();
 #endif // SDL_VERSION_ATLEAST( 2, 0, 0 )
+#endif
 
 	ref.dllFuncs.GL_SetupAttributes( glw_state.safe );
 }
 
 void GL_SwapBuffers( void )
 {
+#if !XASH_RAYTRACING
 #if SDL_VERSION_ATLEAST( 2, 0, 0 )
 	SDL_GL_SwapWindow( host.hWnd );
 #else // SDL_VERSION_ATLEAST( 2, 0, 0 )
 	SDL_Flip( host.hWnd );
 #endif // SDL_VERSION_ATLEAST( 2, 0, 0 )
+#endif
 }
 
 int GL_SetAttribute( int attr, int val )
 {
+#if !XASH_RAYTRACING
 	switch( attr )
 	{
 #define MAP_REF_API_ATTRIBUTE_TO_SDL( name ) case REF_##name: return SDL_GL_SetAttribute( SDL_##name, val );
@@ -914,12 +933,14 @@ int GL_SetAttribute( int attr, int val )
 #endif
 #undef MAP_REF_API_ATTRIBUTE_TO_SDL
 	}
+#endif
 
 	return -1;
 }
 
 int GL_GetAttribute( int attr, int *val )
 {
+#if !XASH_RAYTRACING
 	switch( attr )
 	{
 #define MAP_REF_API_ATTRIBUTE_TO_SDL( name ) case REF_##name: return SDL_GL_GetAttribute( SDL_##name, val );
@@ -951,6 +972,7 @@ int GL_GetAttribute( int attr, int *val )
 #endif
 #undef MAP_REF_API_ATTRIBUTE_TO_SDL
 	}
+#endif
 
 	return 0;
 }
@@ -992,7 +1014,8 @@ qboolean R_Init_Video( const int type )
 	{
 	case REF_SOFTWARE:
 		glw_state.software = true;
-		break;
+      break;
+#if !XASH_RAYTRACING
 	case REF_GL:
 		if( !glw_state.safe && Sys_GetParmFromCmdLine( "-safegl", safe ) )
 			glw_state.safe = bound( SAFE_NO, Q_atoi( safe ), SAFE_DONTCARE );
@@ -1006,6 +1029,7 @@ qboolean R_Init_Video( const int type )
 			return false;
 		}
 		break;
+#endif
 	case REF_RT:
 		break;
 	default:
