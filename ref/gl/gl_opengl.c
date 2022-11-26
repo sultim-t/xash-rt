@@ -1197,3 +1197,475 @@ void GL_OnContextCreated( void )
 	pglHint( GL_AVOID16BITS_HINT_GL4ES, 1 );
 #endif
 }
+
+
+#if XASH_RAYTRACING
+#define EMPTY_LINKAGE extern
+#define EMPTY_FUNCTION( name ) p##name
+EMPTY_LINKAGE GLenum EMPTY_FUNCTION( glGetError )(void){ return 0; }
+EMPTY_LINKAGE const GLubyte * EMPTY_FUNCTION( glGetString )(GLenum name){ return ""; }
+EMPTY_LINKAGE void EMPTY_FUNCTION( glAccum )(GLenum op, GLfloat value){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glAlphaFunc )(GLenum func, GLclampf ref){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glArrayElement )(GLint i){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glBegin )(GLenum mode){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glBindTexture )(GLenum target, GLuint texture){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glBitmap )(GLsizei width, GLsizei height, GLfloat xorig, GLfloat yorig, GLfloat xmove, GLfloat ymove, const GLubyte *bitmap){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glBlendFunc )(GLenum sfactor, GLenum dfactor){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glCallList )(GLuint list){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glCallLists )(GLsizei n, GLenum type, const GLvoid *lists){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glClear )(GLbitfield mask){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glClearAccum )(GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glClearColor )(GLclampf red, GLclampf green, GLclampf blue, GLclampf alpha){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glClearDepth )(GLclampd depth){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glClearIndex )(GLfloat c){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glClearStencil )(GLint s){}
+EMPTY_LINKAGE GLboolean EMPTY_FUNCTION( glIsEnabled )( GLenum cap ){ return 0; }
+EMPTY_LINKAGE GLboolean EMPTY_FUNCTION( glIsList )( GLuint list ){ return 0; }
+EMPTY_LINKAGE GLboolean EMPTY_FUNCTION( glIsTexture )( GLuint texture ){ return 0; }
+EMPTY_LINKAGE void EMPTY_FUNCTION( glClipPlane )(GLenum plane, const GLdouble *equation){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glColor3b )(GLbyte red, GLbyte green, GLbyte blue){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glColor3bv )(const GLbyte *v){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glColor3d )(GLdouble red, GLdouble green, GLdouble blue){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glColor3dv )(const GLdouble *v){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glColor3f )(GLfloat red, GLfloat green, GLfloat blue){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glColor3fv )(const GLfloat *v){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glColor3i )(GLint red, GLint green, GLint blue){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glColor3iv )(const GLint *v){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glColor3s )(GLshort red, GLshort green, GLshort blue){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glColor3sv )(const GLshort *v){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glColor3ub )(GLubyte red, GLubyte green, GLubyte blue){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glColor3ubv )(const GLubyte *v){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glColor3ui )(GLuint red, GLuint green, GLuint blue){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glColor3uiv )(const GLuint *v){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glColor3us )(GLushort red, GLushort green, GLushort blue){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glColor3usv )(const GLushort *v){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glColor4b )(GLbyte red, GLbyte green, GLbyte blue, GLbyte alpha){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glColor4bv )(const GLbyte *v){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glColor4d )(GLdouble red, GLdouble green, GLdouble blue, GLdouble alpha){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glColor4dv )(const GLdouble *v){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glColor4f )(GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glColor4fv )(const GLfloat *v){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glColor4i )(GLint red, GLint green, GLint blue, GLint alpha){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glColor4iv )(const GLint *v){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glColor4s )(GLshort red, GLshort green, GLshort blue, GLshort alpha){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glColor4sv )(const GLshort *v){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glColor4ub )(GLubyte red, GLubyte green, GLubyte blue, GLubyte alpha){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glColor4ubv )(const GLubyte *v){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glColor4ui )(GLuint red, GLuint green, GLuint blue, GLuint alpha){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glColor4uiv )(const GLuint *v){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glColor4us )(GLushort red, GLushort green, GLushort blue, GLushort alpha){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glColor4usv )(const GLushort *v){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glColorMask )(GLboolean red, GLboolean green, GLboolean blue, GLboolean alpha){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glColorMaterial )(GLenum face, GLenum mode){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glColorPointer )(GLint size, GLenum type, GLsizei stride, const GLvoid *pointer){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glCopyPixels )(GLint x, GLint y, GLsizei width, GLsizei height, GLenum type){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glCopyTexImage1D )(GLenum target, GLint level, GLenum internalFormat, GLint x, GLint y, GLsizei width, GLint border){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glCopyTexImage2D )(GLenum target, GLint level, GLenum internalFormat, GLint x, GLint y, GLsizei width, GLsizei height, GLint border){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glCopyTexSubImage1D )(GLenum target, GLint level, GLint xoffset, GLint x, GLint y, GLsizei width){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glCopyTexSubImage2D )(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint x, GLint y, GLsizei width, GLsizei height){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glCullFace )(GLenum mode){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glDeleteLists )(GLuint list, GLsizei range){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glDeleteTextures )(GLsizei n, const GLuint *textures){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glDepthFunc )(GLenum func){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glDepthMask )(GLboolean flag){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glDepthRange )(GLclampd zNear, GLclampd zFar){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glDisable )(GLenum cap){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glDisableClientState )(GLenum array){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glDrawArrays )(GLenum mode, GLint first, GLsizei count){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glDrawBuffer )(GLenum mode){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glDrawElements )(GLenum mode, GLsizei count, GLenum type, const GLvoid *indices){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glDrawPixels )(GLsizei width, GLsizei height, GLenum format, GLenum type, const GLvoid *pixels){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glEdgeFlag )(GLboolean flag){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glEdgeFlagPointer )(GLsizei stride, const GLvoid *pointer){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glEdgeFlagv )(const GLboolean *flag){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glEnable )(GLenum cap){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glEnableClientState )(GLenum array){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glEnd )(void){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glEndList )(void){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glEvalCoord1d )(GLdouble u){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glEvalCoord1dv )(const GLdouble *u){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glEvalCoord1f )(GLfloat u){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glEvalCoord1fv )(const GLfloat *u){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glEvalCoord2d )(GLdouble u, GLdouble v){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glEvalCoord2dv )(const GLdouble *u){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glEvalCoord2f )(GLfloat u, GLfloat v){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glEvalCoord2fv )(const GLfloat *u){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glEvalMesh1 )(GLenum mode, GLint i1, GLint i2){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glEvalMesh2 )(GLenum mode, GLint i1, GLint i2, GLint j1, GLint j2){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glEvalPoint1 )(GLint i){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glEvalPoint2 )(GLint i, GLint j){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glFeedbackBuffer )(GLsizei size, GLenum type, GLfloat *buffer){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glFinish )(void){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glFlush )(void){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glFogf )(GLenum pname, GLfloat param){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glFogfv )(GLenum pname, const GLfloat *params){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glFogi )(GLenum pname, GLint param){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glFogiv )(GLenum pname, const GLint *params){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glFrontFace )(GLenum mode){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glFrustum )(GLdouble left, GLdouble right, GLdouble bottom, GLdouble top, GLdouble zNear, GLdouble zFar){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glGenTextures )(GLsizei n, GLuint *textures){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glGetBooleanv )(GLenum pname, GLboolean *params){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glGetClipPlane )(GLenum plane, GLdouble *equation){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glGetDoublev )(GLenum pname, GLdouble *params){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glGetFloatv )(GLenum pname, GLfloat *params){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glGetIntegerv )(GLenum pname, GLint *params){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glGetLightfv )(GLenum light, GLenum pname, GLfloat *params){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glGetLightiv )(GLenum light, GLenum pname, GLint *params){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glGetMapdv )(GLenum target, GLenum query, GLdouble *v){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glGetMapfv )(GLenum target, GLenum query, GLfloat *v){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glGetMapiv )(GLenum target, GLenum query, GLint *v){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glGetMaterialfv )(GLenum face, GLenum pname, GLfloat *params){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glGetMaterialiv )(GLenum face, GLenum pname, GLint *params){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glGetPixelMapfv )(GLenum map, GLfloat *values){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glGetPixelMapuiv )(GLenum map, GLuint *values){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glGetPixelMapusv )(GLenum map, GLushort *values){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glGetPointerv )(GLenum pname, GLvoid* *params){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glGetPolygonStipple )(GLubyte *mask){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glGetTexEnvfv )(GLenum target, GLenum pname, GLfloat *params){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glGetTexEnviv )(GLenum target, GLenum pname, GLint *params){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glGetTexGendv )(GLenum coord, GLenum pname, GLdouble *params){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glGetTexGenfv )(GLenum coord, GLenum pname, GLfloat *params){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glGetTexGeniv )(GLenum coord, GLenum pname, GLint *params){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glGetTexImage )(GLenum target, GLint level, GLenum format, GLenum type, GLvoid *pixels){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glGetTexLevelParameterfv )(GLenum target, GLint level, GLenum pname, GLfloat *params){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glGetTexLevelParameteriv )(GLenum target, GLint level, GLenum pname, GLint *params){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glGetTexParameterfv )(GLenum target, GLenum pname, GLfloat *params){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glGetTexParameteriv )(GLenum target, GLenum pname, GLint *params){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glHint )(GLenum target, GLenum mode){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glIndexMask )(GLuint mask){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glIndexPointer )(GLenum type, GLsizei stride, const GLvoid *pointer){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glIndexd )(GLdouble c){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glIndexdv )(const GLdouble *c){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glIndexf )(GLfloat c){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glIndexfv )(const GLfloat *c){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glIndexi )(GLint c){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glIndexiv )(const GLint *c){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glIndexs )(GLshort c){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glIndexsv )(const GLshort *c){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glIndexub )(GLubyte c){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glIndexubv )(const GLubyte *c){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glInitNames )(void){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glInterleavedArrays )(GLenum format, GLsizei stride, const GLvoid *pointer){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glLightModelf )(GLenum pname, GLfloat param){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glLightModelfv )(GLenum pname, const GLfloat *params){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glLightModeli )(GLenum pname, GLint param){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glLightModeliv )(GLenum pname, const GLint *params){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glLightf )(GLenum light, GLenum pname, GLfloat param){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glLightfv )(GLenum light, GLenum pname, const GLfloat *params){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glLighti )(GLenum light, GLenum pname, GLint param){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glLightiv )(GLenum light, GLenum pname, const GLint *params){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glLineStipple )(GLint factor, GLushort pattern){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glLineWidth )(GLfloat width){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glListBase )(GLuint base){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glLoadIdentity )(void){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glLoadMatrixd )(const GLdouble *m){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glLoadMatrixf )(const GLfloat *m){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glLoadName )(GLuint name){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glLogicOp )(GLenum opcode){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glMap1d )(GLenum target, GLdouble u1, GLdouble u2, GLint stride, GLint order, const GLdouble *points){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glMap1f )(GLenum target, GLfloat u1, GLfloat u2, GLint stride, GLint order, const GLfloat *points){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glMap2d )(GLenum target, GLdouble u1, GLdouble u2, GLint ustride, GLint uorder, GLdouble v1, GLdouble v2, GLint vstride, GLint vorder, const GLdouble *points){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glMap2f )(GLenum target, GLfloat u1, GLfloat u2, GLint ustride, GLint uorder, GLfloat v1, GLfloat v2, GLint vstride, GLint vorder, const GLfloat *points){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glMapGrid1d )(GLint un, GLdouble u1, GLdouble u2){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glMapGrid1f )(GLint un, GLfloat u1, GLfloat u2){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glMapGrid2d )(GLint un, GLdouble u1, GLdouble u2, GLint vn, GLdouble v1, GLdouble v2){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glMapGrid2f )(GLint un, GLfloat u1, GLfloat u2, GLint vn, GLfloat v1, GLfloat v2){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glMaterialf )(GLenum face, GLenum pname, GLfloat param){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glMaterialfv )(GLenum face, GLenum pname, const GLfloat *params){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glMateriali )(GLenum face, GLenum pname, GLint param){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glMaterialiv )(GLenum face, GLenum pname, const GLint *params){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glMatrixMode )(GLenum mode){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glMultMatrixd )(const GLdouble *m){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glMultMatrixf )(const GLfloat *m){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glNewList )(GLuint list, GLenum mode){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glNormal3b )(GLbyte nx, GLbyte ny, GLbyte nz){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glNormal3bv )(const GLbyte *v){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glNormal3d )(GLdouble nx, GLdouble ny, GLdouble nz){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glNormal3dv )(const GLdouble *v){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glNormal3f )(GLfloat nx, GLfloat ny, GLfloat nz){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glNormal3fv )(const GLfloat *v){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glNormal3i )(GLint nx, GLint ny, GLint nz){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glNormal3iv )(const GLint *v){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glNormal3s )(GLshort nx, GLshort ny, GLshort nz){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glNormal3sv )(const GLshort *v){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glNormalPointer )(GLenum type, GLsizei stride, const GLvoid *pointer){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glOrtho )(GLdouble left, GLdouble right, GLdouble bottom, GLdouble top, GLdouble zNear, GLdouble zFar){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glPassThrough )(GLfloat token){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glPixelMapfv )(GLenum map, GLsizei mapsize, const GLfloat *values){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glPixelMapuiv )(GLenum map, GLsizei mapsize, const GLuint *values){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glPixelMapusv )(GLenum map, GLsizei mapsize, const GLushort *values){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glPixelStoref )(GLenum pname, GLfloat param){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glPixelStorei )(GLenum pname, GLint param){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glPixelTransferf )(GLenum pname, GLfloat param){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glPixelTransferi )(GLenum pname, GLint param){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glPixelZoom )(GLfloat xfactor, GLfloat yfactor){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glPointSize )(GLfloat size){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glPolygonMode )(GLenum face, GLenum mode){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glPolygonOffset )(GLfloat factor, GLfloat units){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glPolygonStipple )(const GLubyte *mask){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glPopAttrib )(void){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glPopClientAttrib )(void){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glPopMatrix )(void){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glPopName )(void){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glPushAttrib )(GLbitfield mask){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glPushClientAttrib )(GLbitfield mask){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glPushMatrix )(void){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glPushName )(GLuint name){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glRasterPos2d )(GLdouble x, GLdouble y){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glRasterPos2dv )(const GLdouble *v){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glRasterPos2f )(GLfloat x, GLfloat y){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glRasterPos2fv )(const GLfloat *v){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glRasterPos2i )(GLint x, GLint y){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glRasterPos2iv )(const GLint *v){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glRasterPos2s )(GLshort x, GLshort y){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glRasterPos2sv )(const GLshort *v){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glRasterPos3d )(GLdouble x, GLdouble y, GLdouble z){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glRasterPos3dv )(const GLdouble *v){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glRasterPos3f )(GLfloat x, GLfloat y, GLfloat z){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glRasterPos3fv )(const GLfloat *v){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glRasterPos3i )(GLint x, GLint y, GLint z){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glRasterPos3iv )(const GLint *v){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glRasterPos3s )(GLshort x, GLshort y, GLshort z){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glRasterPos3sv )(const GLshort *v){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glRasterPos4d )(GLdouble x, GLdouble y, GLdouble z, GLdouble w){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glRasterPos4dv )(const GLdouble *v){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glRasterPos4f )(GLfloat x, GLfloat y, GLfloat z, GLfloat w){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glRasterPos4fv )(const GLfloat *v){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glRasterPos4i )(GLint x, GLint y, GLint z, GLint w){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glRasterPos4iv )(const GLint *v){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glRasterPos4s )(GLshort x, GLshort y, GLshort z, GLshort w){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glRasterPos4sv )(const GLshort *v){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glReadBuffer )(GLenum mode){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glReadPixels )(GLint x, GLint y, GLsizei width, GLsizei height, GLenum format, GLenum type, GLvoid *pixels){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glRectd )(GLdouble x1, GLdouble y1, GLdouble x2, GLdouble y2){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glRectdv )(const GLdouble *v1, const GLdouble *v2){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glRectf )(GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glRectfv )(const GLfloat *v1, const GLfloat *v2){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glRecti )(GLint x1, GLint y1, GLint x2, GLint y2){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glRectiv )(const GLint *v1, const GLint *v2){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glRects )(GLshort x1, GLshort y1, GLshort x2, GLshort y2){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glRectsv )(const GLshort *v1, const GLshort *v2){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glRotated )(GLdouble angle, GLdouble x, GLdouble y, GLdouble z){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glRotatef )(GLfloat angle, GLfloat x, GLfloat y, GLfloat z){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glScaled )(GLdouble x, GLdouble y, GLdouble z){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glScalef )(GLfloat x, GLfloat y, GLfloat z){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glScissor )(GLint x, GLint y, GLsizei width, GLsizei height){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glSelectBuffer )(GLsizei size, GLuint *buffer){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glShadeModel )(GLenum mode){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glStencilFunc )(GLenum func, GLint ref, GLuint mask){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glStencilMask )(GLuint mask){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glStencilOp )(GLenum fail, GLenum zfail, GLenum zpass){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glTexCoord1d )(GLdouble s){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glTexCoord1dv )(const GLdouble *v){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glTexCoord1f )(GLfloat s){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glTexCoord1fv )(const GLfloat *v){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glTexCoord1i )(GLint s){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glTexCoord1iv )(const GLint *v){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glTexCoord1s )(GLshort s){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glTexCoord1sv )(const GLshort *v){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glTexCoord2d )(GLdouble s, GLdouble t){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glTexCoord2dv )(const GLdouble *v){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glTexCoord2f )(GLfloat s, GLfloat t){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glTexCoord2fv )(const GLfloat *v){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glTexCoord2i )(GLint s, GLint t){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glTexCoord2iv )(const GLint *v){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glTexCoord2s )(GLshort s, GLshort t){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glTexCoord2sv )(const GLshort *v){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glTexCoord3d )(GLdouble s, GLdouble t, GLdouble r){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glTexCoord3dv )(const GLdouble *v){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glTexCoord3f )(GLfloat s, GLfloat t, GLfloat r){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glTexCoord3fv )(const GLfloat *v){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glTexCoord3i )(GLint s, GLint t, GLint r){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glTexCoord3iv )(const GLint *v){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glTexCoord3s )(GLshort s, GLshort t, GLshort r){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glTexCoord3sv )(const GLshort *v){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glTexCoord4d )(GLdouble s, GLdouble t, GLdouble r, GLdouble q){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glTexCoord4dv )(const GLdouble *v){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glTexCoord4f )(GLfloat s, GLfloat t, GLfloat r, GLfloat q){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glTexCoord4fv )(const GLfloat *v){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glTexCoord4i )(GLint s, GLint t, GLint r, GLint q){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glTexCoord4iv )(const GLint *v){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glTexCoord4s )(GLshort s, GLshort t, GLshort r, GLshort q){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glTexCoord4sv )(const GLshort *v){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glTexCoordPointer )(GLint size, GLenum type, GLsizei stride, const GLvoid *pointer){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glTexEnvf )(GLenum target, GLenum pname, GLfloat param){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glTexEnvfv )(GLenum target, GLenum pname, const GLfloat *params){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glTexEnvi )(GLenum target, GLenum pname, GLint param){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glTexEnviv )(GLenum target, GLenum pname, const GLint *params){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glTexGend )(GLenum coord, GLenum pname, GLdouble param){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glTexGendv )(GLenum coord, GLenum pname, const GLdouble *params){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glTexGenf )(GLenum coord, GLenum pname, GLfloat param){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glTexGenfv )(GLenum coord, GLenum pname, const GLfloat *params){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glTexGeni )(GLenum coord, GLenum pname, GLint param){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glTexGeniv )(GLenum coord, GLenum pname, const GLint *params){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glTexImage1D )(GLenum target, GLint level, GLint internalformat, GLsizei width, GLint border, GLenum format, GLenum type, const GLvoid *pixels){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glTexImage2D )(GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const GLvoid *pixels){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glTexParameterf )(GLenum target, GLenum pname, GLfloat param){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glTexParameterfv )(GLenum target, GLenum pname, const GLfloat *params){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glTexParameteri )(GLenum target, GLenum pname, GLint param){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glTexParameteriv )(GLenum target, GLenum pname, const GLint *params){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glTexSubImage1D )(GLenum target, GLint level, GLint xoffset, GLsizei width, GLenum format, GLenum type, const GLvoid *pixels){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glTexSubImage2D )(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLenum type, const GLvoid *pixels){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glTranslated )(GLdouble x, GLdouble y, GLdouble z){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glTranslatef )(GLfloat x, GLfloat y, GLfloat z){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glVertex2d )(GLdouble x, GLdouble y){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glVertex2dv )(const GLdouble *v){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glVertex2f )(GLfloat x, GLfloat y){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glVertex2fv )(const GLfloat *v){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glVertex2i )(GLint x, GLint y){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glVertex2iv )(const GLint *v){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glVertex2s )(GLshort x, GLshort y){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glVertex2sv )(const GLshort *v){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glVertex3d )(GLdouble x, GLdouble y, GLdouble z){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glVertex3dv )(const GLdouble *v){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glVertex3f )(GLfloat x, GLfloat y, GLfloat z){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glVertex3fv )(const GLfloat *v){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glVertex3i )(GLint x, GLint y, GLint z){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glVertex3iv )(const GLint *v){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glVertex3s )(GLshort x, GLshort y, GLshort z){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glVertex3sv )(const GLshort *v){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glVertex4d )(GLdouble x, GLdouble y, GLdouble z, GLdouble w){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glVertex4dv )(const GLdouble *v){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glVertex4f )(GLfloat x, GLfloat y, GLfloat z, GLfloat w){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glVertex4fv )(const GLfloat *v){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glVertex4i )(GLint x, GLint y, GLint z, GLint w){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glVertex4iv )(const GLint *v){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glVertex4s )(GLshort x, GLshort y, GLshort z, GLshort w){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glVertex4sv )(const GLshort *v){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glVertexPointer )(GLint size, GLenum type, GLsizei stride, const GLvoid *pointer){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glViewport )(GLint x, GLint y, GLsizei width, GLsizei height){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glPointParameterfEXT )( GLenum param, GLfloat value ){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glPointParameterfvEXT )( GLenum param, const GLfloat *value ){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glLockArraysEXT ) (int a, int b){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glUnlockArraysEXT ) (void){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glActiveTextureARB )( GLenum e ){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glClientActiveTextureARB )( GLenum e ){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glGetCompressedTexImage )( GLenum target, GLint lod, const GLvoid* data ){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glDrawRangeElements )( GLenum mode, GLuint start, GLuint end, GLsizei count, GLenum type, const GLvoid *indices ){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glDrawRangeElementsEXT )( GLenum mode, GLuint start, GLuint end, GLsizei count, GLenum type, const GLvoid *indices ){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glMultiTexCoord1f) (GLenum e, GLfloat a){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glMultiTexCoord2f) (GLenum e, GLfloat a, GLfloat b){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glMultiTexCoord3f) (GLenum e, GLfloat a, GLfloat b, GLfloat c){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glMultiTexCoord4f) (GLenum e, GLfloat a, GLfloat b, GLfloat c, GLfloat d){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glActiveTexture) (GLenum e){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glClientActiveTexture) (GLenum e){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glCompressedTexImage3DARB )(GLenum target, GLint level, GLenum internalformat, GLsizei width, GLsizei height, GLsizei depth, GLint border, GLsizei imageSize, const void *data){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glCompressedTexImage2DARB )(GLenum target, GLint level, GLenum internalformat, GLsizei width, GLsizei height, GLint border,  GLsizei imageSize, const void *data){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glCompressedTexImage1DARB )(GLenum target, GLint level, GLenum internalformat, GLsizei width, GLint border, GLsizei imageSize, const void *data){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glCompressedTexSubImage3DARB )(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint zoffset, GLsizei width, GLsizei height, GLsizei depth, GLenum format, GLsizei imageSize, const void *data){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glCompressedTexSubImage2DARB )(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLsizei imageSize, const void *data){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glCompressedTexSubImage1DARB )(GLenum target, GLint level, GLint xoffset, GLsizei width, GLenum format, GLsizei imageSize, const void *data){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glDeleteObjectARB )(GLhandleARB obj){}
+EMPTY_LINKAGE GLhandleARB EMPTY_FUNCTION( glGetHandleARB )(GLenum pname){ return 0; }
+EMPTY_LINKAGE void EMPTY_FUNCTION( glDetachObjectARB )(GLhandleARB containerObj, GLhandleARB attachedObj){}
+EMPTY_LINKAGE GLhandleARB EMPTY_FUNCTION( glCreateShaderObjectARB )(GLenum shaderType){ return 0; }
+EMPTY_LINKAGE void EMPTY_FUNCTION( glShaderSourceARB )(GLhandleARB shaderObj, GLsizei count, const GLcharARB **string, const GLint *length){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glCompileShaderARB )(GLhandleARB shaderObj){}
+EMPTY_LINKAGE GLhandleARB EMPTY_FUNCTION( glCreateProgramObjectARB )(void){ return 0; }
+EMPTY_LINKAGE void EMPTY_FUNCTION( glAttachObjectARB )(GLhandleARB containerObj, GLhandleARB obj){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glLinkProgramARB )(GLhandleARB programObj){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glUseProgramObjectARB )(GLhandleARB programObj){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glValidateProgramARB )(GLhandleARB programObj){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glBindProgramARB )(GLenum target, GLuint program){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glDeleteProgramsARB )(GLsizei n, const GLuint *programs){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glGenProgramsARB )(GLsizei n, GLuint *programs){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glProgramStringARB )(GLenum target, GLenum format, GLsizei len, const GLvoid *string){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glProgramEnvParameter4fARB )(GLenum target, GLuint index, GLfloat x, GLfloat y, GLfloat z, GLfloat w){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glProgramLocalParameter4fARB )(GLenum target, GLuint index, GLfloat x, GLfloat y, GLfloat z, GLfloat w){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glUniform1fARB )(GLint location, GLfloat v0){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glUniform2fARB )(GLint location, GLfloat v0, GLfloat v1){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glUniform3fARB )(GLint location, GLfloat v0, GLfloat v1, GLfloat v2){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glUniform4fARB )(GLint location, GLfloat v0, GLfloat v1, GLfloat v2, GLfloat v3){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glUniform1iARB )(GLint location, GLint v0){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glUniform2iARB )(GLint location, GLint v0, GLint v1){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glUniform3iARB )(GLint location, GLint v0, GLint v1, GLint v2){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glUniform4iARB )(GLint location, GLint v0, GLint v1, GLint v2, GLint v3){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glUniform1fvARB )(GLint location, GLsizei count, const GLfloat *value){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glUniform2fvARB )(GLint location, GLsizei count, const GLfloat *value){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glUniform3fvARB )(GLint location, GLsizei count, const GLfloat *value){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glUniform4fvARB )(GLint location, GLsizei count, const GLfloat *value){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glUniform1ivARB )(GLint location, GLsizei count, const GLint *value){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glUniform2ivARB )(GLint location, GLsizei count, const GLint *value){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glUniform3ivARB )(GLint location, GLsizei count, const GLint *value){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glUniform4ivARB )(GLint location, GLsizei count, const GLint *value){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glUniformMatrix2fvARB )(GLint location, GLsizei count, GLboolean transpose, const GLfloat *value){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glUniformMatrix3fvARB )(GLint location, GLsizei count, GLboolean transpose, const GLfloat *value){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glUniformMatrix4fvARB )(GLint location, GLsizei count, GLboolean transpose, const GLfloat *value){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glGetObjectParameterfvARB )(GLhandleARB obj, GLenum pname, GLfloat *params){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glGetObjectParameterivARB )(GLhandleARB obj, GLenum pname, GLint *params){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glGetInfoLogARB )(GLhandleARB obj, GLsizei maxLength, GLsizei *length, GLcharARB *infoLog){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glGetAttachedObjectsARB )(GLhandleARB containerObj, GLsizei maxCount, GLsizei *count, GLhandleARB *obj){}
+EMPTY_LINKAGE GLint EMPTY_FUNCTION( glGetUniformLocationARB )(GLhandleARB programObj, const GLcharARB *name){ return 0; }
+EMPTY_LINKAGE void EMPTY_FUNCTION( glGetActiveUniformARB )(GLhandleARB programObj, GLuint index, GLsizei maxLength, GLsizei *length, GLint *size, GLenum *type, GLcharARB *name){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glGetUniformfvARB )(GLhandleARB programObj, GLint location, GLfloat *params){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glGetUniformivARB )(GLhandleARB programObj, GLint location, GLint *params){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glGetShaderSourceARB )(GLhandleARB obj, GLsizei maxLength, GLsizei *length, GLcharARB *source){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glTexImage3D )( GLenum target, GLint level, GLenum internalFormat, GLsizei width, GLsizei height, GLsizei depth, GLint border, GLenum format, GLenum type, const GLvoid *pixels ){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glTexSubImage3D )( GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint zoffset, GLsizei width, GLsizei height, GLsizei depth, GLenum format, GLenum type, const GLvoid *pixels ){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glCopyTexSubImage3D )( GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint zoffset, GLint x, GLint y, GLsizei width, GLsizei height ){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glBlendEquationEXT )(GLenum e){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glStencilOpSeparate )(GLenum a, GLenum b, GLenum c, GLenum d){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glStencilFuncSeparate )(GLenum a, GLenum b, GLint c, GLuint d){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glActiveStencilFaceEXT )(GLenum e){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glVertexAttribPointerARB )(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const GLvoid *pointer){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glEnableVertexAttribArrayARB )(GLuint index){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glDisableVertexAttribArrayARB )(GLuint index){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glBindAttribLocationARB )(GLhandleARB programObj, GLuint index, const GLcharARB *name){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glGetActiveAttribARB )(GLhandleARB programObj, GLuint index, GLsizei maxLength, GLsizei *length, GLint *size, GLenum *type, GLcharARB *name){}
+EMPTY_LINKAGE GLint EMPTY_FUNCTION( glGetAttribLocationARB )(GLhandleARB programObj, const GLcharARB *name){ return 0; }
+EMPTY_LINKAGE void EMPTY_FUNCTION( glBindFragDataLocation )(GLuint programObj, GLuint index, const GLcharARB *name){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glVertexAttrib2fARB )( GLuint index, GLfloat x, GLfloat y ){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glVertexAttrib2fvARB )( GLuint index, const GLfloat *v ){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glVertexAttrib3fvARB )( GLuint index, const GLfloat *v ){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glBindBufferARB )(GLenum target, GLuint buffer){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glDeleteBuffersARB )(GLsizei n, const GLuint *buffers){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glGenBuffersARB )(GLsizei n, GLuint *buffers){}
+EMPTY_LINKAGE GLboolean EMPTY_FUNCTION( glIsBufferARB )(GLuint buffer){ return 0; }
+EMPTY_LINKAGE GLvoid* EMPTY_FUNCTION( glMapBufferARB )(GLenum target, GLenum access){ return NULL; }
+EMPTY_LINKAGE GLboolean EMPTY_FUNCTION( glUnmapBufferARB )(GLenum target){ return 0; }
+EMPTY_LINKAGE void EMPTY_FUNCTION( glBufferDataARB )(GLenum target, GLsizeiptrARB size, const GLvoid *data, GLenum usage){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glBufferSubDataARB )(GLenum target, GLintptrARB offset, GLsizeiptrARB size, const GLvoid *data){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glGenQueriesARB )(GLsizei n, GLuint *ids){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glDeleteQueriesARB )(GLsizei n, const GLuint *ids){}
+EMPTY_LINKAGE GLboolean EMPTY_FUNCTION( glIsQueryARB )(GLuint id){ return 0; }
+EMPTY_LINKAGE void EMPTY_FUNCTION( glBeginQueryARB )(GLenum target, GLuint id){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glEndQueryARB )(GLenum target){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glGetQueryivARB )(GLenum target, GLenum pname, GLint *params){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glGetQueryObjectivARB )(GLuint id, GLenum pname, GLint *params){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glGetQueryObjectuivARB )(GLuint id, GLenum pname, GLuint *params){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glDebugMessageControlARB )( GLenum source, GLenum type, GLenum severity, GLsizei count, const GLuint* ids, GLboolean enabled ){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glDebugMessageInsertARB )( GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const char* buf ){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glDebugMessageCallbackARB )( GL_DEBUG_PROC_ARB callback, void* userParam ){}
+EMPTY_LINKAGE GLuint EMPTY_FUNCTION( glGetDebugMessageLogARB )( GLuint count, GLsizei bufsize, GLenum* sources, GLenum* types, GLuint* ids, GLuint* severities, GLsizei* lengths, char* messageLog ){ return 0; }
+EMPTY_LINKAGE GLboolean EMPTY_FUNCTION( glIsRenderbuffer )(GLuint renderbuffer){ return 0; }
+EMPTY_LINKAGE void EMPTY_FUNCTION( glBindRenderbuffer )(GLenum target, GLuint renderbuffer){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glDeleteRenderbuffers )(GLsizei n, const GLuint *renderbuffers){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glGenRenderbuffers )(GLsizei n, GLuint *renderbuffers){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glRenderbufferStorage )(GLenum target, GLenum internalformat, GLsizei width, GLsizei height){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glRenderbufferStorageMultisample )(GLenum target, GLsizei samples, GLenum internalformat, GLsizei width, GLsizei height){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glGetRenderbufferParameteriv )(GLenum target, GLenum pname, GLint *params){}
+EMPTY_LINKAGE GLboolean EMPTY_FUNCTION( glIsFramebuffer )(GLuint framebuffer){ return 0; }
+EMPTY_LINKAGE void EMPTY_FUNCTION( glBindFramebuffer )(GLenum target, GLuint framebuffer){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glDeleteFramebuffers )(GLsizei n, const GLuint *framebuffers){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glGenFramebuffers )(GLsizei n, GLuint *framebuffers){}
+EMPTY_LINKAGE GLenum EMPTY_FUNCTION( glCheckFramebufferStatus )(GLenum target){ return 0; }
+EMPTY_LINKAGE void EMPTY_FUNCTION( glFramebufferTexture1D )(GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glFramebufferTexture2D )(GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glFramebufferTexture3D )(GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level, GLint layer){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glFramebufferTextureLayer )(GLenum target, GLenum attachment, GLuint texture, GLint level, GLint layer){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glFramebufferRenderbuffer )(GLenum target, GLenum attachment, GLenum renderbuffertarget, GLuint renderbuffer){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glGetFramebufferAttachmentParameteriv )(GLenum target, GLenum attachment, GLenum pname, GLint *params){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glBlitFramebuffer )(GLint srcX0, GLint srcY0, GLint srcX1, GLint srcY1, GLint dstX0, GLint dstY0, GLint dstX1, GLint dstY1, GLbitfield mask, GLenum filter){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glDrawBuffersARB )( GLsizei n, const GLenum *bufs ){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glGenerateMipmap )( GLenum target ){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glBindVertexArray )( GLuint array ){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glDeleteVertexArrays )( GLsizei n, const GLuint *arrays ){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glGenVertexArrays )( GLsizei n, const GLuint *arrays ){}
+EMPTY_LINKAGE GLboolean EMPTY_FUNCTION( glIsVertexArray )( GLuint array ){ return 0; }
+EMPTY_LINKAGE void EMPTY_FUNCTION( glSwapInterval ) ( int interval ){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glTexImage2DMultisample )( GLenum target, GLsizei samples, GLenum internalformat, GLsizei width, GLsizei height, GLboolean fixedsamplelocations ){}
+#undef EMPTY_LINKAGE
+#undef EMPTY_FUNCTION
+#endif // XASH_RAYTRACING
+
+

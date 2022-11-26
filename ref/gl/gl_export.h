@@ -29,6 +29,11 @@ GNU General Public License for more details.
 #define REF_GL_KEEP_MANGLED_FUNCTIONS
 #endif
 
+#if defined XASH_RAYTRACING
+#define XASH_GL_STATIC
+#define REF_GL_KEEP_MANGLED_FUNCTIONS
+#endif
+
 typedef uint GLenum;
 typedef byte GLboolean;
 typedef uint GLbitfield;
@@ -877,7 +882,9 @@ typedef float GLmatrix[16];
 #define WGL_SAMPLE_BUFFERS_ARB		0x2041
 #define WGL_SAMPLES_ARB			0x2042
 
-#if defined( XASH_GL_STATIC ) && !defined( REF_GL_KEEP_MANGLED_FUNCTIONS )
+#if defined XASH_RAYTRACING
+#define GL_FUNCTION( name ) p##name
+#elif defined( XASH_GL_STATIC ) && !defined( REF_GL_KEEP_MANGLED_FUNCTIONS )
 #define GL_FUNCTION( name ) name
 #elif defined( XASH_GL_STATIC ) && defined( REF_GL_KEEP_MANGLED_FUNCTIONS )
 #define GL_FUNCTION( name ) APIENTRY p##name
