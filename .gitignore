@@ -330,3 +330,5 @@ __pycache__
 .history/*
 .cache/*
 enc_temp_folder/
+
+.clang-format
