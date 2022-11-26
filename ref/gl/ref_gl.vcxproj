@@ -50,13 +50,17 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
-      <AdditionalIncludeDirectories>.;..\..\bin\engine;..\..\engine;..\..\bin\engine\common;..\..\engine\common;..\..\bin\engine\common\imagelib;..\..\engine\common\imagelib;..\..\bin\filesystem;..\..\filesystem;..\..\bin\public;..\..\public;..\..\bin\common;..\..\common;..\..\bin\pm_shared;..\..\pm_shared;..\..\bin\engine;..\..\engine;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;..\..\bin\engine;..\..\engine;..\..\bin\engine\common;..\..\engine\common;..\..\bin\engine\common\imagelib;..\..\engine\common\imagelib;..\..\bin\filesystem;..\..\filesystem;..\..\bin\public;..\..\public;..\..\bin\common;..\..\common;..\..\bin\pm_shared;..\..\pm_shared;$(RTGL1_SDK_PATH)\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
       <AdditionalLibraryDirectories>..\..\bin\engine\msdev;..\..\bin\public\msdev;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>$(RTGL1_SDK_PATH)\Build\x64-Debug\RayTracedGL1.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PostBuildEvent>
+      <Command>copy "$(RTGL1_SDK_PATH)\Build\x64-Debug\RayTracedGL1.dll" "$(TargetDir)"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -64,13 +68,17 @@
       <PrecompiledHeader>
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
-      <AdditionalIncludeDirectories>.;..\..\bin\engine;..\..\engine;..\..\bin\engine\common;..\..\engine\common;..\..\bin\engine\common\imagelib;..\..\engine\common\imagelib;..\..\bin\filesystem;..\..\filesystem;..\..\bin\public;..\..\public;..\..\bin\common;..\..\common;..\..\bin\pm_shared;..\..\pm_shared;..\..\bin\engine;..\..\engine;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;..\..\bin\engine;..\..\engine;..\..\bin\engine\common;..\..\engine\common;..\..\bin\engine\common\imagelib;..\..\engine\common\imagelib;..\..\bin\filesystem;..\..\filesystem;..\..\bin\public;..\..\public;..\..\bin\common;..\..\common;..\..\bin\pm_shared;..\..\pm_shared;$(RTGL1_SDK_PATH)\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <WholeProgramOptimization>true</WholeProgramOptimization>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <AdditionalLibraryDirectories>..\..\bin\engine\msdev;..\..\bin\public\msdev;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>$(RTGL1_SDK_PATH)\Build\x64-Release\RayTracedGL1.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PostBuildEvent>
+      <Command>copy "$(RTGL1_SDK_PATH)\Build\x64-Release\RayTracedGL1.dll" "$(TargetDir)"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\..\common\backends.h" />
