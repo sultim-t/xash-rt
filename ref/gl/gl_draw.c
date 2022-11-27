@@ -79,6 +79,21 @@ void R_DrawStretchPic( float x, float y, float w, float h, float s1, float t1, f
 		pglTexCoord2f( s1, t2 );
 		pglVertex2f( x, y + h );
 	pglEnd();
+	
+	RgMeshPrimitiveInfo info = {
+        .primitiveIndexInMesh = 0,
+        .flags                = RG_MESH_PRIMITIVE_TRANSLUCENT,
+        .transform            = RG_TRANSFORM_IDENTITY,
+        .pTextureName         = R_GetTexture( texnum )->name,
+        .textureFrame         = 0,
+        .color                = rgUtilPackColorByte4D( 255, 255, 255, 255 ),
+        .pEditorInfo          = NULL,
+    };
+    rgUtilImScratchSetToPrimitive( rg_instance, &info );
+	
+	RgResult r = rgUploadNonWorldPrimitive(
+        rg_instance, &info, rg_Get2DProjectionMatrix(), rg_GetViewport() );
+    RG_CHECK( r );
 }
 
 /*

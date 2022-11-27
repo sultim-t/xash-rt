@@ -901,7 +901,11 @@ APIENTRY_LINKAGE void GL_FUNCTION( glAccum )(GLenum op, GLfloat value);
 APIENTRY_LINKAGE void GL_FUNCTION( glAlphaFunc )(GLenum func, GLclampf ref);
 APIENTRY_LINKAGE void GL_FUNCTION( glArrayElement )(GLint i);
 APIENTRY_LINKAGE void GL_FUNCTION( glBegin )(GLenum mode);
+#if XASH_RAYTRACING
+APIENTRY_LINKAGE void GL_FUNCTION( glBindTexture )(GLenum target, GLuint texture, const char *textureName);
+#else
 APIENTRY_LINKAGE void GL_FUNCTION( glBindTexture )(GLenum target, GLuint texture);
+#endif
 APIENTRY_LINKAGE void GL_FUNCTION( glBitmap )(GLsizei width, GLsizei height, GLfloat xorig, GLfloat yorig, GLfloat xmove, GLfloat ymove, const GLubyte *bitmap);
 APIENTRY_LINKAGE void GL_FUNCTION( glBlendFunc )(GLenum sfactor, GLenum dfactor);
 APIENTRY_LINKAGE void GL_FUNCTION( glCallList )(GLuint list);

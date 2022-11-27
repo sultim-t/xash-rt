@@ -960,35 +960,45 @@ qboolean R_Init( void )
 
 		#define ASSET_DIRECTORY "rt/"
 
-		RgInstanceCreateInfo info = {
-			.pAppName = "RTGL1 Test",
-			.pAppGUID = "459d6734-62a6-4d47-927a-bedcdb0445c5",
+        RgInstanceCreateInfo info = {
+            .pAppName = "Xash",
+            .pAppGUID = "986af412-bab4-4e44-a603-bfaf49e7ef4d",
 
-			.pWin32SurfaceInfo = &win32Info,
+            .pWin32SurfaceInfo = &win32Info,
 
-			.pfnPrint = PrintMessage,
+            .pfnPrint = PrintMessage,
 
-			.pShaderFolderPath = ASSET_DIRECTORY "shaders/",
-			.pBlueNoiseFilePath = ASSET_DIRECTORY "BlueNoise_LDR_RGBA_128.ktx2",
+            .pShaderFolderPath  = ASSET_DIRECTORY "shaders/",
+            .pBlueNoiseFilePath = ASSET_DIRECTORY "BlueNoise_LDR_RGBA_128.ktx2",
 
-			.primaryRaysMaxAlbedoLayers = 1,
-			.indirectIlluminationMaxAlbedoLayers = 1,
+            .primaryRaysMaxAlbedoLayers          = 1,
+            .indirectIlluminationMaxAlbedoLayers = 1,
+            .rayCullBackFacingTriangles          = 1,
+            .allowGeometryWithSkyFlag            = 1,
 
-			.rayCullBackFacingTriangles = false,
+            .rasterizedMaxVertexCount = 1 << 20,
+            .rasterizedMaxIndexCount  = 1 << 21,
 
-			.rasterizedMaxVertexCount = 4096,
-			.rasterizedMaxIndexCount = 2048,
+            .rasterizedSkyCubemapSize = 256,
 
-			.rasterizedSkyCubemapSize = 256,
+            .maxTextureCount                             = MAX_TEXTURES,
+            .textureSamplerForceMinificationFilterLinear = true,
 
-			.maxTextureCount = 1024,
-			.pOverridenTexturesFolderPath = ASSET_DIRECTORY,
-			.overridenAlbedoAlphaTextureIsSRGB = true,
-			.pWaterNormalTexturePath = ASSET_DIRECTORY "WaterNormal_n.ktx2",
+            .pOverridenTexturesFolderPath = ASSET_DIRECTORY,
 
-			// to match the GLTF standard
-			.pbrTextureSwizzling = RG_TEXTURE_SWIZZLING_NULL_ROUGHNESS_METALLIC,
-		};
+            .overridenAlbedoAlphaTextureIsSRGB               = true,
+            .overridenRoughnessMetallicEmissionTextureIsSRGB = false,
+            .overridenNormalTextureIsSRGB                    = false,
+
+            .originalAlbedoAlphaTextureIsSRGB               = true,
+            .originalRoughnessMetallicEmissionTextureIsSRGB = false,
+            .originalNormalTextureIsSRGB                    = false,
+
+            .pWaterNormalTexturePath = ASSET_DIRECTORY "WaterNormal_n.ktx2",
+
+            // to match the GLTF standard
+            .pbrTextureSwizzling = RG_TEXTURE_SWIZZLING_NULL_ROUGHNESS_METALLIC,
+        };
 
 		RgResult r = rgCreateInstance(&info, &rg_instance);
 		RG_CHECK(r);
@@ -1272,7 +1282,6 @@ EMPTY_LINKAGE const GLubyte * EMPTY_FUNCTION( glGetString )(GLenum name){ return
 EMPTY_LINKAGE void EMPTY_FUNCTION( glAccum )(GLenum op, GLfloat value){}
 EMPTY_LINKAGE void EMPTY_FUNCTION( glAlphaFunc )(GLenum func, GLclampf ref){}
 EMPTY_LINKAGE void EMPTY_FUNCTION( glArrayElement )(GLint i){}
-EMPTY_LINKAGE void EMPTY_FUNCTION( glBegin )(GLenum mode){}
 EMPTY_LINKAGE void EMPTY_FUNCTION( glBitmap )(GLsizei width, GLsizei height, GLfloat xorig, GLfloat yorig, GLfloat xmove, GLfloat ymove, const GLubyte *bitmap){}
 EMPTY_LINKAGE void EMPTY_FUNCTION( glBlendFunc )(GLenum sfactor, GLenum dfactor){}
 EMPTY_LINKAGE void EMPTY_FUNCTION( glCallList )(GLuint list){}
@@ -1287,41 +1296,29 @@ EMPTY_LINKAGE GLboolean EMPTY_FUNCTION( glIsEnabled )( GLenum cap ){ return 0; }
 EMPTY_LINKAGE GLboolean EMPTY_FUNCTION( glIsList )( GLuint list ){ return 0; }
 EMPTY_LINKAGE GLboolean EMPTY_FUNCTION( glIsTexture )( GLuint texture ){ return 0; }
 EMPTY_LINKAGE void EMPTY_FUNCTION( glClipPlane )(GLenum plane, const GLdouble *equation){}
-EMPTY_LINKAGE void EMPTY_FUNCTION( glColor3b )(GLbyte red, GLbyte green, GLbyte blue){}
-EMPTY_LINKAGE void EMPTY_FUNCTION( glColor3bv )(const GLbyte *v){}
-EMPTY_LINKAGE void EMPTY_FUNCTION( glColor3d )(GLdouble red, GLdouble green, GLdouble blue){}
-EMPTY_LINKAGE void EMPTY_FUNCTION( glColor3dv )(const GLdouble *v){}
-EMPTY_LINKAGE void EMPTY_FUNCTION( glColor3f )(GLfloat red, GLfloat green, GLfloat blue){}
-EMPTY_LINKAGE void EMPTY_FUNCTION( glColor3fv )(const GLfloat *v){}
-EMPTY_LINKAGE void EMPTY_FUNCTION( glColor3i )(GLint red, GLint green, GLint blue){}
-EMPTY_LINKAGE void EMPTY_FUNCTION( glColor3iv )(const GLint *v){}
-EMPTY_LINKAGE void EMPTY_FUNCTION( glColor3s )(GLshort red, GLshort green, GLshort blue){}
-EMPTY_LINKAGE void EMPTY_FUNCTION( glColor3sv )(const GLshort *v){}
-EMPTY_LINKAGE void EMPTY_FUNCTION( glColor3ub )(GLubyte red, GLubyte green, GLubyte blue){}
-EMPTY_LINKAGE void EMPTY_FUNCTION( glColor3ubv )(const GLubyte *v){}
-EMPTY_LINKAGE void EMPTY_FUNCTION( glColor3ui )(GLuint red, GLuint green, GLuint blue){}
-EMPTY_LINKAGE void EMPTY_FUNCTION( glColor3uiv )(const GLuint *v){}
-EMPTY_LINKAGE void EMPTY_FUNCTION( glColor3us )(GLushort red, GLushort green, GLushort blue){}
-EMPTY_LINKAGE void EMPTY_FUNCTION( glColor3usv )(const GLushort *v){}
-EMPTY_LINKAGE void EMPTY_FUNCTION( glColor4b )(GLbyte red, GLbyte green, GLbyte blue, GLbyte alpha){}
-EMPTY_LINKAGE void EMPTY_FUNCTION( glColor4bv )(const GLbyte *v){}
-EMPTY_LINKAGE void EMPTY_FUNCTION( glColor4d )(GLdouble red, GLdouble green, GLdouble blue, GLdouble alpha){}
-EMPTY_LINKAGE void EMPTY_FUNCTION( glColor4dv )(const GLdouble *v){}
-EMPTY_LINKAGE void EMPTY_FUNCTION( glColor4f )(GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha){}
-EMPTY_LINKAGE void EMPTY_FUNCTION( glColor4fv )(const GLfloat *v){}
-EMPTY_LINKAGE void EMPTY_FUNCTION( glColor4i )(GLint red, GLint green, GLint blue, GLint alpha){}
-EMPTY_LINKAGE void EMPTY_FUNCTION( glColor4iv )(const GLint *v){}
-EMPTY_LINKAGE void EMPTY_FUNCTION( glColor4s )(GLshort red, GLshort green, GLshort blue, GLshort alpha){}
-EMPTY_LINKAGE void EMPTY_FUNCTION( glColor4sv )(const GLshort *v){}
-EMPTY_LINKAGE void EMPTY_FUNCTION( glColor4ub )(GLubyte red, GLubyte green, GLubyte blue, GLubyte alpha){}
-EMPTY_LINKAGE void EMPTY_FUNCTION( glColor4ubv )(const GLubyte *v){}
-EMPTY_LINKAGE void EMPTY_FUNCTION( glColor4ui )(GLuint red, GLuint green, GLuint blue, GLuint alpha){}
-EMPTY_LINKAGE void EMPTY_FUNCTION( glColor4uiv )(const GLuint *v){}
-EMPTY_LINKAGE void EMPTY_FUNCTION( glColor4us )(GLushort red, GLushort green, GLushort blue, GLushort alpha){}
-EMPTY_LINKAGE void EMPTY_FUNCTION( glColor4usv )(const GLushort *v){}
-EMPTY_LINKAGE void EMPTY_FUNCTION( glColorMask )(GLboolean red, GLboolean green, GLboolean blue, GLboolean alpha){}
-EMPTY_LINKAGE void EMPTY_FUNCTION( glColorMaterial )(GLenum face, GLenum mode){}
-EMPTY_LINKAGE void EMPTY_FUNCTION( glColorPointer )(GLint size, GLenum type, GLsizei stride, const GLvoid *pointer){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glColor3b )( GLbyte red, GLbyte green, GLbyte blue ){ assert( 0 ); }
+EMPTY_LINKAGE void EMPTY_FUNCTION( glColor3bv )( const GLbyte* v ){ assert( 0 ); }
+EMPTY_LINKAGE void EMPTY_FUNCTION( glColor3i )( GLint red, GLint green, GLint blue ) { assert( 0 ); }
+EMPTY_LINKAGE void EMPTY_FUNCTION( glColor3iv )( const GLint* v ){ assert( 0 ); }
+EMPTY_LINKAGE void EMPTY_FUNCTION( glColor3s )( GLshort red, GLshort green, GLshort blue ){ assert( 0 ); }
+EMPTY_LINKAGE void EMPTY_FUNCTION( glColor3sv )( const GLshort* v ){ assert( 0 ); }
+EMPTY_LINKAGE void EMPTY_FUNCTION( glColor3ui )( GLuint red, GLuint green, GLuint blue ){ assert( 0 ); }
+EMPTY_LINKAGE void EMPTY_FUNCTION( glColor3uiv )( const GLuint* v ){ assert( 0 ); }
+EMPTY_LINKAGE void EMPTY_FUNCTION( glColor3us )( GLushort red, GLushort green, GLushort blue ){ assert( 0 ); }
+EMPTY_LINKAGE void EMPTY_FUNCTION( glColor3usv )( const GLushort* v ){ assert( 0 ); }
+EMPTY_LINKAGE void EMPTY_FUNCTION( glColor4b )( GLbyte red, GLbyte green, GLbyte blue, GLbyte alpha ){ assert( 0 ); }
+EMPTY_LINKAGE void EMPTY_FUNCTION( glColor4bv )( const GLbyte* v ){ assert( 0 ); }
+EMPTY_LINKAGE void EMPTY_FUNCTION( glColor4i )( GLint red, GLint green, GLint blue, GLint alpha ){ assert( 0 ); }
+EMPTY_LINKAGE void EMPTY_FUNCTION( glColor4iv )( const GLint* v ){ assert( 0 ); }
+EMPTY_LINKAGE void EMPTY_FUNCTION( glColor4s )( GLshort red, GLshort green, GLshort blue, GLshort alpha ){ assert( 0 ); }
+EMPTY_LINKAGE void EMPTY_FUNCTION( glColor4sv )( const GLshort* v ){ assert( 0 ); }
+EMPTY_LINKAGE void EMPTY_FUNCTION( glColor4ui )( GLuint red, GLuint green, GLuint blue, GLuint alpha ){ assert( 0 ); }
+EMPTY_LINKAGE void EMPTY_FUNCTION( glColor4uiv )( const GLuint* v ){ assert( 0 ); }
+EMPTY_LINKAGE void EMPTY_FUNCTION( glColor4us )( GLushort red, GLushort green, GLushort blue, GLushort alpha ){ assert( 0 ); }
+EMPTY_LINKAGE void EMPTY_FUNCTION( glColor4usv )(const GLushort *v){ assert( 0 ); }
+EMPTY_LINKAGE void EMPTY_FUNCTION( glColorMask )(GLboolean red, GLboolean green, GLboolean blue, GLboolean alpha){ assert( 0 ); }
+EMPTY_LINKAGE void EMPTY_FUNCTION( glColorMaterial )(GLenum face, GLenum mode){ assert( 0 ); }
+EMPTY_LINKAGE void EMPTY_FUNCTION( glColorPointer )(GLint size, GLenum type, GLsizei stride, const GLvoid *pointer){ assert( 0 ); }
 EMPTY_LINKAGE void EMPTY_FUNCTION( glCopyPixels )(GLint x, GLint y, GLsizei width, GLsizei height, GLenum type){}
 EMPTY_LINKAGE void EMPTY_FUNCTION( glCopyTexImage1D )(GLenum target, GLint level, GLenum internalFormat, GLint x, GLint y, GLsizei width, GLint border){}
 EMPTY_LINKAGE void EMPTY_FUNCTION( glCopyTexImage2D )(GLenum target, GLint level, GLenum internalFormat, GLint x, GLint y, GLsizei width, GLsizei height, GLint border){}
@@ -1332,7 +1329,6 @@ EMPTY_LINKAGE void EMPTY_FUNCTION( glDeleteLists )(GLuint list, GLsizei range){}
 EMPTY_LINKAGE void EMPTY_FUNCTION( glDeleteTextures )(GLsizei n, const GLuint *textures){}
 EMPTY_LINKAGE void EMPTY_FUNCTION( glDepthFunc )(GLenum func){}
 EMPTY_LINKAGE void EMPTY_FUNCTION( glDepthMask )(GLboolean flag){}
-EMPTY_LINKAGE void EMPTY_FUNCTION( glDepthRange )(GLclampd zNear, GLclampd zFar){}
 EMPTY_LINKAGE void EMPTY_FUNCTION( glDisable )(GLenum cap){}
 EMPTY_LINKAGE void EMPTY_FUNCTION( glDisableClientState )(GLenum array){}
 EMPTY_LINKAGE void EMPTY_FUNCTION( glDrawArrays )(GLenum mode, GLint first, GLsizei count){}
@@ -1344,7 +1340,6 @@ EMPTY_LINKAGE void EMPTY_FUNCTION( glEdgeFlagPointer )(GLsizei stride, const GLv
 EMPTY_LINKAGE void EMPTY_FUNCTION( glEdgeFlagv )(const GLboolean *flag){}
 EMPTY_LINKAGE void EMPTY_FUNCTION( glEnable )(GLenum cap){}
 EMPTY_LINKAGE void EMPTY_FUNCTION( glEnableClientState )(GLenum array){}
-EMPTY_LINKAGE void EMPTY_FUNCTION( glEnd )(void){}
 EMPTY_LINKAGE void EMPTY_FUNCTION( glEndList )(void){}
 EMPTY_LINKAGE void EMPTY_FUNCTION( glEvalCoord1d )(GLdouble u){}
 EMPTY_LINKAGE void EMPTY_FUNCTION( glEvalCoord1dv )(const GLdouble *u){}
@@ -1421,9 +1416,6 @@ EMPTY_LINKAGE void EMPTY_FUNCTION( glLightiv )(GLenum light, GLenum pname, const
 EMPTY_LINKAGE void EMPTY_FUNCTION( glLineStipple )(GLint factor, GLushort pattern){}
 EMPTY_LINKAGE void EMPTY_FUNCTION( glLineWidth )(GLfloat width){}
 EMPTY_LINKAGE void EMPTY_FUNCTION( glListBase )(GLuint base){}
-EMPTY_LINKAGE void EMPTY_FUNCTION( glLoadIdentity )(void){}
-EMPTY_LINKAGE void EMPTY_FUNCTION( glLoadMatrixd )(const GLdouble *m){}
-EMPTY_LINKAGE void EMPTY_FUNCTION( glLoadMatrixf )(const GLfloat *m){}
 EMPTY_LINKAGE void EMPTY_FUNCTION( glLoadName )(GLuint name){}
 EMPTY_LINKAGE void EMPTY_FUNCTION( glLogicOp )(GLenum opcode){}
 EMPTY_LINKAGE void EMPTY_FUNCTION( glMap1d )(GLenum target, GLdouble u1, GLdouble u2, GLint stride, GLint order, const GLdouble *points){}
@@ -1438,7 +1430,6 @@ EMPTY_LINKAGE void EMPTY_FUNCTION( glMaterialf )(GLenum face, GLenum pname, GLfl
 EMPTY_LINKAGE void EMPTY_FUNCTION( glMaterialfv )(GLenum face, GLenum pname, const GLfloat *params){}
 EMPTY_LINKAGE void EMPTY_FUNCTION( glMateriali )(GLenum face, GLenum pname, GLint param){}
 EMPTY_LINKAGE void EMPTY_FUNCTION( glMaterialiv )(GLenum face, GLenum pname, const GLint *params){}
-EMPTY_LINKAGE void EMPTY_FUNCTION( glMatrixMode )(GLenum mode){}
 EMPTY_LINKAGE void EMPTY_FUNCTION( glMultMatrixd )(const GLdouble *m){}
 EMPTY_LINKAGE void EMPTY_FUNCTION( glMultMatrixf )(const GLfloat *m){}
 EMPTY_LINKAGE void EMPTY_FUNCTION( glNewList )(GLuint list, GLenum mode){}
@@ -1453,7 +1444,6 @@ EMPTY_LINKAGE void EMPTY_FUNCTION( glNormal3iv )(const GLint *v){}
 EMPTY_LINKAGE void EMPTY_FUNCTION( glNormal3s )(GLshort nx, GLshort ny, GLshort nz){}
 EMPTY_LINKAGE void EMPTY_FUNCTION( glNormal3sv )(const GLshort *v){}
 EMPTY_LINKAGE void EMPTY_FUNCTION( glNormalPointer )(GLenum type, GLsizei stride, const GLvoid *pointer){}
-EMPTY_LINKAGE void EMPTY_FUNCTION( glOrtho )(GLdouble left, GLdouble right, GLdouble bottom, GLdouble top, GLdouble zNear, GLdouble zFar){}
 EMPTY_LINKAGE void EMPTY_FUNCTION( glPassThrough )(GLfloat token){}
 EMPTY_LINKAGE void EMPTY_FUNCTION( glPixelMapfv )(GLenum map, GLsizei mapsize, const GLfloat *values){}
 EMPTY_LINKAGE void EMPTY_FUNCTION( glPixelMapuiv )(GLenum map, GLsizei mapsize, const GLuint *values){}
@@ -1519,39 +1509,37 @@ EMPTY_LINKAGE void EMPTY_FUNCTION( glShadeModel )(GLenum mode){}
 EMPTY_LINKAGE void EMPTY_FUNCTION( glStencilFunc )(GLenum func, GLint ref, GLuint mask){}
 EMPTY_LINKAGE void EMPTY_FUNCTION( glStencilMask )(GLuint mask){}
 EMPTY_LINKAGE void EMPTY_FUNCTION( glStencilOp )(GLenum fail, GLenum zfail, GLenum zpass){}
-EMPTY_LINKAGE void EMPTY_FUNCTION( glTexCoord1d )(GLdouble s){}
-EMPTY_LINKAGE void EMPTY_FUNCTION( glTexCoord1dv )(const GLdouble *v){}
-EMPTY_LINKAGE void EMPTY_FUNCTION( glTexCoord1f )(GLfloat s){}
-EMPTY_LINKAGE void EMPTY_FUNCTION( glTexCoord1fv )(const GLfloat *v){}
-EMPTY_LINKAGE void EMPTY_FUNCTION( glTexCoord1i )(GLint s){}
-EMPTY_LINKAGE void EMPTY_FUNCTION( glTexCoord1iv )(const GLint *v){}
-EMPTY_LINKAGE void EMPTY_FUNCTION( glTexCoord1s )(GLshort s){}
-EMPTY_LINKAGE void EMPTY_FUNCTION( glTexCoord1sv )(const GLshort *v){}
-EMPTY_LINKAGE void EMPTY_FUNCTION( glTexCoord2d )(GLdouble s, GLdouble t){}
-EMPTY_LINKAGE void EMPTY_FUNCTION( glTexCoord2dv )(const GLdouble *v){}
-EMPTY_LINKAGE void EMPTY_FUNCTION( glTexCoord2f )(GLfloat s, GLfloat t){}
-EMPTY_LINKAGE void EMPTY_FUNCTION( glTexCoord2fv )(const GLfloat *v){}
-EMPTY_LINKAGE void EMPTY_FUNCTION( glTexCoord2i )(GLint s, GLint t){}
-EMPTY_LINKAGE void EMPTY_FUNCTION( glTexCoord2iv )(const GLint *v){}
-EMPTY_LINKAGE void EMPTY_FUNCTION( glTexCoord2s )(GLshort s, GLshort t){}
-EMPTY_LINKAGE void EMPTY_FUNCTION( glTexCoord2sv )(const GLshort *v){}
-EMPTY_LINKAGE void EMPTY_FUNCTION( glTexCoord3d )(GLdouble s, GLdouble t, GLdouble r){}
-EMPTY_LINKAGE void EMPTY_FUNCTION( glTexCoord3dv )(const GLdouble *v){}
-EMPTY_LINKAGE void EMPTY_FUNCTION( glTexCoord3f )(GLfloat s, GLfloat t, GLfloat r){}
-EMPTY_LINKAGE void EMPTY_FUNCTION( glTexCoord3fv )(const GLfloat *v){}
-EMPTY_LINKAGE void EMPTY_FUNCTION( glTexCoord3i )(GLint s, GLint t, GLint r){}
-EMPTY_LINKAGE void EMPTY_FUNCTION( glTexCoord3iv )(const GLint *v){}
-EMPTY_LINKAGE void EMPTY_FUNCTION( glTexCoord3s )(GLshort s, GLshort t, GLshort r){}
-EMPTY_LINKAGE void EMPTY_FUNCTION( glTexCoord3sv )(const GLshort *v){}
-EMPTY_LINKAGE void EMPTY_FUNCTION( glTexCoord4d )(GLdouble s, GLdouble t, GLdouble r, GLdouble q){}
-EMPTY_LINKAGE void EMPTY_FUNCTION( glTexCoord4dv )(const GLdouble *v){}
-EMPTY_LINKAGE void EMPTY_FUNCTION( glTexCoord4f )(GLfloat s, GLfloat t, GLfloat r, GLfloat q){}
-EMPTY_LINKAGE void EMPTY_FUNCTION( glTexCoord4fv )(const GLfloat *v){}
-EMPTY_LINKAGE void EMPTY_FUNCTION( glTexCoord4i )(GLint s, GLint t, GLint r, GLint q){}
-EMPTY_LINKAGE void EMPTY_FUNCTION( glTexCoord4iv )(const GLint *v){}
-EMPTY_LINKAGE void EMPTY_FUNCTION( glTexCoord4s )(GLshort s, GLshort t, GLshort r, GLshort q){}
-EMPTY_LINKAGE void EMPTY_FUNCTION( glTexCoord4sv )(const GLshort *v){}
-EMPTY_LINKAGE void EMPTY_FUNCTION( glTexCoordPointer )(GLint size, GLenum type, GLsizei stride, const GLvoid *pointer){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glTexCoord1d )(GLdouble s){ assert( 0 ); }
+EMPTY_LINKAGE void EMPTY_FUNCTION( glTexCoord1dv )(const GLdouble *v){ assert( 0 ); }
+EMPTY_LINKAGE void EMPTY_FUNCTION( glTexCoord1f )(GLfloat s){ assert( 0 ); }
+EMPTY_LINKAGE void EMPTY_FUNCTION( glTexCoord1fv )(const GLfloat *v){ assert( 0 ); }
+EMPTY_LINKAGE void EMPTY_FUNCTION( glTexCoord1i )(GLint s){ assert( 0 ); }
+EMPTY_LINKAGE void EMPTY_FUNCTION( glTexCoord1iv )(const GLint *v){ assert( 0 ); }
+EMPTY_LINKAGE void EMPTY_FUNCTION( glTexCoord1s )(GLshort s){ assert( 0 ); }
+EMPTY_LINKAGE void EMPTY_FUNCTION( glTexCoord1sv )(const GLshort *v){ assert( 0 ); }
+EMPTY_LINKAGE void EMPTY_FUNCTION( glTexCoord2d )(GLdouble s, GLdouble t){ assert( 0 ); }
+EMPTY_LINKAGE void EMPTY_FUNCTION( glTexCoord2dv )(const GLdouble *v){ assert( 0 ); }
+EMPTY_LINKAGE void EMPTY_FUNCTION( glTexCoord2i )(GLint s, GLint t){ assert( 0 ); }
+EMPTY_LINKAGE void EMPTY_FUNCTION( glTexCoord2iv )(const GLint *v){ assert( 0 ); }
+EMPTY_LINKAGE void EMPTY_FUNCTION( glTexCoord2s )(GLshort s, GLshort t){ assert( 0 ); }
+EMPTY_LINKAGE void EMPTY_FUNCTION( glTexCoord2sv )(const GLshort *v){ assert( 0 ); }
+EMPTY_LINKAGE void EMPTY_FUNCTION( glTexCoord3d )(GLdouble s, GLdouble t, GLdouble r){ assert( 0 ); }
+EMPTY_LINKAGE void EMPTY_FUNCTION( glTexCoord3dv )(const GLdouble *v){ assert( 0 ); }
+EMPTY_LINKAGE void EMPTY_FUNCTION( glTexCoord3f )(GLfloat s, GLfloat t, GLfloat r){ assert( 0 ); }
+EMPTY_LINKAGE void EMPTY_FUNCTION( glTexCoord3fv )(const GLfloat *v){ assert( 0 ); }
+EMPTY_LINKAGE void EMPTY_FUNCTION( glTexCoord3i )(GLint s, GLint t, GLint r){ assert( 0 ); }
+EMPTY_LINKAGE void EMPTY_FUNCTION( glTexCoord3iv )(const GLint *v){ assert( 0 ); }
+EMPTY_LINKAGE void EMPTY_FUNCTION( glTexCoord3s )(GLshort s, GLshort t, GLshort r){ assert( 0 ); }
+EMPTY_LINKAGE void EMPTY_FUNCTION( glTexCoord3sv )(const GLshort *v){ assert( 0 ); }
+EMPTY_LINKAGE void EMPTY_FUNCTION( glTexCoord4d )(GLdouble s, GLdouble t, GLdouble r, GLdouble q){ assert( 0 ); }
+EMPTY_LINKAGE void EMPTY_FUNCTION( glTexCoord4dv )(const GLdouble *v){ assert( 0 ); }
+EMPTY_LINKAGE void EMPTY_FUNCTION( glTexCoord4f )(GLfloat s, GLfloat t, GLfloat r, GLfloat q){ assert( 0 ); }
+EMPTY_LINKAGE void EMPTY_FUNCTION( glTexCoord4fv )(const GLfloat *v){ assert( 0 ); }
+EMPTY_LINKAGE void EMPTY_FUNCTION( glTexCoord4i )(GLint s, GLint t, GLint r, GLint q){ assert( 0 ); }
+EMPTY_LINKAGE void EMPTY_FUNCTION( glTexCoord4iv )(const GLint *v){ assert( 0 ); }
+EMPTY_LINKAGE void EMPTY_FUNCTION( glTexCoord4s )(GLshort s, GLshort t, GLshort r, GLshort q){ assert( 0 ); }
+EMPTY_LINKAGE void EMPTY_FUNCTION( glTexCoord4sv )(const GLshort *v){ assert( 0 ); }
+EMPTY_LINKAGE void EMPTY_FUNCTION( glTexCoordPointer )(GLint size, GLenum type, GLsizei stride, const GLvoid *pointer){ assert( 0 ); }
 EMPTY_LINKAGE void EMPTY_FUNCTION( glTexEnvf )(GLenum target, GLenum pname, GLfloat param){}
 EMPTY_LINKAGE void EMPTY_FUNCTION( glTexEnvfv )(GLenum target, GLenum pname, const GLfloat *params){}
 EMPTY_LINKAGE void EMPTY_FUNCTION( glTexEnvi )(GLenum target, GLenum pname, GLint param){}
@@ -1571,32 +1559,28 @@ EMPTY_LINKAGE void EMPTY_FUNCTION( glTexSubImage1D )(GLenum target, GLint level,
 EMPTY_LINKAGE void EMPTY_FUNCTION( glTexSubImage2D )(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLenum type, const GLvoid *pixels){}
 EMPTY_LINKAGE void EMPTY_FUNCTION( glTranslated )(GLdouble x, GLdouble y, GLdouble z){}
 EMPTY_LINKAGE void EMPTY_FUNCTION( glTranslatef )(GLfloat x, GLfloat y, GLfloat z){}
-EMPTY_LINKAGE void EMPTY_FUNCTION( glVertex2d )(GLdouble x, GLdouble y){}
-EMPTY_LINKAGE void EMPTY_FUNCTION( glVertex2dv )(const GLdouble *v){}
-EMPTY_LINKAGE void EMPTY_FUNCTION( glVertex2f )(GLfloat x, GLfloat y){}
-EMPTY_LINKAGE void EMPTY_FUNCTION( glVertex2fv )(const GLfloat *v){}
-EMPTY_LINKAGE void EMPTY_FUNCTION( glVertex2i )(GLint x, GLint y){}
-EMPTY_LINKAGE void EMPTY_FUNCTION( glVertex2iv )(const GLint *v){}
-EMPTY_LINKAGE void EMPTY_FUNCTION( glVertex2s )(GLshort x, GLshort y){}
-EMPTY_LINKAGE void EMPTY_FUNCTION( glVertex2sv )(const GLshort *v){}
-EMPTY_LINKAGE void EMPTY_FUNCTION( glVertex3d )(GLdouble x, GLdouble y, GLdouble z){}
-EMPTY_LINKAGE void EMPTY_FUNCTION( glVertex3dv )(const GLdouble *v){}
-EMPTY_LINKAGE void EMPTY_FUNCTION( glVertex3f )(GLfloat x, GLfloat y, GLfloat z){}
-EMPTY_LINKAGE void EMPTY_FUNCTION( glVertex3fv )(const GLfloat *v){}
-EMPTY_LINKAGE void EMPTY_FUNCTION( glVertex3i )(GLint x, GLint y, GLint z){}
-EMPTY_LINKAGE void EMPTY_FUNCTION( glVertex3iv )(const GLint *v){}
-EMPTY_LINKAGE void EMPTY_FUNCTION( glVertex3s )(GLshort x, GLshort y, GLshort z){}
-EMPTY_LINKAGE void EMPTY_FUNCTION( glVertex3sv )(const GLshort *v){}
-EMPTY_LINKAGE void EMPTY_FUNCTION( glVertex4d )(GLdouble x, GLdouble y, GLdouble z, GLdouble w){}
-EMPTY_LINKAGE void EMPTY_FUNCTION( glVertex4dv )(const GLdouble *v){}
-EMPTY_LINKAGE void EMPTY_FUNCTION( glVertex4f )(GLfloat x, GLfloat y, GLfloat z, GLfloat w){}
-EMPTY_LINKAGE void EMPTY_FUNCTION( glVertex4fv )(const GLfloat *v){}
-EMPTY_LINKAGE void EMPTY_FUNCTION( glVertex4i )(GLint x, GLint y, GLint z, GLint w){}
-EMPTY_LINKAGE void EMPTY_FUNCTION( glVertex4iv )(const GLint *v){}
-EMPTY_LINKAGE void EMPTY_FUNCTION( glVertex4s )(GLshort x, GLshort y, GLshort z, GLshort w){}
-EMPTY_LINKAGE void EMPTY_FUNCTION( glVertex4sv )(const GLshort *v){}
-EMPTY_LINKAGE void EMPTY_FUNCTION( glVertexPointer )(GLint size, GLenum type, GLsizei stride, const GLvoid *pointer){}
-EMPTY_LINKAGE void EMPTY_FUNCTION( glViewport )(GLint x, GLint y, GLsizei width, GLsizei height){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glVertex2d )(GLdouble x, GLdouble y){ assert( 0 ); }
+EMPTY_LINKAGE void EMPTY_FUNCTION( glVertex2dv )(const GLdouble *v){ assert( 0 ); }
+EMPTY_LINKAGE void EMPTY_FUNCTION( glVertex2fv )(const GLfloat *v){ assert( 0 ); }
+EMPTY_LINKAGE void EMPTY_FUNCTION( glVertex2i )(GLint x, GLint y){ assert( 0 ); }
+EMPTY_LINKAGE void EMPTY_FUNCTION( glVertex2iv )(const GLint *v){ assert( 0 ); }
+EMPTY_LINKAGE void EMPTY_FUNCTION( glVertex2s )(GLshort x, GLshort y){ assert( 0 ); }
+EMPTY_LINKAGE void EMPTY_FUNCTION( glVertex2sv )(const GLshort *v){ assert( 0 ); }
+EMPTY_LINKAGE void EMPTY_FUNCTION( glVertex3d )(GLdouble x, GLdouble y, GLdouble z){ assert( 0 ); }
+EMPTY_LINKAGE void EMPTY_FUNCTION( glVertex3dv )(const GLdouble *v){ assert( 0 ); }
+EMPTY_LINKAGE void EMPTY_FUNCTION( glVertex3i )(GLint x, GLint y, GLint z){ assert( 0 ); }
+EMPTY_LINKAGE void EMPTY_FUNCTION( glVertex3iv )(const GLint *v){ assert( 0 ); }
+EMPTY_LINKAGE void EMPTY_FUNCTION( glVertex3s )(GLshort x, GLshort y, GLshort z){ assert( 0 ); }
+EMPTY_LINKAGE void EMPTY_FUNCTION( glVertex3sv )(const GLshort *v){ assert( 0 ); }
+EMPTY_LINKAGE void EMPTY_FUNCTION( glVertex4d )(GLdouble x, GLdouble y, GLdouble z, GLdouble w){ assert( 0 ); }
+EMPTY_LINKAGE void EMPTY_FUNCTION( glVertex4dv )(const GLdouble *v){ assert( 0 ); }
+EMPTY_LINKAGE void EMPTY_FUNCTION( glVertex4f )(GLfloat x, GLfloat y, GLfloat z, GLfloat w){ assert( 0 ); }
+EMPTY_LINKAGE void EMPTY_FUNCTION( glVertex4fv )(const GLfloat *v){ assert( 0 ); }
+EMPTY_LINKAGE void EMPTY_FUNCTION( glVertex4i )(GLint x, GLint y, GLint z, GLint w){ assert( 0 ); }
+EMPTY_LINKAGE void EMPTY_FUNCTION( glVertex4iv )(const GLint *v){ assert( 0 ); }
+EMPTY_LINKAGE void EMPTY_FUNCTION( glVertex4s )(GLshort x, GLshort y, GLshort z, GLshort w){ assert( 0 ); }
+EMPTY_LINKAGE void EMPTY_FUNCTION( glVertex4sv )(const GLshort *v){ assert( 0 ); }
+EMPTY_LINKAGE void EMPTY_FUNCTION( glVertexPointer )(GLint size, GLenum type, GLsizei stride, const GLvoid *pointer){ assert( 0 ); }
 EMPTY_LINKAGE void EMPTY_FUNCTION( glPointParameterfEXT )( GLenum param, GLfloat value ){}
 EMPTY_LINKAGE void EMPTY_FUNCTION( glPointParameterfvEXT )( GLenum param, const GLfloat *value ){}
 EMPTY_LINKAGE void EMPTY_FUNCTION( glLockArraysEXT ) (int a, int b){}
@@ -1728,41 +1712,235 @@ EMPTY_LINKAGE GLboolean EMPTY_FUNCTION( glIsVertexArray )( GLuint array ){ retur
 EMPTY_LINKAGE void EMPTY_FUNCTION( glSwapInterval ) ( int interval ){}
 EMPTY_LINKAGE void EMPTY_FUNCTION( glTexImage2DMultisample )( GLenum target, GLsizei samples, GLenum internalformat, GLsizei width, GLsizei height, GLboolean fixedsamplelocations ){}
 
-
-static GLuint g_currentTex2D = 0;
-
-EMPTY_LINKAGE void EMPTY_FUNCTION(glBindTexture)(GLenum target, GLuint texture)
-{
-	if (target == GL_TEXTURE_2D)
-	{
-		g_currentTex2D = texture;
-	}
-}
-
-EMPTY_LINKAGE void EMPTY_FUNCTION(glTexImage2D)(GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const GLvoid* pixels)
-{
-	if (g_currentTex2D && target == GL_TEXTURE_2D && level == 0 && format == GL_RGBA && type == GL_UNSIGNED_BYTE && pixels)
-	{
-		char texName[16];
-		snprintf(texName, sizeof(texName), "%d", g_currentTex2D);
-
-		RgOriginalTextureInfo info = {
-			.pTextureName = texName,
-			.pPixels = pixels,
-			.size = {width, height},
-			.filter = RG_SAMPLER_FILTER_AUTO,
-			.addressModeU = RG_SAMPLER_ADDRESS_MODE_REPEAT,
-			.addressModeV = RG_SAMPLER_ADDRESS_MODE_REPEAT,
-		};
-
-		RgResult r = rgProvideOriginalTexture(rg_instance, &info);
-		RG_CHECK(r);
-	}
-}
-
-
 #undef EMPTY_LINKAGE
 #undef EMPTY_FUNCTION
+
+
+void pglBegin( GLenum mode )
+{
+    RgUtilImScratchTopology topology = RG_UTIL_IM_SCRATCH_TOPOLOGY_TRIANGLES;
+    switch( mode )
+    {
+        case GL_TRIANGLES: topology = RG_UTIL_IM_SCRATCH_TOPOLOGY_TRIANGLES; break;
+        case GL_TRIANGLE_STRIP: topology = RG_UTIL_IM_SCRATCH_TOPOLOGY_TRIANGLE_STRIP; break;
+        case GL_TRIANGLE_FAN: topology = RG_UTIL_IM_SCRATCH_TOPOLOGY_TRIANGLE_FAN; break;
+        case GL_QUADS: topology = RG_UTIL_IM_SCRATCH_TOPOLOGY_QUADS; break;
+        default: assert( 0 ); return;
+    }
+
+    rgUtilImScratchBegin( rg_instance, topology );
+}
+
+void pglTexCoord2f( GLfloat s, GLfloat t )
+{
+    rgUtilImScratchTexCoord( rg_instance, s, t );
+}
+void pglTexCoord2fv( const GLfloat* v )
+{
+    rgUtilImScratchTexCoord( rg_instance, v[ 0 ], v[ 1 ] );
+}
+
+void pglVertex3f( GLfloat x, GLfloat y, GLfloat z )
+{
+    rgUtilImScratchVertex( rg_instance, x, y, z );
+}
+void pglVertex3fv( const GLfloat* v )
+{
+    rgUtilImScratchVertex( rg_instance, v[ 0 ], v[ 1 ], v[ 2 ] );
+}
+void pglVertex2f ( GLfloat x, GLfloat y )
+{
+    rgUtilImScratchVertex( rg_instance, x, y, 0.0f );
+}
+
+void pglColor3d( GLdouble red, GLdouble green, GLdouble blue )
+{
+    rgUtilImScratchColor( rg_instance, rgUtilPackColorFloat4D( ( float )red, ( float )green, ( float )blue, 1.0f ) );
+}
+void pglColor3dv( const GLdouble* v )
+{
+    rgUtilImScratchColor( rg_instance, rgUtilPackColorFloat4D( ( float )v[ 0 ], ( float )v[ 1 ], ( float )v[ 2 ], 1.0f ) );
+}
+void pglColor3f( GLfloat red, GLfloat green, GLfloat blue )
+{
+    rgUtilImScratchColor( rg_instance, rgUtilPackColorFloat4D( red, green, blue, 1.0f ) );
+}
+void pglColor3fv( const GLfloat* v )
+{
+    rgUtilImScratchColor( rg_instance, rgUtilPackColorFloat4D( v[ 0 ], v[ 1 ], v[ 2 ], 1.0f ) );
+}
+void pglColor3ub( GLubyte red, GLubyte green, GLubyte blue )
+{
+    rgUtilImScratchColor( rg_instance, rgUtilPackColorByte4D( red, green, blue, 255 ) );
+}
+void pglColor3ubv( const GLubyte* v )
+{
+    rgUtilImScratchColor( rg_instance, rgUtilPackColorByte4D( v[ 0 ], v[ 1 ], v[ 2 ], 255 ) );
+}
+void pglColor4d( GLdouble red, GLdouble green, GLdouble blue, GLdouble alpha )
+{
+    rgUtilImScratchColor( rg_instance, rgUtilPackColorFloat4D( ( float )red, ( float )green, ( float )blue, ( float )alpha ) );
+}
+void pglColor4dv( const GLdouble* v )
+{
+    rgUtilImScratchColor( rg_instance, rgUtilPackColorFloat4D( ( float )v[ 0 ], ( float )v[ 1 ], ( float )v[ 2 ], ( float )v[ 3 ] ) );
+}
+void pglColor4f( GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha )
+{
+    rgUtilImScratchColor( rg_instance, rgUtilPackColorFloat4D( red, green, blue, alpha ) );
+}
+void pglColor4fv( const GLfloat* v )
+{
+    rgUtilImScratchColor( rg_instance, rgUtilPackColorFloat4D( v[ 0 ], v[ 1 ], v[ 2 ], v[ 3 ] ) );
+}
+void pglColor4ub( GLubyte red, GLubyte green, GLubyte blue, GLubyte alpha )
+{
+    rgUtilImScratchColor( rg_instance, rgUtilPackColorByte4D( red, green, blue, alpha ) );
+}
+void pglColor4ubv( const GLubyte* v )
+{
+    rgUtilImScratchColor( rg_instance, rgUtilPackColorByte4D( v[ 0 ], v[ 1 ], v[ 2 ], v[ 3 ] ) );
+}
+
+void pglEnd( void )
+{}
+
+
+static const char* rg_currentTexture2DName = NULL;
+
+void pglBindTexture( GLenum target, GLuint texture, const char* textureName )
+{
+    if( target == GL_TEXTURE_2D )
+    {
+        if( textureName && textureName[ 0 ] != '\0' )
+        {
+            rg_currentTexture2DName = textureName;
+        }
+    }
+}
+
+void pglTexImage2D( GLenum        target,
+                    GLint         level,
+                    GLint         internalformat,
+                    GLsizei       width,
+                    GLsizei       height,
+                    GLint         border,
+                    GLenum        format,
+                    GLenum        type,
+                    const GLvoid* pixels )
+{
+    if( target == GL_TEXTURE_2D )
+    {
+        if( rg_currentTexture2DName )
+        {
+            if( level == 0 && format == GL_RGBA && type == GL_UNSIGNED_BYTE && pixels )
+            {
+                RgOriginalTextureInfo info = {
+                    .pTextureName = rg_currentTexture2DName,
+                    .pPixels      = pixels,
+                    .size         = { width, height },
+                    .filter       = RG_SAMPLER_FILTER_AUTO,
+                    .addressModeU = RG_SAMPLER_ADDRESS_MODE_REPEAT,
+                    .addressModeV = RG_SAMPLER_ADDRESS_MODE_REPEAT,
+                };
+
+                RgResult r = rgProvideOriginalTexture( rg_instance, &info );
+                RG_CHECK( r );
+            }
+        }
+    }
+}
+
+
+RgViewport rg_viewport = { 0 };
+
+void pglViewport( GLint x, GLint y, GLsizei width, GLsizei height )
+{
+    rg_viewport.x      = ( float )x;
+    rg_viewport.y      = ( float )y;
+    rg_viewport.width  = ( float )width;
+    rg_viewport.height = ( float )height;
+}
+
+void pglDepthRange( GLclampd zNear, GLclampd zFar )
+{
+    rg_viewport.minDepth = ( float )zNear;
+    rg_viewport.maxDepth = ( float )zFar;
+}
+
+const RgViewport* rg_GetViewport()
+{
+    return &rg_viewport;
+}
+
+
+static GLenum rg_matrix_mode = 0;
+matrix4x4     rg_matrix_proj = { 0 };
+
+void pglMatrixMode( GLenum mode )
+{
+    rg_matrix_mode = mode;
+}
+
+void pglLoadIdentity( void )
+{
+    if( rg_matrix_mode == GL_PROJECTION )
+    {
+        Matrix4x4_LoadIdentity( rg_matrix_proj );
+    }
+}
+
+void pglLoadMatrixd( const GLdouble* m )
+{
+    assert( 0 );
+}
+
+void pglLoadMatrixf( const GLfloat* m )
+{
+    if( rg_matrix_mode == GL_PROJECTION )
+    {
+        Matrix4x4_FromArrayFloatGL( rg_matrix_proj, m );
+    }
+}
+
+void pglOrtho( GLdouble left, GLdouble right, GLdouble bottom, GLdouble top, GLdouble zNear, GLdouble zFar )
+{
+	// vulkan: swap Y
+    {
+        GLdouble temp = bottom;
+
+        bottom = top;
+        top    = temp;
+    }
+
+    if( rg_matrix_mode == GL_PROJECTION )
+    {
+        GLdouble tx = -( right + left ) / ( right - left );
+        GLdouble ty = -( top + bottom ) / ( top - bottom );
+        GLdouble tz = -( zFar + zNear ) / ( zFar - zNear );
+
+        matrix4x4 ortho = {
+            { ( float )( 2.0 / ( right - left ) ), 0, 0, ( float )tx },
+            { 0, ( float )( 2.0 / ( top - bottom ) ), 0, ( float )ty },
+            { 0, 0, ( float )( -2.0 / ( zFar - zNear ) ), ( float )tz },
+            { 0, 0, 0, 1 },
+        };
+
+        matrix4x4 prev;
+        Matrix4x4_Copy( prev, rg_matrix_proj );
+
+        Matrix4x4_Concat( rg_matrix_proj, ortho, prev );
+    }
+}
+
+const float* rg_Get2DProjectionMatrix()
+{
+    static float column[ 16 ];
+	Matrix4x4_ToArrayFloatGL( rg_matrix_proj, column );
+
+    return column;
+}
+
 #endif // XASH_RAYTRACING
 
 

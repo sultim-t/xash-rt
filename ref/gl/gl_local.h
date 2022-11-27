@@ -757,6 +757,15 @@ extern RgInstance rg_instance;
 	assert( ( x ) == RG_RESULT_SUCCESS ||				\
 			( x ) == RG_RESULT_SUCCESS_FOUND_MESH ||	\
 			( x ) == RG_RESULT_SUCCESS_FOUND_TEXTURE )
+
+#define RG_TRANSFORM_IDENTITY	\
+    {	1.f, 0.f, 0.f, 0.f,		\
+        0.f, 1.f, 0.f, 0.f,		\
+        0.f, 0.f, 1.f, 0.f	}
+
+extern const RgViewport* rg_GetViewport( void );
+extern const float*      rg_Get2DProjectionMatrix( void );
+
 #endif
 
 

@@ -114,7 +114,7 @@ void GL_Bind( GLint tmu, GLenum texnum )
 	if( glState.currentTextures[tmu] == texture->texnum )
 		return;
 
-	pglBindTexture( texture->target, texture->texnum );
+	pglBindTexture( texture->target, texture->texnum, texture->name );
 	glState.currentTextures[tmu] = texture->texnum;
 }
 
@@ -1208,7 +1208,7 @@ static qboolean GL_UploadTexture( gl_texture_t *tex, rgbdata_t *pic )
 
 	// uploading texture into video memory, change the binding
 	glState.currentTextures[glState.activeTMU] = tex->texnum;
-	pglBindTexture( tex->target, tex->texnum );
+	pglBindTexture( tex->target, tex->texnum, tex->name );
 
 	for( i = 0; i < numSides; i++ )
 	{
