@@ -766,11 +766,13 @@ extern RgInstance rg_instance;
 typedef struct rt_state_s
 {
     RgViewport  viewport;
+    float       projMatrixFor2D[ 16 ];
     const char* curTexture2DName;
     int         curEntityID;
-    const char* curMeshName;
-    int         curMeshPrimitive;
-    float       projMatrixFor2D[ 16 ];
+    const char* curModelName;
+    int			curStudioBodyPartIndex;
+    int			curStudioModelIndex;
+    int			curStudioMeshIndex;
 } rt_state_t;
 extern rt_state_t rt_state;
 

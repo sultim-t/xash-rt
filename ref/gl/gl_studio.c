@@ -2427,9 +2427,17 @@ static void R_StudioDrawPoints( void )
 		R_StudioSetupSkin( m_pStudioHeader, pskinref[pmesh->skinref] );
 
 #if XASH_RAYTRACING
-        rt_state.curEntityID      = RI.currententity->index;
-        rt_state.curMeshName      = RI.currentmodel->name;
-        rt_state.curMeshPrimitive = j;
+        assert( m_pStudioHeader->bodypartindex % _Alignof( mstudiobodyparts_t ) == 0 );
+        assert( m_pBodyPart->modelindex % _Alignof( mstudiomodel_t ) == 0 );
+        void* bodypartbase = ( byte* )m_pStudioHeader + m_pStudioHeader->bodypartindex;
+        void* modelbase    = ( byte* )m_pStudioHeader + m_pBodyPart->modelindex;
+
+        rt_state.curEntityID  = RI.currententity->index;
+        rt_state.curModelName = RI.currentmodel->name;
+        rt_state.curStudioBodyPartIndex =
+            ( int )( ( mstudiobodyparts_t* )bodypartbase - m_pBodyPart );
+        rt_state.curStudioModelIndex = ( int )( ( mstudiomodel_t* )modelbase - m_pSubModel );
+        rt_state.curStudioMeshIndex  = j;
 #endif
 
 #if !XASH_RAYTRACING
@@ -2454,9 +2462,11 @@ static void R_StudioDrawPoints( void )
         }
 
 #if XASH_RAYTRACING
-        rt_state.curEntityID      = -1;
-        rt_state.curMeshName      = NULL;
-        rt_state.curMeshPrimitive = -1;
+        rt_state.curEntityID            = -1;
+        rt_state.curModelName           = NULL;
+        rt_state.curStudioBodyPartIndex = -1;
+        rt_state.curStudioModelIndex    = -1;
+        rt_state.curStudioMeshIndex     = -1;
 #endif
 
 		if( FBitSet( g_nFaceFlags, STUDIO_NF_MASKED ))
