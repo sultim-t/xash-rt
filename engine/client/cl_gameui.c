@@ -417,8 +417,12 @@ static void UI_ConvertGameInfo( GAMEINFO *out, gameinfo_t *in )
 		out->flags |= GFL_NOMODELS;
 	if( in->noskills )
 		out->flags |= GFL_NOSKILLS;
+#if !XASH_RAYTRACING
 	if( in->render_picbutton_text )
 		out->flags |= GFL_RENDER_PICBUTTON_TEXT;
+#else
+    out->flags |= GFL_RENDER_PICBUTTON_TEXT;
+#endif
 }
 
 static qboolean PIC_Scissor( float *x, float *y, float *width, float *height, float *u0, float *v0, float *u1, float *v1 )
