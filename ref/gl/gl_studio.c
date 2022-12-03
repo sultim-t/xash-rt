@@ -123,7 +123,9 @@ typedef struct
 // studio-related cvars
 static cvar_t			*r_studio_sort_textures;
 static cvar_t			*cl_righthand = NULL;
-static cvar_t			*r_studio_drawelements;
+#if !XASH_RAYTRACING
+static cvar_t* r_studio_drawelements;
+#endif
 
 static r_studio_interface_t	*pStudioDraw;
 static studio_draw_state_t	g_studio;		// global studio state
@@ -148,9 +150,11 @@ R_StudioInit
 void R_StudioInit( void )
 {
 	r_studio_sort_textures = gEngfuncs.Cvar_Get( "r_studio_sort_textures", "0", FCVAR_GLCONFIG, "change draw order for additive meshes" );
+#if !XASH_RAYTRACING
 	r_studio_drawelements = gEngfuncs.Cvar_Get( "r_studio_drawelements", "1", FCVAR_GLCONFIG, "use glDrawElements for studiomodels" );
+#endif
 
-	Matrix3x4_LoadIdentity( g_studio.rotationmatrix );
+    Matrix3x4_LoadIdentity( g_studio.rotationmatrix );
 
 	// g-cont. cvar disabled by Valve
 //	gEngfuncs.Cvar_RegisterVariable( &r_shadows );
@@ -2422,6 +2426,7 @@ static void R_StudioDrawPoints( void )
 
 		R_StudioSetupSkin( m_pStudioHeader, pskinref[pmesh->skinref] );
 
+#if !XASH_RAYTRACING
 		if( CVAR_TO_BOOL(r_studio_drawelements) )
 		{
 			if( FBitSet( g_nFaceFlags, STUDIO_NF_CHROME ))
@@ -2433,6 +2438,7 @@ static void R_StudioDrawPoints( void )
 			R_StudioDrawArrays( startArrayVerts, startArrayElems );
 		}
 		else
+#endif
 		{
 			if( FBitSet( g_nFaceFlags, STUDIO_NF_CHROME ))
 				R_StudioDrawChromeMesh( ptricmds, pstudionorms, s, t, shellscale );
