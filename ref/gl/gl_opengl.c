@@ -1317,7 +1317,6 @@ EMPTY_LINKAGE void EMPTY_FUNCTION( glAccum )(GLenum op, GLfloat value){}
 EMPTY_LINKAGE void EMPTY_FUNCTION( glAlphaFunc )(GLenum func, GLclampf ref){}
 EMPTY_LINKAGE void EMPTY_FUNCTION( glArrayElement )(GLint i){}
 EMPTY_LINKAGE void EMPTY_FUNCTION( glBitmap )(GLsizei width, GLsizei height, GLfloat xorig, GLfloat yorig, GLfloat xmove, GLfloat ymove, const GLubyte *bitmap){}
-EMPTY_LINKAGE void EMPTY_FUNCTION( glBlendFunc )(GLenum sfactor, GLenum dfactor){}
 EMPTY_LINKAGE void EMPTY_FUNCTION( glCallList )(GLuint list){}
 EMPTY_LINKAGE void EMPTY_FUNCTION( glCallLists )(GLsizei n, GLenum type, const GLvoid *lists){}
 EMPTY_LINKAGE void EMPTY_FUNCTION( glClear )(GLbitfield mask){}
@@ -1363,7 +1362,6 @@ EMPTY_LINKAGE void EMPTY_FUNCTION( glDeleteLists )(GLuint list, GLsizei range){}
 EMPTY_LINKAGE void EMPTY_FUNCTION( glDeleteTextures )(GLsizei n, const GLuint *textures){}
 EMPTY_LINKAGE void EMPTY_FUNCTION( glDepthFunc )(GLenum func){}
 EMPTY_LINKAGE void EMPTY_FUNCTION( glDepthMask )(GLboolean flag){}
-EMPTY_LINKAGE void EMPTY_FUNCTION( glDisable )(GLenum cap){}
 EMPTY_LINKAGE void EMPTY_FUNCTION( glDisableClientState )(GLenum array){}
 EMPTY_LINKAGE void EMPTY_FUNCTION( glDrawArrays )(GLenum mode, GLint first, GLsizei count){}
 EMPTY_LINKAGE void EMPTY_FUNCTION( glDrawBuffer )(GLenum mode){}
@@ -1372,7 +1370,6 @@ EMPTY_LINKAGE void EMPTY_FUNCTION( glDrawPixels )(GLsizei width, GLsizei height,
 EMPTY_LINKAGE void EMPTY_FUNCTION( glEdgeFlag )(GLboolean flag){}
 EMPTY_LINKAGE void EMPTY_FUNCTION( glEdgeFlagPointer )(GLsizei stride, const GLvoid *pointer){}
 EMPTY_LINKAGE void EMPTY_FUNCTION( glEdgeFlagv )(const GLboolean *flag){}
-EMPTY_LINKAGE void EMPTY_FUNCTION( glEnable )(GLenum cap){}
 EMPTY_LINKAGE void EMPTY_FUNCTION( glEnableClientState )(GLenum array){}
 EMPTY_LINKAGE void EMPTY_FUNCTION( glEndList )(void){}
 EMPTY_LINKAGE void EMPTY_FUNCTION( glEvalCoord1d )(GLdouble u){}
@@ -1886,6 +1883,35 @@ void pglTexImage2D( GLenum        target,
     }
 }
 
+static qboolean rt_raster_additive = false;
+static qboolean rt_raster_blend    = false;
+static qboolean rt_alphatest       = false;
+
+void pglEnable( GLenum cap )
+{
+    switch( cap )
+    {
+        case GL_BLEND: rt_raster_blend = true; break;
+        case GL_ALPHA_TEST: rt_alphatest = true; break;
+        default: break;
+    }
+}
+void pglDisable( GLenum cap )
+{
+    switch( cap )
+    {
+        case GL_BLEND: rt_raster_blend = false; break;
+        case GL_ALPHA_TEST: rt_alphatest = false; break;
+        default: break;
+    }
+}
+
+void pglBlendFunc( GLenum sfactor, GLenum dfactor )
+{
+    rt_raster_additive = ( sfactor == GL_ONE || dfactor == GL_ONE );
+}
+
+
 static int Q_clamp_wassert( int x, int xmin, int xmax )
 {
     if( x < xmin )
@@ -1967,11 +1993,12 @@ void pglEnd( void )
                                                              rt_state.curStudioModelIndex,
                                                              rt_state.curStudioMeshIndex,
                                                              glendIndex ),
-                .flags                = 0,
+                .flags                = rt_alphatest ? RG_MESH_PRIMITIVE_ALPHA_TESTED : 0,
                 .transform            = RG_TRANSFORM_IDENTITY,
                 .pTextureName         = rt_state.curTexture2DName,
                 .textureFrame         = 0,
                 .color                = rgUtilPackColorByte4D( 255, 255, 255, 255 ),
+                .emissive             = 0.0f,
                 .pEditorInfo          = NULL,
             };
             rgUtilImScratchSetToPrimitive( rg_instance, &info );
@@ -1983,16 +2010,16 @@ void pglEnd( void )
     }
     else
     {
-        // TODO: need additive(emissive 0-1 value in RgMeshPrimitiveInfo?);
-
         RgMeshPrimitiveInfo info = {
             .primitiveIndexInMesh = 0,
-            .flags                = 0, //RG_MESH_PRIMITIVE_TRANSLUCENT,
-            .transform            = RG_TRANSFORM_IDENTITY,
-            .pTextureName         = rt_state.curTexture2DName,
-            .textureFrame         = 0,
-            .color                = rgUtilPackColorByte4D( 255, 255, 255, 255 ),
-            .pEditorInfo          = NULL,
+            .flags                = ( rt_raster_blend ? RG_MESH_PRIMITIVE_TRANSLUCENT : 0 ) |
+                                    ( rt_alphatest ? RG_MESH_PRIMITIVE_ALPHA_TESTED : 0 ),
+            .transform    = RG_TRANSFORM_IDENTITY,
+            .pTextureName = rt_state.curTexture2DName,
+            .textureFrame = 0,
+            .color        = rgUtilPackColorByte4D( 255, 255, 255, 255 ),
+            .emissive     = rt_raster_blend && rt_raster_additive ? 1.0f : 0.0f,
+            .pEditorInfo  = NULL,
         };
         rgUtilImScratchSetToPrimitive( rg_instance, &info );
 
