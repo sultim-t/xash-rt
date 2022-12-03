@@ -1025,9 +1025,13 @@ qboolean R_Init( void )
 
 		{
             const rt_state_t nullstate = {
-                .viewport               = { 0 },
-                .projMatrixFor2D        = { 0 },
-                .curTexture2DName       = NULL,
+                .viewport        = { 0 },
+                .projMatrixFor2D = { 0 },
+
+                .curTexture2DName  = NULL,
+                .curTextureNearest = false,
+                .curTextureClamped = false,
+
                 .curEntityID            = -1,
                 .curModelName           = NULL,
                 .curStudioBodyPartIndex = -1,
@@ -1871,9 +1875,12 @@ void pglTexImage2D( GLenum        target,
                     .pTextureName = rt_state.curTexture2DName,
                     .pPixels      = pixels,
                     .size         = { width, height },
-                    .filter       = RG_SAMPLER_FILTER_AUTO,
-                    .addressModeU = RG_SAMPLER_ADDRESS_MODE_REPEAT,
-                    .addressModeV = RG_SAMPLER_ADDRESS_MODE_REPEAT,
+                    .filter       = rt_state.curTextureNearest ? RG_SAMPLER_FILTER_NEAREST
+                                                               : RG_SAMPLER_FILTER_AUTO,
+                    .addressModeU = rt_state.curTextureClamped ? RG_SAMPLER_ADDRESS_MODE_CLAMP
+                                                               : RG_SAMPLER_ADDRESS_MODE_REPEAT,
+                    .addressModeV = rt_state.curTextureClamped ? RG_SAMPLER_ADDRESS_MODE_CLAMP
+                                                               : RG_SAMPLER_ADDRESS_MODE_REPEAT,
                 };
 
                 RgResult r = rgProvideOriginalTexture( rg_instance, &info );
