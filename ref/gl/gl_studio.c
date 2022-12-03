@@ -2428,7 +2428,7 @@ static void R_StudioDrawPoints( void )
 
 #if XASH_RAYTRACING
         rt_state.curEntityID      = RI.currententity->index;
-        rt_state.curMeshName      = m_pSubModel->name;
+        rt_state.curMeshName      = RI.currentmodel->name;
         rt_state.curMeshPrimitive = j;
 #endif
 
