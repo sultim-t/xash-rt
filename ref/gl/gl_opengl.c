@@ -1747,6 +1747,7 @@ void pglBegin( GLenum mode )
         case GL_TRIANGLE_STRIP: topology = RG_UTIL_IM_SCRATCH_TOPOLOGY_TRIANGLE_STRIP; break;
         case GL_TRIANGLE_FAN: topology = RG_UTIL_IM_SCRATCH_TOPOLOGY_TRIANGLE_FAN; break;
         case GL_QUADS: topology = RG_UTIL_IM_SCRATCH_TOPOLOGY_QUADS; break;
+        case GL_POLYGON: topology = RG_UTIL_IM_SCRATCH_TOPOLOGY_TRIANGLE_FAN; break;
         default: assert( 0 ); return;
     }
 
@@ -1824,9 +1825,6 @@ void pglColor4ubv( const GLubyte* v )
     rgUtilImScratchColor( rg_instance, rgUtilPackColorByte4D( v[ 0 ], v[ 1 ], v[ 2 ], v[ 3 ] ) );
 }
 
-void pglEnd( void )
-{}
-
 
 static const char* rg_currentTexture2DName = NULL;
 
@@ -1871,6 +1869,45 @@ void pglTexImage2D( GLenum        target,
             }
         }
     }
+}
+
+
+void pglEnd( void )
+{
+    if( !glState.in2DMode )
+    {
+        RgMeshPrimitiveInfo info = {
+            .primitiveIndexInMesh = 0,
+            .flags                = 0,
+            .transform            = RG_TRANSFORM_IDENTITY,
+            .pTextureName         = rg_currentTexture2DName,
+            .textureFrame         = 0,
+            .color                = rgUtilPackColorByte4D( 255, 255, 255, 255 ),
+            .pEditorInfo          = NULL,
+        };
+        rgUtilImScratchSetToPrimitive( rg_instance, &info );
+		
+        RgResult r = rgUploadNonWorldPrimitive( rg_instance, &info, NULL, NULL );
+        RG_CHECK( r );
+        return;
+    }
+
+    //TODO: need additive(emissive 0-1 value in RgMeshPrimitiveInfo?);
+
+    RgMeshPrimitiveInfo info = {
+        .primitiveIndexInMesh = 0,
+        .flags                = RG_MESH_PRIMITIVE_TRANSLUCENT,
+        .transform            = RG_TRANSFORM_IDENTITY,
+        .pTextureName         = rg_currentTexture2DName,
+        .textureFrame         = 0,
+        .color                = rgUtilPackColorByte4D( 255, 255, 255, 255 ),
+        .pEditorInfo          = NULL,
+    };
+    rgUtilImScratchSetToPrimitive( rg_instance, &info );
+
+    RgResult r = rgUploadNonWorldPrimitive(
+        rg_instance, &info, rg_Get2DProjectionMatrix(), rg_GetViewport() );
+    RG_CHECK( r );
 }
 
 
