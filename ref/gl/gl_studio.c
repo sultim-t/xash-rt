@@ -1969,7 +1969,7 @@ _inline void R_StudioDrawNormalMesh( short *ptricmds, vec3_t *pstudionorms, floa
 		}
 
 		pglEnd();
-	}
+    }
 }
 
 /*
@@ -2426,6 +2426,12 @@ static void R_StudioDrawPoints( void )
 
 		R_StudioSetupSkin( m_pStudioHeader, pskinref[pmesh->skinref] );
 
+#if XASH_RAYTRACING
+        rt_state.curEntityID      = RI.currententity->index;
+        rt_state.curMeshName      = m_pSubModel->name;
+        rt_state.curMeshPrimitive = j;
+#endif
+
 #if !XASH_RAYTRACING
 		if( CVAR_TO_BOOL(r_studio_drawelements) )
 		{
@@ -2445,7 +2451,13 @@ static void R_StudioDrawPoints( void )
 			else if( FBitSet( g_nFaceFlags, STUDIO_NF_UV_COORDS ))
 				R_StudioDrawFloatMesh( ptricmds, pstudionorms );
 			else R_StudioDrawNormalMesh( ptricmds, pstudionorms, s, t );
-		}
+        }
+
+#if XASH_RAYTRACING
+        rt_state.curEntityID      = -1;
+        rt_state.curMeshName      = NULL;
+        rt_state.curMeshPrimitive = -1;
+#endif
 
 		if( FBitSet( g_nFaceFlags, STUDIO_NF_MASKED ))
 		{

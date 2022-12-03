@@ -763,8 +763,16 @@ extern RgInstance rg_instance;
         0.f, 1.f, 0.f, 0.f,		\
         0.f, 0.f, 1.f, 0.f	}
 
-extern const RgViewport* rg_GetViewport( void );
-extern const float*      rg_Get2DProjectionMatrix( void );
+typedef struct rt_state_s
+{
+    RgViewport  viewport;
+    const char* curTexture2DName;
+    int         curEntityID;
+    const char* curMeshName;
+    int         curMeshPrimitive;
+    float       projMatrixFor2D[ 16 ];
+} rt_state_t;
+extern rt_state_t rt_state;
 
 #endif
 

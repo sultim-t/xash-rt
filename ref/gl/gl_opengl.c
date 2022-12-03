@@ -51,8 +51,6 @@ glconfig_t	glConfig;
 glstate_t	glState;
 glwstate_t	glw_state;
 
-RgInstance rg_instance;
-
 #ifdef XASH_GL_STATIC
 #define GL_CALL( x ) #x, NULL
 #else
@@ -1024,6 +1022,18 @@ qboolean R_Init( void )
 
 		RgResult r = rgCreateInstance(&info, &rg_instance);
 		RG_CHECK(r);
+
+		{
+            const rt_state_t nullstate = {
+                .viewport         = { 0 },
+                .curTexture2DName = NULL,
+                .curEntityID      = -1,
+                .curMeshName      = NULL,
+                .curMeshPrimitive = -1,
+                .projMatrixFor2D  = { 0 },
+            };
+			memcpy( &rt_state, &nullstate, sizeof( rt_state ) );
+		}
 	}
 
 	r_temppool = Mem_AllocPool( "Render Zone" );
@@ -1826,7 +1836,10 @@ void pglColor4ubv( const GLubyte* v )
 }
 
 
-static const char* rg_currentTexture2DName = NULL;
+
+
+RgInstance rg_instance = NULL;
+rt_state_t rt_state = { 0 };
 
 void pglBindTexture( GLenum target, GLuint texture, const char* textureName )
 {
@@ -1834,7 +1847,7 @@ void pglBindTexture( GLenum target, GLuint texture, const char* textureName )
     {
         if( textureName && textureName[ 0 ] != '\0' )
         {
-            rg_currentTexture2DName = textureName;
+            rt_state.curTexture2DName = textureName;
         }
     }
 }
@@ -1851,12 +1864,12 @@ void pglTexImage2D( GLenum        target,
 {
     if( target == GL_TEXTURE_2D || target == GL_TEXTURE_RECTANGLE_EXT )
     {
-        if( rg_currentTexture2DName )
+        if( rt_state.curTexture2DName )
         {
             if( level == 0 && format == GL_RGBA && type == GL_UNSIGNED_BYTE && pixels )
             {
                 RgOriginalTextureInfo info = {
-                    .pTextureName = rg_currentTexture2DName,
+                    .pTextureName = rt_state.curTexture2DName,
                     .pPixels      = pixels,
                     .size         = { width, height },
                     .filter       = RG_SAMPLER_FILTER_AUTO,
@@ -1871,81 +1884,86 @@ void pglTexImage2D( GLenum        target,
     }
 }
 
-
 void pglEnd( void )
 {
     if( !glState.in2DMode )
     {
+        if( rt_state.curEntityID >= 0 && rt_state.curMeshName && rt_state.curMeshPrimitive >= 0 )
+        {
+            RgMeshInfo mesh = {
+                .uniqueObjectID = rt_state.curEntityID,
+                .pMeshName      = NULL,
+                .isStatic       = false,
+                .animationName  = NULL,
+                .animationTime  = 0.0f,
+            };
+
+            RgMeshPrimitiveInfo info = {
+                .primitiveIndexInMesh = 0,
+                .flags                = 0,
+                .transform            = RG_TRANSFORM_IDENTITY,
+                .pTextureName         = rt_state.curTexture2DName,
+                .textureFrame         = 0,
+                .color                = rgUtilPackColorByte4D( 255, 255, 255, 255 ),
+                .pEditorInfo          = NULL,
+            };
+            rgUtilImScratchSetToPrimitive( rg_instance, &info );
+
+            // RgResult r = rgUploadMeshPrimitive( rg_instance, &mesh, &info );
+            RgResult r = rgUploadNonWorldPrimitive( rg_instance, &info, NULL, NULL );
+            RG_CHECK( r );
+        }
+    }
+    else
+    {
+        // TODO: need additive(emissive 0-1 value in RgMeshPrimitiveInfo?);
+
         RgMeshPrimitiveInfo info = {
             .primitiveIndexInMesh = 0,
-            .flags                = 0,
+            .flags                = 0, //RG_MESH_PRIMITIVE_TRANSLUCENT,
             .transform            = RG_TRANSFORM_IDENTITY,
-            .pTextureName         = rg_currentTexture2DName,
+            .pTextureName         = rt_state.curTexture2DName,
             .textureFrame         = 0,
             .color                = rgUtilPackColorByte4D( 255, 255, 255, 255 ),
             .pEditorInfo          = NULL,
         };
         rgUtilImScratchSetToPrimitive( rg_instance, &info );
-		
-        RgResult r = rgUploadNonWorldPrimitive( rg_instance, &info, NULL, NULL );
+
+        RgResult r = rgUploadNonWorldPrimitive(
+            rg_instance, &info, rt_state.projMatrixFor2D, &rt_state.viewport );
         RG_CHECK( r );
-        return;
     }
-
-    //TODO: need additive(emissive 0-1 value in RgMeshPrimitiveInfo?);
-
-    RgMeshPrimitiveInfo info = {
-        .primitiveIndexInMesh = 0,
-        .flags                = RG_MESH_PRIMITIVE_TRANSLUCENT,
-        .transform            = RG_TRANSFORM_IDENTITY,
-        .pTextureName         = rg_currentTexture2DName,
-        .textureFrame         = 0,
-        .color                = rgUtilPackColorByte4D( 255, 255, 255, 255 ),
-        .pEditorInfo          = NULL,
-    };
-    rgUtilImScratchSetToPrimitive( rg_instance, &info );
-
-    RgResult r = rgUploadNonWorldPrimitive(
-        rg_instance, &info, rg_Get2DProjectionMatrix(), rg_GetViewport() );
-    RG_CHECK( r );
 }
-
-
-RgViewport rg_viewport = { 0 };
 
 void pglViewport( GLint x, GLint y, GLsizei width, GLsizei height )
 {
-    rg_viewport.x      = ( float )x;
-    rg_viewport.y      = ( float )y;
-    rg_viewport.width  = ( float )width;
-    rg_viewport.height = ( float )height;
+    rt_state.viewport.x      = ( float )x;
+    rt_state.viewport.y      = ( float )y;
+    rt_state.viewport.width  = ( float )width;
+    rt_state.viewport.height = ( float )height;
 }
 
 void pglDepthRange( GLclampd zNear, GLclampd zFar )
 {
-    rg_viewport.minDepth = ( float )zNear;
-    rg_viewport.maxDepth = ( float )zFar;
-}
-
-const RgViewport* rg_GetViewport()
-{
-    return &rg_viewport;
+    rt_state.viewport.minDepth = ( float )zNear;
+    rt_state.viewport.maxDepth = ( float )zFar;
 }
 
 
-static GLenum rg_matrix_mode = 0;
-matrix4x4     rg_matrix_proj = { 0 };
+static GLenum    rt_matrix_mode = 0;
+static matrix4x4 rt_matrix_proj = { 0 };
 
 void pglMatrixMode( GLenum mode )
 {
-    rg_matrix_mode = mode;
+    rt_matrix_mode = mode;
 }
 
 void pglLoadIdentity( void )
 {
-    if( rg_matrix_mode == GL_PROJECTION )
+    if( rt_matrix_mode == GL_PROJECTION )
     {
-        Matrix4x4_LoadIdentity( rg_matrix_proj );
+        Matrix4x4_LoadIdentity( rt_state.projMatrixFor2D );
+        Matrix4x4_LoadIdentity( rt_matrix_proj );
     }
 }
 
@@ -1956,9 +1974,10 @@ void pglLoadMatrixd( const GLdouble* m )
 
 void pglLoadMatrixf( const GLfloat* m )
 {
-    if( rg_matrix_mode == GL_PROJECTION )
+    if( rt_matrix_mode == GL_PROJECTION )
     {
-        Matrix4x4_FromArrayFloatGL( rg_matrix_proj, m );
+        memcpy( rt_state.projMatrixFor2D, m, 16 * sizeof( float ) );
+        Matrix4x4_FromArrayFloatGL( rt_matrix_proj, m );
     }
 }
 
@@ -1972,7 +1991,7 @@ void pglOrtho( GLdouble left, GLdouble right, GLdouble bottom, GLdouble top, GLd
         top    = temp;
     }
 
-    if( rg_matrix_mode == GL_PROJECTION )
+    if( rt_matrix_mode == GL_PROJECTION )
     {
         GLdouble tx = -( right + left ) / ( right - left );
         GLdouble ty = -( top + bottom ) / ( top - bottom );
@@ -1986,18 +2005,12 @@ void pglOrtho( GLdouble left, GLdouble right, GLdouble bottom, GLdouble top, GLd
         };
 
         matrix4x4 prev;
-        Matrix4x4_Copy( prev, rg_matrix_proj );
+        Matrix4x4_Copy( prev, rt_matrix_proj );
 
-        Matrix4x4_Concat( rg_matrix_proj, ortho, prev );
+        Matrix4x4_Concat( rt_matrix_proj, ortho, prev );
+
+        Matrix4x4_ToArrayFloatGL( rt_matrix_proj, rt_state.projMatrixFor2D );
     }
-}
-
-const float* rg_Get2DProjectionMatrix()
-{
-    static float column[ 16 ];
-	Matrix4x4_ToArrayFloatGL( rg_matrix_proj, column );
-
-    return column;
 }
 
 #endif // XASH_RAYTRACING
