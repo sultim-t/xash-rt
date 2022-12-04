@@ -782,7 +782,7 @@ typedef struct rt_state_s
     const char* curModelName;
 
     int			curStudioBodyPartIndex;
-    int			curStudioModelIndex;
+    int			curStudioSubmodelIndex;
     int			curStudioMeshIndex;
 
 	int			curBrushSurfaceIndex;

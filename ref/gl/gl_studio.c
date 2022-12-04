@@ -2435,9 +2435,9 @@ static void R_StudioDrawPoints( void )
         rt_state.curEntityID  = RI.currententity->index;
         rt_state.curModelName = RI.currentmodel->name;
         rt_state.curStudioBodyPartIndex =
-            ( int )( ( mstudiobodyparts_t* )bodypartbase - m_pBodyPart );
-        rt_state.curStudioModelIndex = ( int )( ( mstudiomodel_t* )modelbase - m_pSubModel );
-        rt_state.curStudioMeshIndex  = j;
+            ( int )( m_pBodyPart - ( mstudiobodyparts_t* )bodypartbase );
+        rt_state.curStudioSubmodelIndex = ( int )( m_pSubModel - ( mstudiomodel_t* )modelbase );
+        rt_state.curStudioMeshIndex     = j;
 #endif
 
 #if !XASH_RAYTRACING
@@ -2465,7 +2465,7 @@ static void R_StudioDrawPoints( void )
         rt_state.curEntityID            = -1;
         rt_state.curModelName           = NULL;
         rt_state.curStudioBodyPartIndex = -1;
-        rt_state.curStudioModelIndex    = -1;
+        rt_state.curStudioSubmodelIndex = -1;
         rt_state.curStudioMeshIndex     = -1;
 #endif
 

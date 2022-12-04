@@ -1040,7 +1040,7 @@ qboolean R_Init( void )
                 .curModelName = NULL,
 
                 .curStudioBodyPartIndex = -1,
-                .curStudioModelIndex    = -1,
+                .curStudioSubmodelIndex = -1,
                 .curStudioMeshIndex     = -1,
 
                 .curBrushSurfaceIndex = -1,
@@ -1944,23 +1944,23 @@ static int Q_clamp_wassert( int x, int xmin, int xmax )
     return x;
 }
 
-static uint32_t hashStudioPrimitive( int bodypart, int model, int mesh, int glendIndex )
+static uint32_t hashStudioPrimitive( int bodypart, int submodel, int mesh, int glendIndex )
 {
     const uint32_t BODYPART_BITS = 8;
-    const uint32_t MODEL_BITS = 8;
+    const uint32_t SUBMODEL_BITS = 8;
     const uint32_t MESH_BITS = 8;
     const uint32_t GLEND_BITS = 8;
-    assert( BODYPART_BITS + MODEL_BITS + MESH_BITS + GLEND_BITS == 32 );
+    assert( BODYPART_BITS + SUBMODEL_BITS + MESH_BITS + GLEND_BITS == 32 );
 
     bodypart   = Q_clamp_wassert( bodypart, 0, ( 1 << BODYPART_BITS ) - 1 );
-    model      = Q_clamp_wassert( model, 0, ( 1 << MODEL_BITS ) - 1 );
+    submodel   = Q_clamp_wassert( submodel, 0, ( 1 << SUBMODEL_BITS ) - 1 );
     mesh       = Q_clamp_wassert( mesh, 0, ( 1 << MESH_BITS ) - 1 );
     glendIndex = Q_clamp_wassert( glendIndex, 0, ( 1 << GLEND_BITS ) - 1 );
 	
 
-	return ( uint32_t )glendIndex << ( BODYPART_BITS + MODEL_BITS + MESH_BITS ) |
-           ( uint32_t )mesh << ( BODYPART_BITS + MODEL_BITS ) |
-           ( uint32_t )model << ( BODYPART_BITS ) |
+	return ( uint32_t )glendIndex << ( BODYPART_BITS + SUBMODEL_BITS + MESH_BITS ) |
+           ( uint32_t )mesh << ( BODYPART_BITS + SUBMODEL_BITS ) |
+           ( uint32_t )submodel << ( BODYPART_BITS ) |
 		   ( uint32_t )bodypart;
 }
 
@@ -2020,7 +2020,7 @@ void pglEnd( void )
 
     qboolean isstudiomodel = rt_state.curEntityID >= 0 && rt_state.curModelName &&
                              rt_state.curStudioBodyPartIndex >= 0 &&
-                             rt_state.curStudioModelIndex >= 0 &&
+                             rt_state.curStudioSubmodelIndex >= 0 &&
                              rt_state.curStudioMeshIndex >= 0;
 
 	qboolean isbrush = rt_state.curEntityID >= 0 && rt_state.curModelName &&
@@ -2041,7 +2041,7 @@ void pglEnd( void )
             static uint32_t    prevStudioHash0 = 0;
 
 			uint32_t curStudioHash0 = hashStudioPrimitive( rt_state.curStudioBodyPartIndex,
-                                                           rt_state.curStudioModelIndex,
+                                                           rt_state.curStudioSubmodelIndex,
                                                            rt_state.curStudioMeshIndex,
                                                            /* glendIndex= */ 0 );
 
@@ -2069,7 +2069,7 @@ void pglEnd( void )
 
         RgMeshPrimitiveInfo info = {
             .primitiveIndexInMesh = hashStudioPrimitive( rt_state.curStudioBodyPartIndex,
-                                                         rt_state.curStudioModelIndex,
+                                                         rt_state.curStudioSubmodelIndex,
                                                          rt_state.curStudioMeshIndex,
                                                          glendIndex ),
             .flags                = rt_alphatest ? RG_MESH_PRIMITIVE_ALPHA_TESTED : 0,
