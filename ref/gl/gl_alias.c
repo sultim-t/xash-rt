@@ -1357,6 +1357,11 @@ R_DrawAliasModel
 */
 void R_DrawAliasModel( cl_entity_t *e )
 {
+#if XASH_RAYTRACING
+    assert( 0 && "Unexpected alias model for RT renderer" );
+    return;
+#endif
+
 	model_t		*clmodel;
 	vec3_t		absmin, absmax;
 	remap_info_t	*pinfo = NULL;

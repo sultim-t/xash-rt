@@ -772,6 +772,8 @@ typedef struct rt_state_s
     qboolean	curTextureNearest;
     qboolean	curTextureClamped;
 
+	qboolean	curIsRasterized;
+
     int         curEntityID;
     const char* curModelName;
     int			curStudioBodyPartIndex;

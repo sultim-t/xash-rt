@@ -993,7 +993,7 @@ qboolean R_Init( void )
 
             .primaryRaysMaxAlbedoLayers          = 1,
             .indirectIlluminationMaxAlbedoLayers = 1,
-            .rayCullBackFacingTriangles          = 1,
+            .rayCullBackFacingTriangles          = 0,
             .allowGeometryWithSkyFlag            = 1,
 
             .rasterizedMaxVertexCount = 1 << 20,
@@ -1032,6 +1032,8 @@ qboolean R_Init( void )
                 .curTexture2DName  = NULL,
                 .curTextureNearest = false,
                 .curTextureClamped = false,
+
+                .curIsRasterized = false,
 
                 .curEntityID            = -1,
                 .curModelName           = NULL,
@@ -1123,6 +1125,7 @@ obsolete
 */
 void GL_CheckForErrors_( const char *filename, const int fileline )
 {
+#if !XASH_RAYTRACING
 	int	err;
 
 	if( !CVAR_TO_BOOL( gl_check_errors ))
@@ -1132,6 +1135,7 @@ void GL_CheckForErrors_( const char *filename, const int fileline )
 		return;
 
 	gEngfuncs.Con_Printf( S_OPENGL_ERROR "%s (at %s:%i)\n", GL_ErrorString( err ), filename, fileline );
+#endif
 }
 
 void GL_SetupAttributes( int safegl )
@@ -1959,9 +1963,43 @@ void pglEnd( void )
 {
     if( !glState.in2DMode )
     {
-        if( rt_state.curEntityID >= 0 && rt_state.curModelName &&
-            rt_state.curStudioBodyPartIndex >= 0 && rt_state.curStudioModelIndex >= 0 &&
-            rt_state.curStudioMeshIndex >= 0 )
+        qboolean isstudiomodel = rt_state.curEntityID >= 0 && rt_state.curModelName &&
+                                 rt_state.curStudioBodyPartIndex >= 0 &&
+                                 rt_state.curStudioModelIndex >= 0 &&
+                                 rt_state.curStudioMeshIndex >= 0;
+
+		if( rt_state.curEntityID == 0)
+		{
+            isstudiomodel = false;
+		}
+
+        if( rt_state.curIsRasterized )
+        {
+            RgMeshInfo mesh = {
+                .uniqueObjectID = UINT32_MAX,
+                .pMeshName      = NULL,
+                .isStatic       = false,
+                .animationName  = NULL,
+                .animationTime  = 0.0f,
+            };
+
+            RgMeshPrimitiveInfo info = {
+                .primitiveIndexInMesh = 0,
+                .flags                = ( rt_raster_blend ? RG_MESH_PRIMITIVE_TRANSLUCENT : 0 ) |
+                                        ( rt_alphatest ? RG_MESH_PRIMITIVE_ALPHA_TESTED : 0 ),
+                .transform    = RG_TRANSFORM_IDENTITY,
+                .pTextureName = rt_state.curTexture2DName,
+                .textureFrame = 0,
+                .color        = rgUtilPackColorByte4D( 255, 255, 255, 255 ),
+                .emissive     = rt_raster_blend && rt_raster_additive ? 1.0f : 0.0f,
+                .pEditorInfo  = NULL,
+            };
+            rgUtilImScratchSetToPrimitive( rg_instance, &info );
+
+            RgResult r = rgUploadMeshPrimitive( rg_instance, &mesh, &info );
+            RG_CHECK( r );
+        }
+        else if( isstudiomodel )
         {
             static int glendIndex = 0;
             {
@@ -2012,7 +2050,6 @@ void pglEnd( void )
             rgUtilImScratchSetToPrimitive( rg_instance, &info );
 
             RgResult r = rgUploadMeshPrimitive( rg_instance, &mesh, &info );
-            // RgResult r = rgUploadNonWorldPrimitive( rg_instance, &info, NULL, NULL );
             RG_CHECK( r );
         }
     }

@@ -727,6 +727,10 @@ static void R_DrawSpriteQuad( mspriteframe_t *frame, vec3_t org, vec3_t v_right,
 
 	r_stats.c_sprite_polys++;
 
+#if XASH_RAYTRACING
+    rt_state.curIsRasterized = true;
+#endif
+
 	pglBegin( GL_QUADS );
 		pglTexCoord2f( 0.0f, 1.0f );
 		VectorMA( org, frame->down * scale, v_up, point );
@@ -745,10 +749,18 @@ static void R_DrawSpriteQuad( mspriteframe_t *frame, vec3_t org, vec3_t v_right,
 		VectorMA( point, frame->right * scale, v_right, point );
 		pglVertex3fv( point );
 	pglEnd();
+
+#if XASH_RAYTRACING
+    rt_state.curIsRasterized = false;
+#endif
 }
 
 static qboolean R_SpriteHasLightmap( cl_entity_t *e, int texFormat )
 {
+#if XASH_RAYTRACING
+    return false;
+#endif
+
 	if( !r_sprite_lighting->value )
 		return false;
 
@@ -781,6 +793,10 @@ R_SpriteAllowLerping
 */
 static qboolean R_SpriteAllowLerping( cl_entity_t *e, msprite_t *psprite )
 {
+#if XASH_RAYTRACING
+    return false;
+#endif
+
 	if( !r_sprite_lerping->value )
 		return false;
 
@@ -875,7 +891,11 @@ void R_DrawSpriteModel( cl_entity_t *e )
 
 	// all sprites can have color
 	pglTexEnvi( GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE );
-	pglEnable( GL_ALPHA_TEST );
+#if XASH_RAYTRACING
+    pglDisable( GL_ALPHA_TEST );
+#else
+    pglEnable( GL_ALPHA_TEST );
+#endif
 
 	// NOTE: never pass sprites with rendercolor '0 0 0' it's a stupid Valve Hammer Editor bug
 	if( e->curstate.rendercolor.r || e->curstate.rendercolor.g || e->curstate.rendercolor.b )

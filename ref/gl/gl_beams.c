@@ -1077,6 +1077,10 @@ void R_BeamDraw( BEAM *pbeam, float frametime )
 		TriColor4f( pbeam->r, pbeam->g, pbeam->b, ( 1.0f - pbeam->t ) * pbeam->brightness );
 	else TriColor4f( pbeam->r, pbeam->g, pbeam->b, pbeam->brightness );
 
+#if XASH_RAYTRACING
+    rt_state.curIsRasterized = true;
+#endif
+
 	switch( pbeam->type )
 	{
 	case TE_BEAMTORUS:
@@ -1114,7 +1118,11 @@ void R_BeamDraw( BEAM *pbeam, float frametime )
 		R_DrawRing( pbeam->source, pbeam->delta, pbeam->width, pbeam->amplitude, pbeam->freq, pbeam->speed, pbeam->segments );
 		TriEnd();
 		break;
-	}
+    }
+
+#if XASH_RAYTRACING
+    rt_state.curIsRasterized = false;
+#endif
 
 	GL_Cull( GL_FRONT );
 	r_stats.c_view_beams_count++;
