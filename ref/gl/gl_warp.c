@@ -105,6 +105,8 @@ static qboolean CheckSkybox( const char *name, char out[6][MAX_STRING] )
 	return false;
 }
 
+#if !XASH_RAYTRACING
+
 void DrawSkyPolygon( int nump, vec3_t vecs )
 {
 	int	i, j, axis;
@@ -248,6 +250,8 @@ loc1:
 	ClipSkyPolygon( newc[1], newv[1][0], stage + 1 );
 }
 
+#endif // !XASH_RAYTRACING
+
 void MakeSkyVec( float s, float t, int axis )
 {
 	int	j, k, farclip;
@@ -296,8 +300,13 @@ void R_ClearSkyBox( void )
 
 	for( i = 0; i < 6; i++ )
 	{
+#if XASH_RAYTRACING
+        RI.skyMins[ 0 ][ i ] = RI.skyMins[ 1 ][ i ] = -1.0f;
+        RI.skyMaxs[ 0 ][ i ] = RI.skyMaxs[ 1 ][ i ] = +1.0f;
+#else
 		RI.skyMins[0][i] = RI.skyMins[1][i] = 9999999.0f;
 		RI.skyMaxs[0][i] = RI.skyMaxs[1][i] = -9999999.0f;
+#endif
 	}
 }
 
@@ -308,6 +317,8 @@ R_AddSkyBoxSurface
 */
 void R_AddSkyBoxSurface( msurface_t *fa )
 {
+#if !XASH_RAYTRACING
+
 	vec3_t	verts[MAX_CLIP_VERTS];
 	glpoly_t	*p;
 	float	*v;
@@ -334,6 +345,8 @@ void R_AddSkyBoxSurface( msurface_t *fa )
 			VectorSubtract( p->verts[i], RI.cullorigin, verts[i] );
 		ClipSkyPolygon( p->numverts, verts[0], 0 );
 	}
+
+#endif
 }
 
 /*
@@ -367,6 +380,10 @@ R_DrawSkybox
 */
 void R_DrawSkyBox( void )
 {
+#if XASH_RAYTRACING
+    rt_state.curIsSky = true;
+#endif
+
 	int	i;
 
 	RI.isSkyVisible = true;
@@ -380,7 +397,7 @@ void R_DrawSkyBox( void )
 	pglDisable( GL_BLEND );
 	pglDisable( GL_ALPHA_TEST );
 	pglTexEnvi( GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE );
-
+	
 	for( i = 0; i < 6; i++ )
 	{
 		if( RI.skyMins[0][i] >= RI.skyMaxs[0][i] || RI.skyMins[1][i] >= RI.skyMaxs[1][i] )
@@ -405,6 +422,10 @@ void R_DrawSkyBox( void )
 		pglFogf( GL_FOG_DENSITY, RI.fogDensity );
 
 	R_LoadIdentity();
+
+#if XASH_RAYTRACING
+    rt_state.curIsSky = false;
+#endif
 }
 
 /*
@@ -520,6 +541,8 @@ void R_CloudTexCoord( vec3_t v, float speed, float *s, float *t )
 	*t = ( speedscale + dir[1] * length ) * (1.0f / 128.0f);
 }
 
+#if !XASH_RAYTRACING
+
 /*
 ===============
 R_CloudDrawPoly
@@ -614,6 +637,8 @@ void R_CloudRenderSide( int axis )
 	}
 }
 
+#endif // !XASH_RAYTRACING
+
 /*
 ==============
 R_DrawClouds
@@ -626,6 +651,8 @@ void R_DrawClouds( void )
 	int	i;
 
 	RI.isSkyVisible = true;
+
+#if !XASH_RAYTRACING
 
 	if( RI.fogEnabled )
 		pglFogf( GL_FOG_DENSITY, RI.fogDensity * 0.25f );
@@ -643,7 +670,9 @@ void R_DrawClouds( void )
 	pglDepthMask( GL_TRUE );
 
 	if( RI.fogEnabled )
-		pglFogf( GL_FOG_DENSITY, RI.fogDensity );
+        pglFogf( GL_FOG_DENSITY, RI.fogDensity );
+
+#endif
 }
 
 /*

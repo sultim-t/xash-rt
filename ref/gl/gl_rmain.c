@@ -1142,8 +1142,8 @@ void R_EndFrame( void )
 
     {
         RgDrawFrameSkyParams skyParams = {
-            .skyType            = RG_SKY_TYPE_COLOR,
-            .skyColorDefault    = { 0.7f, 0.7f, 0.7f },
+            .skyType            = RG_SKY_TYPE_RASTERIZED_GEOMETRY,
+            .skyColorDefault    = { 0, 0, 0 },
             .skyColorMultiplier = 1.0f,
             .skyColorSaturation = 1.0f,
             .skyViewerPosition  = { 0, 0, 0 },
@@ -1163,7 +1163,7 @@ void R_EndFrame( void )
             .rayCullMaskWorld = RG_DRAW_FRAME_RAY_CULL_WORLD_0_BIT |
                                 RG_DRAW_FRAME_RAY_CULL_WORLD_1_BIT | RG_DRAW_FRAME_RAY_CULL_SKY_BIT,
             .currentTime             = ( double )gpGlobals->time,
-            .pRenderResolutionParams = &resolutionParams,
+            .pRenderResolutionParams = NULL,
             .pSkyParams              = &skyParams,
         };
 		

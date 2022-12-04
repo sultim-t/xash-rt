@@ -772,6 +772,7 @@ typedef struct rt_state_s
     qboolean	curTextureNearest;
     qboolean	curTextureClamped;
 
+	qboolean	curIsSky;
 	qboolean	curIsRasterized;
 
     int         curEntityID;
