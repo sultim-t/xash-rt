@@ -1141,6 +1141,15 @@ void R_EndFrame( void )
 	gEngfuncs.GL_SwapBuffers();
 
     {
+        RgDirectionalLightUploadInfo sun = {
+            .uniqueID               = 0,
+            .color                  = { 10, 10, 10 },
+            .direction              = { -1, -1, -1 },
+            .angularDiameterDegrees = 0.5f,
+        };
+        RgResult r2 = rgUploadDirectionalLight( rg_instance, &sun );
+        RG_CHECK( r2 );
+
         RgDrawFrameSkyParams skyParams = {
             .skyType            = RG_SKY_TYPE_RASTERIZED_GEOMETRY,
             .skyColorDefault    = { 0, 0, 0 },

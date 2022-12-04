@@ -429,8 +429,11 @@ void R_DrawWaterSurfaces( void );
 void R_DrawBrushModel( cl_entity_t *e );
 void GL_SubdivideSurface( msurface_t *fa );
 void GL_BuildPolygonFromSurface( model_t *mod, msurface_t *fa );
+#if XASH_RAYTRACING
+void DrawGLPoly( msurface_t *surf, glpoly_t *p, float xScale, float yScale );
+#else
 void DrawGLPoly( glpoly_t *p, float xScale, float yScale );
-texture_t *R_TextureAnimation( msurface_t *s );
+#endif texture_t *R_TextureAnimation( msurface_t *s );
 void GL_SetupFogColorForSurfaces( void );
 void R_DrawAlphaTextureChains( void );
 void GL_RebuildLightmaps( void );
@@ -777,9 +780,14 @@ typedef struct rt_state_s
 
     int         curEntityID;
     const char* curModelName;
+
     int			curStudioBodyPartIndex;
     int			curStudioModelIndex;
     int			curStudioMeshIndex;
+
+	int			curBrushSurfaceIndex;
+	int			curBrushGLPolyIndex;
+
 } rt_state_t;
 extern rt_state_t rt_state;
 

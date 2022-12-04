@@ -774,7 +774,11 @@ static void R_BuildLightMap( msurface_t *surf, byte *dest, int stride, qboolean 
 DrawGLPoly
 ================
 */
+#if XASH_RAYTRACING
+void DrawGLPoly( msurface_t *surf, glpoly_t *p, float xScale, float yScale )
+#else
 void DrawGLPoly( glpoly_t *p, float xScale, float yScale )
+#endif
 {
 	float		*v;
 	float		sOffset, sy;
@@ -828,6 +832,15 @@ void DrawGLPoly( glpoly_t *p, float xScale, float yScale )
 	if( xScale != 0.0f && yScale != 0.0f )
 		hasScale = true;
 
+#if XASH_RAYTRACING
+    msurface_t* surfbase = RI.currentmodel->surfaces + RI.currentmodel->firstmodelsurface;
+
+    rt_state.curEntityID          = RI.currententity->index;
+    rt_state.curModelName         = RI.currentmodel->name;
+    rt_state.curBrushSurfaceIndex = ( int )( surf - surfbase );
+    rt_state.curBrushGLPolyIndex  = 0;
+#endif
+
 	pglBegin( GL_POLYGON );
 
 	for( i = 0, v = p->verts[0]; i < p->numverts; i++, v += VERTEXSIZE )
@@ -840,6 +853,13 @@ void DrawGLPoly( glpoly_t *p, float xScale, float yScale )
 	}
 
 	pglEnd();
+
+#if XASH_RAYTRACING
+    rt_state.curEntityID = -1;
+    rt_state.curModelName = NULL;
+    rt_state.curBrushSurfaceIndex = -1;
+    rt_state.curBrushGLPolyIndex = -1;
+#endif
 
 	if( FBitSet( p->flags, SURF_DRAWTILED ))
 		GL_SetupFogColorForSurfaces();
@@ -1054,7 +1074,7 @@ void R_RenderFullbrights( void )
 		GL_Bind( XASH_TEXTURE0, i );
 
 		for( p = es; p; p = p->lumachain )
-			DrawGLPoly( p->surf->polys, 0.0f, 0.0f );
+			DrawGLPoly( p->surf, p->surf->polys, 0.0f, 0.0f );
 
 		fullbright_surfaces[i] = NULL;
 		es->lumachain = NULL;
@@ -1102,7 +1122,7 @@ void R_RenderDetails( void )
 		{
 			fa = p->surf;
 			glt = R_GetTexture( fa->texinfo->texture->gl_texturenum ); // get texture scale
-			DrawGLPoly( fa->polys, glt->xscale, glt->yscale );
+			DrawGLPoly( fa, fa->polys, glt->xscale, glt->yscale );
 		}
 
 		detail_surfaces[i] = NULL;
@@ -1182,7 +1202,7 @@ void R_RenderBrushPoly( msurface_t *fa, int cull_type )
 		}
 	}
 
-	DrawGLPoly( fa->polys, 0.0f, 0.0f );
+	DrawGLPoly( fa, fa->polys, 0.0f, 0.0f );
 
 	if( RI.currententity->curstate.rendermode == kRenderNormal )
 	{
