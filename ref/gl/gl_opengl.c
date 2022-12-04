@@ -998,6 +998,7 @@ qboolean R_Init( void )
 
             .rasterizedMaxVertexCount = 1 << 20,
             .rasterizedMaxIndexCount  = 1 << 21,
+            .rasterizedVertexColorGamma = true,
 
             .rasterizedSkyCubemapSize = 256,
 
