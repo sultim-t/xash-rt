@@ -835,10 +835,8 @@ void DrawGLPoly( glpoly_t *p, float xScale, float yScale )
 #if XASH_RAYTRACING
     msurface_t* surfbase = RI.currentmodel->surfaces + RI.currentmodel->firstmodelsurface;
 
-    rt_state.curEntityID          = RI.currententity->index;
-    rt_state.curModelName         = RI.currentmodel->name;
-    rt_state.curBrushSurfaceIndex = ( int )( surf - surfbase );
-    rt_state.curBrushGLPolyIndex  = 0;
+    rt_state.curBrushSurface = ( int )( surf - surfbase );
+    rt_state.curBrushGlend   = 0;
 #endif
 
 	pglBegin( GL_POLYGON );
@@ -855,10 +853,8 @@ void DrawGLPoly( glpoly_t *p, float xScale, float yScale )
 	pglEnd();
 
 #if XASH_RAYTRACING
-    rt_state.curEntityID = -1;
-    rt_state.curModelName = NULL;
-    rt_state.curBrushSurfaceIndex = -1;
-    rt_state.curBrushGLPolyIndex = -1;
+    rt_state.curBrushSurface = -1;
+    rt_state.curBrushGlend   = -1;
 #endif
 
 	if( FBitSet( p->flags, SURF_DRAWTILED ))

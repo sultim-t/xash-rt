@@ -778,15 +778,13 @@ typedef struct rt_state_s
 	qboolean	curIsSky;
 	qboolean	curIsRasterized;
 
-    int         curEntityID;
-    const char* curModelName;
+    int			curStudioBodyPart;
+    int			curStudioSubmodel;
+    int			curStudioMesh;
+    int         curStudioGlend;
 
-    int			curStudioBodyPartIndex;
-    int			curStudioSubmodelIndex;
-    int			curStudioMeshIndex;
-
-	int			curBrushSurfaceIndex;
-	int			curBrushGLPolyIndex;
+	int			curBrushSurface;
+	int			curBrushGlend;
 
 } rt_state_t;
 extern rt_state_t rt_state;

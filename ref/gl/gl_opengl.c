@@ -1036,15 +1036,13 @@ qboolean R_Init( void )
 
                 .curIsRasterized = false,
 
-                .curEntityID  = -1,
-                .curModelName = NULL,
+                .curStudioBodyPart = -1,
+                .curStudioSubmodel = -1,
+                .curStudioMesh     = -1,
+                .curStudioGlend    = -1,
 
-                .curStudioBodyPartIndex = -1,
-                .curStudioSubmodelIndex = -1,
-                .curStudioMeshIndex     = -1,
-
-                .curBrushSurfaceIndex = -1,
-                .curBrushGLPolyIndex  = -1,
+                .curBrushSurface = -1,
+                .curBrushGlend   = -1,
             };
 			memcpy( &rt_state, &nullstate, sizeof( rt_state ) );
 		}
@@ -1946,18 +1944,25 @@ static int Q_clamp_wassert( int x, int xmin, int xmax )
 
 static uint32_t hashStudioPrimitive( int bodypart, int submodel, int mesh, int glendIndex )
 {
-    const uint32_t BODYPART_BITS = 8;
-    const uint32_t SUBMODEL_BITS = 8;
+	// must be compact
+    const uint32_t BODYPART_BITS = 5;
+    const uint32_t SUBMODEL_BITS = 5;
     const uint32_t MESH_BITS = 8;
-    const uint32_t GLEND_BITS = 8;
+    const uint32_t GLEND_BITS    = 32 - BODYPART_BITS - SUBMODEL_BITS - MESH_BITS;
     assert( BODYPART_BITS + SUBMODEL_BITS + MESH_BITS + GLEND_BITS == 32 );
 
+	// must be same as engine limitations
+    assert( ( 1 << BODYPART_BITS ) == MAXSTUDIOBODYPARTS ); // body parts per submodel
+    assert( ( 1 << SUBMODEL_BITS ) == MAXSTUDIOMODELS );    // sub-models per model
+    assert( ( 1 << MESH_BITS ) == MAXSTUDIOMESHES );        // max textures per model
+
+	// must be within bounds
     bodypart   = Q_clamp_wassert( bodypart, 0, ( 1 << BODYPART_BITS ) - 1 );
     submodel   = Q_clamp_wassert( submodel, 0, ( 1 << SUBMODEL_BITS ) - 1 );
     mesh       = Q_clamp_wassert( mesh, 0, ( 1 << MESH_BITS ) - 1 );
     glendIndex = Q_clamp_wassert( glendIndex, 0, ( 1 << GLEND_BITS ) - 1 );
-	
 
+	// combine
 	return ( uint32_t )glendIndex << ( BODYPART_BITS + SUBMODEL_BITS + MESH_BITS ) |
            ( uint32_t )mesh << ( BODYPART_BITS + SUBMODEL_BITS ) |
            ( uint32_t )submodel << ( BODYPART_BITS ) |
@@ -2018,67 +2023,68 @@ void pglEnd( void )
 		return;
     }
 
-    qboolean isstudiomodel = rt_state.curEntityID >= 0 && rt_state.curModelName &&
-                             rt_state.curStudioBodyPartIndex >= 0 &&
-                             rt_state.curStudioSubmodelIndex >= 0 &&
-                             rt_state.curStudioMeshIndex >= 0;
+    if( !RI.currententity || RI.currententity->index < 0 )
+    {
+        return;
+    }
 
-	qboolean isbrush = rt_state.curEntityID >= 0 && rt_state.curModelName &&
-                       rt_state.curBrushSurfaceIndex >= 0 && rt_state.curBrushGLPolyIndex >= 0;
+    if( !RI.currentmodel )
+    {
+        return;
+    }
+
+    uint32_t curEntityID = ( uint32_t )RI.currententity->index;
+    if( RI.currententity->player )
+    {
+        curEntityID |= 1u << 30u;
+    }
+    if( rt_state.curStudioWeaponModel >= 0 )
+    {
+        curEntityID |= ( uint32_t )rt_state.curStudioWeaponModel << 16u;
+    }
+
+    const char* curModelName = RI.currentmodel->name;
+
+    qboolean isstudiomodel = rt_state.curStudioBodyPart >= 0 && rt_state.curStudioSubmodel >= 0 &&
+                             rt_state.curStudioMesh >= 0 && rt_state.curStudioGlend >= 0;
+
+    qboolean isbrush = rt_state.curBrushSurface >= 0 && rt_state.curBrushGlend >= 0;
 
 	// TODO: remove
-	if( rt_state.curEntityID == 0)
+	if( curEntityID == 0)
 	{
         isstudiomodel = false;
 	}
 	
     if( isstudiomodel )
     {
-        static int glendIndex = 0;
-        {
-            static int         prevEntityID    = -1;
-            static const char* prevModelName   = NULL;
-            static uint32_t    prevStudioHash0 = 0;
-
-			uint32_t curStudioHash0 = hashStudioPrimitive( rt_state.curStudioBodyPartIndex,
-                                                           rt_state.curStudioSubmodelIndex,
-                                                           rt_state.curStudioMeshIndex,
-                                                           /* glendIndex= */ 0 );
-
-            if( rt_state.curEntityID == prevEntityID &&
-                rt_state.curModelName == prevModelName && prevStudioHash0 == curStudioHash0 )
-            {
-                glendIndex++;
-            }
-            else
-            {
-                glendIndex = 0;
-            }
-            prevEntityID    = rt_state.curEntityID;
-            prevModelName   = rt_state.curModelName;
-            prevStudioHash0 = curStudioHash0;
-        }
+        qboolean isviewmodel    = ( RI.currententity == gEngfuncs.GetViewModel() );
+        qboolean isplayerviewer = ( RI.currententity == gEngfuncs.GetLocalPlayer() &&
+                                    !ENGINE_GET_PARM( PARM_THIRDPERSON ) );
 
         RgMeshInfo mesh = {
-            .uniqueObjectID = rt_state.curEntityID,
-            .pMeshName      = rt_state.curModelName,
+            .uniqueObjectID = curEntityID,
+            .pMeshName      = curModelName,
             .isStatic       = false,
             .animationName  = NULL,
             .animationTime  = 0.0f,
         };
 
         RgMeshPrimitiveInfo info = {
-            .primitiveIndexInMesh = hashStudioPrimitive( rt_state.curStudioBodyPartIndex,
-                                                         rt_state.curStudioSubmodelIndex,
-                                                         rt_state.curStudioMeshIndex,
-                                                         glendIndex ),
-            .flags                = rt_alphatest ? RG_MESH_PRIMITIVE_ALPHA_TESTED : 0,
-            .transform            = RG_TRANSFORM_IDENTITY,
-            .pTextureName         = rt_state.curTexture2DName,
-            .textureFrame         = 0,
-            .color                = rgUtilPackColorByte4D( 255, 255, 255, 255 ),
-            .emissive             = 0.0f,
-            .pEditorInfo          = NULL,
+            .primitiveIndexInMesh = hashStudioPrimitive( rt_state.curStudioBodyPart,
+                                                         rt_state.curStudioSubmodel,
+                                                         rt_state.curStudioMesh,
+                                                         rt_state.curStudioGlend ),
+            .flags =
+                ( rt_alphatest ? RG_MESH_PRIMITIVE_ALPHA_TESTED : 0 ) |
+                ( isviewmodel ? RG_MESH_PRIMITIVE_FIRST_PERSON
+                              : ( isplayerviewer ? RG_MESH_PRIMITIVE_FIRST_PERSON_VIEWER : 0 ) ),
+            .transform    = RG_TRANSFORM_IDENTITY,
+            .pTextureName = rt_state.curTexture2DName,
+            .textureFrame = 0,
+            .color        = rgUtilPackColorByte4D( 255, 255, 255, 255 ),
+            .emissive     = 0.0f,
+            .pEditorInfo  = NULL,
         };
         rgUtilImScratchSetToPrimitive( rg_instance, &info );
 
@@ -2098,8 +2104,8 @@ void pglEnd( void )
         }}
 
         RgMeshInfo mesh = {
-            .uniqueObjectID = rt_state.curEntityID,
-            .pMeshName      = rt_state.curModelName,
+            .uniqueObjectID = curEntityID,
+            .pMeshName      = curModelName,
             .isStatic       = false,
             .animationName  = NULL,
             .animationTime  = 0.0f,
@@ -2108,7 +2114,7 @@ void pglEnd( void )
 		// TODO: rt_state.curBrushGLPolyIndex?
 
         RgMeshPrimitiveInfo info = {
-            .primitiveIndexInMesh = rt_state.curBrushSurfaceIndex,
+            .primitiveIndexInMesh = rt_state.curBrushSurface,
             .flags                = rt_alphatest ? RG_MESH_PRIMITIVE_ALPHA_TESTED : 0,
             .transform            = MATRIX4_TO_RGTRANSFORM( RI.objectMatrix ),
             .pTextureName         = rt_state.curTexture2DName,
@@ -2121,6 +2127,8 @@ void pglEnd( void )
 		
         RgResult r = rgUploadMeshPrimitive( rg_instance, &mesh, &info );
         RG_CHECK( r );
+
+		return;
     }
 }
 
