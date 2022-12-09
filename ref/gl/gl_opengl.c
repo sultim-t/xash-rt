@@ -1942,14 +1942,15 @@ static int Q_clamp_wassert( int x, int xmin, int xmax )
     return x;
 }
 
-static uint32_t hashStudioPrimitive( int bodypart, int submodel, int mesh, int glendIndex )
+static uint32_t hashStudioPrimitive( int bodypart, int submodel, int mesh, int weaponmodel, int glendIndex )
 {
 	// must be compact
     const uint32_t BODYPART_BITS = 5;
     const uint32_t SUBMODEL_BITS = 5;
     const uint32_t MESH_BITS = 8;
-    const uint32_t GLEND_BITS    = 32 - BODYPART_BITS - SUBMODEL_BITS - MESH_BITS;
-    assert( BODYPART_BITS + SUBMODEL_BITS + MESH_BITS + GLEND_BITS == 32 );
+    const uint32_t WEAPON_BITS = 1;
+    const uint32_t GLEND_BITS    = 32 - BODYPART_BITS - SUBMODEL_BITS - MESH_BITS - WEAPON_BITS;
+    assert( BODYPART_BITS + SUBMODEL_BITS + MESH_BITS + WEAPON_BITS + GLEND_BITS == 32 );
 
 	// must be same as engine limitations
     assert( ( 1 << BODYPART_BITS ) == MAXSTUDIOBODYPARTS ); // body parts per submodel
@@ -1957,13 +1958,15 @@ static uint32_t hashStudioPrimitive( int bodypart, int submodel, int mesh, int g
     assert( ( 1 << MESH_BITS ) == MAXSTUDIOMESHES );        // max textures per model
 
 	// must be within bounds
-    bodypart   = Q_clamp_wassert( bodypart, 0, ( 1 << BODYPART_BITS ) - 1 );
-    submodel   = Q_clamp_wassert( submodel, 0, ( 1 << SUBMODEL_BITS ) - 1 );
-    mesh       = Q_clamp_wassert( mesh, 0, ( 1 << MESH_BITS ) - 1 );
-    glendIndex = Q_clamp_wassert( glendIndex, 0, ( 1 << GLEND_BITS ) - 1 );
+    bodypart    = Q_clamp_wassert( bodypart, 0, ( 1 << BODYPART_BITS ) - 1 );
+    submodel    = Q_clamp_wassert( submodel, 0, ( 1 << SUBMODEL_BITS ) - 1 );
+    mesh        = Q_clamp_wassert( mesh, 0, ( 1 << MESH_BITS ) - 1 );
+    weaponmodel = Q_clamp_wassert( !!weaponmodel, 0, ( 1 << WEAPON_BITS ) - 1 );
+    glendIndex  = Q_clamp_wassert( glendIndex, 0, ( 1 << GLEND_BITS ) - 1 );
 
 	// combine
-	return ( uint32_t )glendIndex << ( BODYPART_BITS + SUBMODEL_BITS + MESH_BITS ) |
+    return ( uint32_t )glendIndex << ( BODYPART_BITS + SUBMODEL_BITS + MESH_BITS + WEAPON_BITS ) |
+           ( uint32_t )weaponmodel << ( BODYPART_BITS + SUBMODEL_BITS + MESH_BITS ) |
            ( uint32_t )mesh << ( BODYPART_BITS + SUBMODEL_BITS ) |
            ( uint32_t )submodel << ( BODYPART_BITS ) |
 		   ( uint32_t )bodypart;
@@ -2036,11 +2039,7 @@ void pglEnd( void )
     uint32_t curEntityID = ( uint32_t )RI.currententity->index;
     if( RI.currententity->player )
     {
-        curEntityID |= 1u << 30u;
-    }
-    if( rt_state.curStudioWeaponModel >= 0 )
-    {
-        curEntityID |= ( uint32_t )rt_state.curStudioWeaponModel << 16u;
+        curEntityID |= 1u << 16u;
     }
 
     const char* curModelName = RI.currentmodel->name;
@@ -2074,6 +2073,7 @@ void pglEnd( void )
             .primitiveIndexInMesh = hashStudioPrimitive( rt_state.curStudioBodyPart,
                                                          rt_state.curStudioSubmodel,
                                                          rt_state.curStudioMesh,
+                                                         rt_state.curStudioWeaponModel,
                                                          rt_state.curStudioGlend ),
             .flags =
                 ( rt_alphatest ? RG_MESH_PRIMITIVE_ALPHA_TESTED : 0 ) |

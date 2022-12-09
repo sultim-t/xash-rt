@@ -67,7 +67,11 @@ int R_CullModel( cl_entity_t *e, const vec3_t absmin, const vec3_t absmax )
 
 	// local client can't view himself if camera or thirdperson is not active
 	if( RP_LOCALCLIENT( e ) && !ENGINE_GET_PARM( PARM_THIRDPERSON ) && CL_IsViewEntityLocalPlayer())
+#if !XASH_RAYTRACING
 		return 1;
+#else
+        return 0;
+#endif
 
 	if( R_CullBox( absmin, absmax ))
 		return 1;

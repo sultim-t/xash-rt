@@ -781,6 +781,7 @@ typedef struct rt_state_s
     int			curStudioBodyPart;
     int			curStudioSubmodel;
     int			curStudioMesh;
+    int         curStudioWeaponModel;
     int         curStudioGlend;
 
 	int			curBrushSurface;

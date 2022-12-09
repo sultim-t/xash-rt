@@ -987,8 +987,10 @@ qboolean CL_AddVisibleEntity( cl_entity_t *ent, int entityType )
 	{
 		cl.local.apply_effects = true;
 
+#if !XASH_RAYTRACING
 		if( !CL_IsThirdPerson( ) && ( ent->index == cl.viewentity ))
 			return false;
+#endif
 	}
 
 	if( entityType == ET_BEAM )
