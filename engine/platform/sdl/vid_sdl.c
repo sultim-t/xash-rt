@@ -480,7 +480,7 @@ qboolean GL_DeleteContext( void )
 	}
 #endif // SDL_VERSION_ATLEAST( 2, 0, 0 )
 #endif
-    return false;
+	return false;
 }
 
 /*
@@ -558,6 +558,7 @@ void VID_SaveWindowSize( int width, int height )
 
 static qboolean VID_SetScreenResolution( int width, int height )
 {
+#if !XASH_RAYTRACING
 #if SDL_VERSION_ATLEAST( 2, 0, 0 )
 	SDL_DisplayMode want, got;
 	Uint32 wndFlags = 0;
@@ -592,11 +593,13 @@ static qboolean VID_SetScreenResolution( int width, int height )
 #else
 	VID_SaveWindowSize( width, height );
 #endif
+#endif
 	return true;
 }
 
 void VID_RestoreScreenResolution( void )
 {
+#if !XASH_RAYTRACING
 #if SDL_VERSION_ATLEAST( 2, 0, 0 )
 	if( !Cvar_VariableInteger("fullscreen") )
 	{
@@ -608,6 +611,7 @@ void VID_RestoreScreenResolution( void )
 		SDL_SetWindowFullscreen( host.hWnd, 0 );
 	}
 #endif // SDL_VERSION_ATLEAST( 2, 0, 0 )
+#endif
 }
 
 #if XASH_WIN32 // ICO support only for Win32
@@ -653,16 +657,30 @@ qboolean VID_CreateWindow( int width, int height, qboolean fullscreen )
 
 	if( !fullscreen )
 	{
+#if !XASH_RAYTRACING
 		wndFlags |= SDL_WINDOW_RESIZABLE;
 		xpos = Cvar_VariableInteger( "_window_xpos" );
 		ypos = Cvar_VariableInteger( "_window_ypos" );
 		if( xpos < 0 ) xpos = SDL_WINDOWPOS_CENTERED;
 		if( ypos < 0 ) ypos = SDL_WINDOWPOS_CENTERED;
+#else
+		wndFlags |= SDL_WINDOW_RESIZABLE;
+		xpos = ypos = SDL_WINDOWPOS_CENTERED;
+#endif
 	}
 	else
 	{
+#if !XASH_RAYTRACING
 		wndFlags |= SDL_WINDOW_FULLSCREEN | SDL_WINDOW_BORDERLESS | SDL_WINDOW_INPUT_GRABBED;
 		xpos = ypos = 0;
+#else
+		SDL_DisplayMode displayMode;
+		SDL_GetDesktopDisplayMode( 0, &displayMode );
+		width = displayMode.w;
+		height = displayMode.h;
+		wndFlags |= SDL_WINDOW_BORDERLESS | SDL_WINDOW_INPUT_GRABBED;
+		xpos = ypos = SDL_WINDOWPOS_CENTERED;
+#endif
 	}
 
 	while( glw_state.safe >= SAFE_NO && glw_state.safe < SAFE_LAST )
@@ -690,7 +708,7 @@ qboolean VID_CreateWindow( int width, int height, qboolean fullscreen )
 	{
 		return false;
 	}
-
+	
 	if( fullscreen )
 	{
 		if( !VID_SetScreenResolution( width, height ) )
@@ -787,12 +805,14 @@ qboolean VID_CreateWindow( int width, int height, qboolean fullscreen )
 		if( !GL_UpdateContext() )
 		  return false;
 
+#if XASH_RAYTRACING
 		SDL_SysWMinfo wmInfo;
 		SDL_VERSION( &wmInfo.version );
 		SDL_GetWindowWMInfo( host.hWnd, &wmInfo );
 		HWND hwnd = wmInfo.info.win.window;
 
 		refState.rtglHwnd = hwnd;
+#endif
 	}
 
 #else // SDL_VERSION_ATLEAST( 2, 0, 0 )
@@ -1074,6 +1094,20 @@ rserr_t R_ChangeDisplaySettings( int width, int height, qboolean fullscreen )
 
 	SDL_GetCurrentDisplayMode( 0, &displayMode );
 
+#if XASH_RAYTRACING
+	if ( fullscreen )
+	{
+		// if fullscreen, set display size
+		width = displayMode.w;
+		height = displayMode.h;
+	}
+	else if ( displayMode.w == width && displayMode.h == height )
+	{
+		// if display size same as window, let it be fullscreen
+		fullscreen = true;
+	}
+#endif
+
 	// check our desktop attributes
 	refState.desktopBitsPixel = SDL_BITSPERPIXEL( displayMode.format );
 #endif
@@ -1087,12 +1121,14 @@ rserr_t R_ChangeDisplaySettings( int width, int height, qboolean fullscreen )
 		if( !VID_CreateWindow( width, height, fullscreen ) )
 			return rserr_invalid_mode;
 	}
+#if !XASH_RAYTRACING // never change screen resolution
 	else if( fullscreen )
 	{
 		if( !VID_SetScreenResolution( width, height ) )
 			return rserr_invalid_fullscreen;
 	}
 	else
+#endif
 	{
 		VID_RestoreScreenResolution();
 #if SDL_VERSION_ATLEAST( 2, 0, 0 )
@@ -1103,6 +1139,11 @@ rserr_t R_ChangeDisplaySettings( int width, int height, qboolean fullscreen )
 #endif
 		SDL_SetWindowBordered( host.hWnd, SDL_TRUE );
 		SDL_SetWindowSize( host.hWnd, width, height );
+
+#if XASH_RAYTRACING
+		SDL_SetWindowGrab(host.hWnd, fullscreen ? SDL_TRUE : SDL_FALSE);
+		SDL_SetWindowPosition(host.hWnd, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
+#endif
 
 #endif // SDL_VERSION_ATLEAST( 2, 0, 0 )
 		VID_SaveWindowSize( width, height );
@@ -1148,10 +1189,12 @@ qboolean VID_SetMode( void )
 #endif // SDL_VERSION_ATLEAST( 2, 0, 0 )
 	}
 
+#if !XASH_RAYTRACING
 	if( !FBitSet( vid_fullscreen->flags, FCVAR_CHANGED ) )
 		Cvar_SetValue( "fullscreen", DEFAULT_FULLSCREEN );
 	else
 		ClearBits( vid_fullscreen->flags, FCVAR_CHANGED );
+#endif
 
 	SetBits( gl_vsync->flags, FCVAR_CHANGED );
 	fullscreen = Cvar_VariableInteger("fullscreen") != 0;
