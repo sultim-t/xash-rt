@@ -2121,12 +2121,6 @@ static void TryBatch( qboolean glbegin, RgUtilImScratchTopology glbegin_topology
 
     qboolean isbrush = rt_state.curBrushSurface >= 0;
 
-	// TODO: remove
-    if( RI.currententity->index == 0 )
-	{
-        isstudiomodel = false;
-	}
-	
     if( isstudiomodel )
     {
         if( glbegin )
@@ -2148,9 +2142,15 @@ static void TryBatch( qboolean glbegin, RgUtilImScratchTopology glbegin_topology
                 .animationTime  = 0.0f,
             };
 
+            if( rt_state.curTempEntityIndex > 0 )
+            {
+                mesh.uniqueObjectID = rt_state.curTempEntityIndex;
+            }
+
             if( RI.currententity->player )
             {
-                mesh.uniqueObjectID |= 1u << 16u;
+                assert( ( mesh.uniqueObjectID & ( 1u << 31u ) ) == 0 );
+                mesh.uniqueObjectID |= 1u << 31u;
             }
 
             RgMeshPrimitiveInfo info = {
@@ -2183,6 +2183,8 @@ static void TryBatch( qboolean glbegin, RgUtilImScratchTopology glbegin_topology
 
 	if( isbrush )
     {
+        Assert( rt_state.curTempEntityIndex == 0 );
+
         RgMeshInfo mesh = {
             .uniqueObjectID = RI.currententity->index,
             .pMeshName      = RI.currentmodel->name,
