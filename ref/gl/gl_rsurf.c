@@ -1656,10 +1656,19 @@ void R_DrawBrushModel( cl_entity_t *e )
 		qsort( gpGlobals->draw_surfaces, num_sorted, sizeof( sortedface_t ), R_SurfaceCompare );
 
 	// draw sorted translucent surfaces
+#if !XASH_RAYTRACING
 	for( i = 0; i < num_sorted; i++ )
 		if( !allow_vbo || !R_AddSurfToVBO( gpGlobals->draw_surfaces[i].surf, true ) )
 			R_RenderBrushPoly( gpGlobals->draw_surfaces[i].surf, gpGlobals->draw_surfaces[i].cull );
 	R_DrawVBO( R_HasLightmap(), true );
+#else
+    for( i = 0; i < num_sorted; i++ )
+    {
+        RT_StartBatch();
+        R_RenderBrushPoly( gpGlobals->draw_surfaces[ i ].surf, gpGlobals->draw_surfaces[ i ].cull );
+        RT_EndBatch();
+    }
+#endif
 
 	if( e->curstate.rendermode == kRenderTransColor )
 		pglEnable( GL_TEXTURE_2D );
