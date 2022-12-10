@@ -1758,7 +1758,7 @@ EMPTY_LINKAGE void EMPTY_FUNCTION( glTexImage2DMultisample )( GLenum target, GLs
 #undef EMPTY_FUNCTION
 
 
-static qboolean TryBatch( qboolean glbegin, RgUtilImScratchTopology glbegin_topology );
+static void TryBatch( qboolean glbegin, RgUtilImScratchTopology glbegin_topology );
 
 
 void pglBegin( GLenum mode )
@@ -2030,7 +2030,7 @@ static qboolean rt_isbatching = false;
 static RgMeshInfo          batch_mesh      = { 0 };
 static RgMeshPrimitiveInfo batch_primitive = { 0 };
 
-static qboolean TryBatch( qboolean glbegin, RgUtilImScratchTopology glbegin_topology )
+static void TryBatch( qboolean glbegin, RgUtilImScratchTopology glbegin_topology )
 {
     if( glState.in2DMode )
     {
@@ -2061,7 +2061,7 @@ static qboolean TryBatch( qboolean glbegin, RgUtilImScratchTopology glbegin_topo
             RG_CHECK( r );
         }
 
-        return false;
+        return;
     }
 
 	if( rt_state.curIsRasterized || rt_state.curIsSky )
@@ -2101,17 +2101,17 @@ static qboolean TryBatch( qboolean glbegin, RgUtilImScratchTopology glbegin_topo
             RG_CHECK( r );
         }
 
-		return false;
+		return;
     }
 
     if( !RI.currententity || RI.currententity->index < 0 )
     {
-        return false;
+        return;
     }
 
     if( !RI.currentmodel )
     {
-        return false;
+        return;
     }
 
     qboolean isstudiomodel = rt_state.curStudioBodyPart >= 0 && rt_state.curStudioSubmodel >= 0 &&
@@ -2176,7 +2176,7 @@ static qboolean TryBatch( qboolean glbegin, RgUtilImScratchTopology glbegin_topo
             RG_CHECK( r );
         }
 
-		return false;
+		return;
     }
 
 	if( isbrush )
@@ -2184,7 +2184,7 @@ static qboolean TryBatch( qboolean glbegin, RgUtilImScratchTopology glbegin_topo
 		// TODO: remove
         if( !rt_isbatching )
         {
-            return false;
+            return;
         }
 
         RgMeshInfo mesh = {
@@ -2232,10 +2232,8 @@ static qboolean TryBatch( qboolean glbegin, RgUtilImScratchTopology glbegin_topo
             rgUtilImScratchEnd( rg_instance );
         }
 
-		return false;
+        return;
     }
-	
-	return false;
 }
 
 void pglEnd( void )
