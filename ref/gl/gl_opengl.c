@@ -1042,7 +1042,6 @@ qboolean R_Init( void )
                 .curStudioGlend    = -1,
 
                 .curBrushSurface = -1,
-                .curBrushGlend   = -1,
             };
 			memcpy( &rt_state, &nullstate, sizeof( rt_state ) );
 		}
@@ -1759,6 +1758,9 @@ EMPTY_LINKAGE void EMPTY_FUNCTION( glTexImage2DMultisample )( GLenum target, GLs
 #undef EMPTY_FUNCTION
 
 
+static qboolean TryBatch( qboolean glbegin, RgUtilImScratchTopology glbegin_topology );
+
+
 void pglBegin( GLenum mode )
 {
     RgUtilImScratchTopology topology = RG_UTIL_IM_SCRATCH_TOPOLOGY_TRIANGLES;
@@ -1771,8 +1773,8 @@ void pglBegin( GLenum mode )
         case GL_POLYGON: topology = RG_UTIL_IM_SCRATCH_TOPOLOGY_TRIANGLE_FAN; break;
         default: assert( 0 ); return;
     }
-
-    rgUtilImScratchBegin( rg_instance, topology );
+	
+    TryBatch( true, topology );
 }
 
 void pglTexCoord2f( GLfloat s, GLfloat t )
@@ -1927,6 +1929,57 @@ void pglBlendFunc( GLenum sfactor, GLenum dfactor )
 }
 
 
+static qboolean AreFloatsClose( const float a, const float b )
+{
+    const float eps = 0.001f;
+    return fabsf( a - b ) < eps;
+}
+
+static qboolean AreTransformsClose( const RgTransform* a, const RgTransform* b )
+{
+    for( int i = 0; i < 3; i++ )
+    {
+        for( int j = 0; j < 4; j++ )
+        {
+            if( !AreFloatsClose( a->matrix[ i ][ j ], b->matrix[ i ][ j ] ) )
+            {
+                return false;
+            }
+        }
+    }
+
+    return true;
+}
+
+#define MATRIX4_TO_RGTRANSFORM( m )                                             \
+    {{                                                                          \
+        { ( m )[ 0 ][ 0 ], ( m )[ 0 ][ 1 ], ( m )[ 0 ][ 2 ], ( m )[ 0 ][ 3 ] }, \
+        { ( m )[ 1 ][ 0 ], ( m )[ 1 ][ 1 ], ( m )[ 1 ][ 2 ], ( m )[ 1 ][ 3 ] }, \
+        { ( m )[ 2 ][ 0 ], ( m )[ 2 ][ 1 ], ( m )[ 2 ][ 2 ], ( m )[ 2 ][ 3 ] }, \
+    }}
+
+static qboolean ArePrimitivesSame( const RgMeshInfo*          a_mesh,
+                                   const RgMeshPrimitiveInfo* a_primitive,
+                                   const RgMeshInfo*          b_mesh,
+                                   const RgMeshPrimitiveInfo* b_primitive )
+{
+    if( a_mesh->uniqueObjectID == b_mesh->uniqueObjectID && a_mesh->pMeshName == b_mesh->pMeshName )
+    {
+        if( a_primitive->flags == b_primitive->flags && a_primitive->color == b_primitive->color &&
+            a_primitive->pTextureName == b_primitive->pTextureName &&
+            AreFloatsClose( a_primitive->emissive, b_primitive->emissive ) )
+        {
+            if( RI.currentmodel == WORLDMODEL ||
+                AreTransformsClose( &a_primitive->transform, &b_primitive->transform ) )
+            {
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
 static int Q_clamp_wassert( int x, int xmin, int xmax )
 {
     if( x < xmin )
@@ -1972,148 +2025,178 @@ static uint32_t hashStudioPrimitive( int bodypart, int submodel, int mesh, int w
 		   ( uint32_t )bodypart;
 }
 
-void pglEnd( void )
+static qboolean rt_isbatching = false;
+
+static RgMeshInfo          batch_mesh      = { 0 };
+static RgMeshPrimitiveInfo batch_primitive = { 0 };
+
+static qboolean TryBatch( qboolean glbegin, RgUtilImScratchTopology glbegin_topology )
 {
     if( glState.in2DMode )
     {
-        RgMeshPrimitiveInfo info = {
-            .primitiveIndexInMesh = 0,
-            .flags                = ( rt_raster_blend ? RG_MESH_PRIMITIVE_TRANSLUCENT : 0 ) |
-                                    ( rt_alphatest ? RG_MESH_PRIMITIVE_ALPHA_TESTED : 0 ),
-            .transform    = RG_TRANSFORM_IDENTITY,
-            .pTextureName = rt_state.curTexture2DName,
-            .textureFrame = 0,
-            .color        = rgUtilPackColorByte4D( 255, 255, 255, 255 ),
-            .emissive     = rt_raster_blend && rt_raster_additive ? 1.0f : 0.0f,
-            .pEditorInfo  = NULL,
-        };
-        rgUtilImScratchSetToPrimitive( rg_instance, &info );
+        if( glbegin )
+        {
+            rgUtilImScratchClear( rg_instance );
+            rgUtilImScratchStart( rg_instance, glbegin_topology );
+        }
+        else
+        {
+            RgMeshPrimitiveInfo info = {
+                .primitiveNameInMesh  = NULL,
+                .primitiveIndexInMesh = 0,
+                .flags                = ( rt_raster_blend ? RG_MESH_PRIMITIVE_TRANSLUCENT : 0 ) |
+                         ( rt_alphatest ? RG_MESH_PRIMITIVE_ALPHA_TESTED : 0 ),
+                .transform    = RG_TRANSFORM_IDENTITY,
+                .pTextureName = rt_state.curTexture2DName,
+                .textureFrame = 0,
+                .color        = rgUtilPackColorByte4D( 255, 255, 255, 255 ),
+                .emissive     = rt_raster_blend && rt_raster_additive ? 1.0f : 0.0f,
+                .pEditorInfo  = NULL,
+            };
+            rgUtilImScratchEnd( rg_instance );
+            rgUtilImScratchSetToPrimitive( rg_instance, &info );
 
-        RgResult r = rgUploadNonWorldPrimitive(
-            rg_instance, &info, rt_state.projMatrixFor2D, &rt_state.viewport );
-        RG_CHECK( r );
+            RgResult r = rgUploadNonWorldPrimitive(
+                rg_instance, &info, rt_state.projMatrixFor2D, &rt_state.viewport );
+            RG_CHECK( r );
+        }
 
-        return;
+        return false;
     }
 
 	if( rt_state.curIsRasterized || rt_state.curIsSky )
     {
-        RgMeshInfo mesh = {
-            .uniqueObjectID = UINT32_MAX,
-            .pMeshName      = NULL,
-            .isStatic       = false,
-            .animationName  = NULL,
-            .animationTime  = 0.0f,
-        };
+        if( glbegin )
+        {
+            rgUtilImScratchClear( rg_instance );
+            rgUtilImScratchStart( rg_instance, glbegin_topology );
+        }
+        else
+	    {
+            RgMeshInfo mesh = {
+                .uniqueObjectID = UINT32_MAX,
+                .pMeshName      = NULL,
+                .isStatic       = false,
+                .animationName  = NULL,
+                .animationTime  = 0.0f,
+            };
 
-        RgMeshPrimitiveInfo info = {
-            .primitiveIndexInMesh = 0,
-            .flags                = ( rt_raster_blend ? RG_MESH_PRIMITIVE_TRANSLUCENT : 0 ) |
-                                    ( rt_alphatest ? RG_MESH_PRIMITIVE_ALPHA_TESTED : 0 ) |
-			                        ( rt_state.curIsSky ? RG_MESH_PRIMITIVE_SKY : 0 ),
-            .transform    = RG_TRANSFORM_IDENTITY,
-            .pTextureName = rt_state.curTexture2DName,
-            .textureFrame = 0,
-            .color        = rgUtilPackColorByte4D( 255, 255, 255, 255 ),
-            .emissive     = rt_raster_blend && rt_raster_additive ? 1.0f : 0.0f,
-            .pEditorInfo  = NULL,
-        };
-        rgUtilImScratchSetToPrimitive( rg_instance, &info );
+            RgMeshPrimitiveInfo info = {
+                .primitiveNameInMesh  = NULL,
+                .primitiveIndexInMesh = 0,
+                .flags                = ( rt_raster_blend ? RG_MESH_PRIMITIVE_TRANSLUCENT : 0 ) |
+                         ( rt_alphatest ? RG_MESH_PRIMITIVE_ALPHA_TESTED : 0 ) |
+                         ( rt_state.curIsSky ? RG_MESH_PRIMITIVE_SKY : 0 ),
+                .transform    = RG_TRANSFORM_IDENTITY,
+                .pTextureName = rt_state.curTexture2DName,
+                .textureFrame = 0,
+                .color        = rgUtilPackColorByte4D( 255, 255, 255, 255 ),
+                .emissive     = rt_raster_blend && rt_raster_additive ? 1.0f : 0.0f,
+                .pEditorInfo  = NULL,
+            };
+            rgUtilImScratchEnd( rg_instance );
+            rgUtilImScratchSetToPrimitive( rg_instance, &info );
 
-        RgResult r = rgUploadMeshPrimitive( rg_instance, &mesh, &info );
-        RG_CHECK( r );
+            RgResult r = rgUploadMeshPrimitive( rg_instance, &mesh, &info );
+            RG_CHECK( r );
+        }
 
-		return;
+		return false;
     }
 
     if( !RI.currententity || RI.currententity->index < 0 )
     {
-        return;
+        return false;
     }
 
     if( !RI.currentmodel )
     {
-        return;
+        return false;
     }
-
-    uint32_t curEntityID = ( uint32_t )RI.currententity->index;
-    if( RI.currententity->player )
-    {
-        curEntityID |= 1u << 16u;
-    }
-
-    const char* curModelName = RI.currentmodel->name;
 
     qboolean isstudiomodel = rt_state.curStudioBodyPart >= 0 && rt_state.curStudioSubmodel >= 0 &&
                              rt_state.curStudioMesh >= 0 && rt_state.curStudioGlend >= 0;
 
-    qboolean isbrush = rt_state.curBrushSurface >= 0 && rt_state.curBrushGlend >= 0;
+    qboolean isbrush = rt_state.curBrushSurface >= 0;
 
 	// TODO: remove
-	if( curEntityID == 0)
+    if( RI.currententity->index == 0 )
 	{
         isstudiomodel = false;
 	}
 	
     if( isstudiomodel )
     {
-        qboolean isviewmodel    = ( RI.currententity == gEngfuncs.GetViewModel() );
-        qboolean isplayerviewer = ( RI.currententity == gEngfuncs.GetLocalPlayer() &&
-                                    !ENGINE_GET_PARM( PARM_THIRDPERSON ) );
+        if( glbegin )
+        {
+            rgUtilImScratchClear( rg_instance );
+            rgUtilImScratchStart( rg_instance, glbegin_topology );
+        }
+        else
+        {
+            qboolean isviewmodel    = ( RI.currententity == gEngfuncs.GetViewModel() );
+            qboolean isplayerviewer = ( RI.currententity == gEngfuncs.GetLocalPlayer() &&
+                                        !ENGINE_GET_PARM( PARM_THIRDPERSON ) );
 
-        RgMeshInfo mesh = {
-            .uniqueObjectID = curEntityID,
-            .pMeshName      = curModelName,
-            .isStatic       = false,
-            .animationName  = NULL,
-            .animationTime  = 0.0f,
-        };
+            RgMeshInfo mesh = {
+                .uniqueObjectID = RI.currententity->index,
+                .pMeshName      = RI.currentmodel->name,
+                .isStatic       = false,
+                .animationName  = NULL,
+                .animationTime  = 0.0f,
+            };
 
-        RgMeshPrimitiveInfo info = {
-            .primitiveIndexInMesh = hashStudioPrimitive( rt_state.curStudioBodyPart,
-                                                         rt_state.curStudioSubmodel,
-                                                         rt_state.curStudioMesh,
-                                                         rt_state.curStudioWeaponModel,
-                                                         rt_state.curStudioGlend ),
-            .flags =
-                ( rt_alphatest ? RG_MESH_PRIMITIVE_ALPHA_TESTED : 0 ) |
-                ( isviewmodel ? RG_MESH_PRIMITIVE_FIRST_PERSON
-                              : ( isplayerviewer ? RG_MESH_PRIMITIVE_FIRST_PERSON_VIEWER : 0 ) ),
-            .transform    = RG_TRANSFORM_IDENTITY,
-            .pTextureName = rt_state.curTexture2DName,
-            .textureFrame = 0,
-            .color        = rgUtilPackColorByte4D( 255, 255, 255, 255 ),
-            .emissive     = 0.0f,
-            .pEditorInfo  = NULL,
-        };
-        rgUtilImScratchSetToPrimitive( rg_instance, &info );
+            if( RI.currententity->player )
+            {
+                mesh.uniqueObjectID |= 1u << 16u;
+            }
 
-        RgResult r = rgUploadMeshPrimitive( rg_instance, &mesh, &info );
-        RG_CHECK( r );
+            RgMeshPrimitiveInfo info = {
+                .primitiveNameInMesh  = NULL,
+                .primitiveIndexInMesh = hashStudioPrimitive( rt_state.curStudioBodyPart,
+                                                             rt_state.curStudioSubmodel,
+                                                             rt_state.curStudioMesh,
+                                                             rt_state.curStudioWeaponModel,
+                                                             rt_state.curStudioGlend ),
+                .flags                = ( rt_alphatest ? RG_MESH_PRIMITIVE_ALPHA_TESTED : 0 ) |
+                         ( isviewmodel
+                               ? RG_MESH_PRIMITIVE_FIRST_PERSON
+                               : ( isplayerviewer ? RG_MESH_PRIMITIVE_FIRST_PERSON_VIEWER : 0 ) ),
+                .transform    = RG_TRANSFORM_IDENTITY,
+                .pTextureName = rt_state.curTexture2DName,
+                .textureFrame = 0,
+                .color        = rgUtilPackColorByte4D( 255, 255, 255, 255 ),
+                .emissive     = 0.0f,
+                .pEditorInfo  = NULL,
+            };
+            rgUtilImScratchEnd( rg_instance );
+            rgUtilImScratchSetToPrimitive( rg_instance, &info );
 
-		return;
+            RgResult r = rgUploadMeshPrimitive( rg_instance, &mesh, &info );
+            RG_CHECK( r );
+        }
+
+		return false;
     }
 
 	if( isbrush )
     {
-    #define MATRIX4_TO_RGTRANSFORM( m )                                             \
-        {{                                                                          \
-            { ( m )[ 0 ][ 0 ], ( m )[ 0 ][ 1 ], ( m )[ 0 ][ 2 ], ( m )[ 0 ][ 3 ] }, \
-            { ( m )[ 1 ][ 0 ], ( m )[ 1 ][ 1 ], ( m )[ 1 ][ 2 ], ( m )[ 1 ][ 3 ] }, \
-            { ( m )[ 2 ][ 0 ], ( m )[ 2 ][ 1 ], ( m )[ 2 ][ 2 ], ( m )[ 2 ][ 3 ] }, \
-        }}
+		// TODO: remove
+        if( !rt_isbatching )
+        {
+            return false;
+        }
 
         RgMeshInfo mesh = {
-            .uniqueObjectID = curEntityID,
-            .pMeshName      = curModelName,
+            .uniqueObjectID = RI.currententity->index,
+            .pMeshName      = RI.currentmodel->name,
             .isStatic       = false,
             .animationName  = NULL,
             .animationTime  = 0.0f,
         };
 
-		// TODO: rt_state.curBrushGLPolyIndex?
-
         RgMeshPrimitiveInfo info = {
+            .primitiveNameInMesh  = NULL,
             .primitiveIndexInMesh = rt_state.curBrushSurface,
             .flags                = rt_alphatest ? RG_MESH_PRIMITIVE_ALPHA_TESTED : 0,
             .transform            = MATRIX4_TO_RGTRANSFORM( RI.objectMatrix ),
@@ -2123,13 +2206,67 @@ void pglEnd( void )
             .emissive             = 0.0f,
             .pEditorInfo          = NULL,
         };
-        rgUtilImScratchSetToPrimitive( rg_instance, &info );
-		
-        RgResult r = rgUploadMeshPrimitive( rg_instance, &mesh, &info );
-        RG_CHECK( r );
 
-		return;
+        if( glbegin )
+        {
+            if( ArePrimitivesSame( &mesh, &info, &batch_mesh, &batch_primitive ) )
+            {
+                rgUtilImScratchStart( rg_instance, glbegin_topology );
+            }
+			else
+            {
+                rgUtilImScratchSetToPrimitive( rg_instance, &batch_primitive );
+
+                RgResult r = rgUploadMeshPrimitive( rg_instance, &batch_mesh, &batch_primitive );
+                RG_CHECK( r );
+
+				// start new
+                batch_mesh      = mesh;
+                batch_primitive = info;
+				rgUtilImScratchClear( rg_instance );
+                rgUtilImScratchStart( rg_instance, glbegin_topology );
+			}
+        }
+        else
+        {
+            rgUtilImScratchEnd( rg_instance );
+        }
+
+		return false;
     }
+	
+	return false;
+}
+
+void pglEnd( void )
+{
+    TryBatch( false, 0 );
+}
+
+void RT_StartBatch()
+{
+    assert( !rt_isbatching );
+
+    rt_isbatching = true;
+    memset( &batch_mesh, 0, sizeof( batch_mesh ) );
+    memset( &batch_primitive, 0, sizeof( batch_primitive ) );
+}
+
+void RT_EndBatch()
+{
+    if( rt_isbatching )
+    {
+        rgUtilImScratchSetToPrimitive( rg_instance, &batch_primitive );
+
+        RgResult r = rgUploadMeshPrimitive( rg_instance, &batch_mesh, &batch_primitive );
+        RG_CHECK( r );
+		
+        rgUtilImScratchClear( rg_instance );
+    }
+
+    rt_isbatching = false;
+    memset( &batch_mesh, 0, sizeof( batch_mesh ) );
+    memset( &batch_primitive, 0, sizeof( batch_primitive ) );
 }
 
 void pglViewport( GLint x, GLint y, GLsizei width, GLsizei height )

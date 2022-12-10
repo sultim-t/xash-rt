@@ -774,11 +774,7 @@ static void R_BuildLightMap( msurface_t *surf, byte *dest, int stride, qboolean 
 DrawGLPoly
 ================
 */
-#if XASH_RAYTRACING
-void DrawGLPoly( msurface_t *surf, glpoly_t *p, float xScale, float yScale )
-#else
 void DrawGLPoly( glpoly_t *p, float xScale, float yScale )
-#endif
 {
 	float		*v;
 	float		sOffset, sy;
@@ -832,13 +828,6 @@ void DrawGLPoly( glpoly_t *p, float xScale, float yScale )
 	if( xScale != 0.0f && yScale != 0.0f )
 		hasScale = true;
 
-#if XASH_RAYTRACING
-    msurface_t* surfbase = RI.currentmodel->surfaces + RI.currentmodel->firstmodelsurface;
-
-    rt_state.curBrushSurface = ( int )( surf - surfbase );
-    rt_state.curBrushGlend   = 0;
-#endif
-
 	pglBegin( GL_POLYGON );
 
 	for( i = 0, v = p->verts[0]; i < p->numverts; i++, v += VERTEXSIZE )
@@ -851,11 +840,6 @@ void DrawGLPoly( glpoly_t *p, float xScale, float yScale )
 	}
 
 	pglEnd();
-
-#if XASH_RAYTRACING
-    rt_state.curBrushSurface = -1;
-    rt_state.curBrushGlend   = -1;
-#endif
 
 	if( FBitSet( p->flags, SURF_DRAWTILED ))
 		GL_SetupFogColorForSurfaces();
@@ -1070,7 +1054,7 @@ void R_RenderFullbrights( void )
 		GL_Bind( XASH_TEXTURE0, i );
 
 		for( p = es; p; p = p->lumachain )
-			DrawGLPoly( p->surf, p->surf->polys, 0.0f, 0.0f );
+			DrawGLPoly( p->surf->polys, 0.0f, 0.0f );
 
 		fullbright_surfaces[i] = NULL;
 		es->lumachain = NULL;
@@ -1092,6 +1076,7 @@ R_RenderDetails
 */
 void R_RenderDetails( void )
 {
+#if !XASH_RAYTRACING 
 	gl_texture_t	*glt;
 	mextrasurf_t	*es, *p;
 	msurface_t	*fa;
@@ -1118,7 +1103,7 @@ void R_RenderDetails( void )
 		{
 			fa = p->surf;
 			glt = R_GetTexture( fa->texinfo->texture->gl_texturenum ); // get texture scale
-			DrawGLPoly( fa, fa->polys, glt->xscale, glt->yscale );
+			DrawGLPoly( fa->polys, glt->xscale, glt->yscale );
 		}
 
 		detail_surfaces[i] = NULL;
@@ -1133,6 +1118,7 @@ void R_RenderDetails( void )
 
 	// restore fog here
 	GL_ResetFogColor();
+#endif
 }
 
 /*
@@ -1198,7 +1184,14 @@ void R_RenderBrushPoly( msurface_t *fa, int cull_type )
 		}
 	}
 
-	DrawGLPoly( fa, fa->polys, 0.0f, 0.0f );
+#if XASH_RAYTRACING
+    const msurface_t* surfbase = RI.currentmodel->surfaces + RI.currentmodel->firstmodelsurface;
+    rt_state.curBrushSurface   = ( int )( fa - surfbase );
+#endif
+	DrawGLPoly( fa->polys, 0.0f, 0.0f );
+#if XASH_RAYTRACING
+    rt_state.curBrushSurface = -1;
+#endif
 
 	if( RI.currententity->curstate.rendermode == kRenderNormal )
 	{
@@ -1325,9 +1318,17 @@ void R_DrawTextureChains( void )
 			continue;	// draw transparent surfaces later
 		}
 
+#if XASH_RAYTRACING
+        RT_StartBatch();
+#endif
+
 		for( ; s != NULL; s = s->texturechain )
 			R_RenderBrushPoly( s, CULL_VISIBLE );
 		t->texturechain = NULL;
+
+#if XASH_RAYTRACING
+        RT_EndBatch();
+#endif
 	}
 }
 
@@ -1363,7 +1364,7 @@ void R_DrawAlphaTextureChains( void )
 	RI.currentmodel = RI.currententity->model;
 	RI.currententity->curstate.rendermode = kRenderTransAlpha;
 	draw_alpha_surfaces = false;
-
+	
 	for( i = 0; i < WORLDMODEL->numtextures; i++ )
 	{
 		t = WORLDMODEL->textures[i];
@@ -1374,10 +1375,18 @@ void R_DrawAlphaTextureChains( void )
 		if( !s || !FBitSet( s->flags, SURF_TRANSPARENT ))
 			continue;
 
+#if XASH_RAYTRACING
+		RT_StartBatch();
+#endif
+
 		for( ; s != NULL; s = s->texturechain )
 			R_RenderBrushPoly( s, CULL_VISIBLE );
-		t->texturechain = NULL;
-	}
+        t->texturechain = NULL;
+
+#if XASH_RAYTRACING
+        RT_EndBatch();
+#endif
+    }
 
 	GL_ResetFogColor();
 	R_BlendLightmaps();
