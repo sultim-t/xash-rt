@@ -198,10 +198,6 @@ typedef struct
 	uint		num_solid_entities;
 	uint		num_trans_entities;
 	uint		num_beam_entities;
-#if XASH_RAYTRACING
-    uint32_t solid_entities_indexfortemp[ MAX_VISIBLE_PACKET ];
-    uint32_t trans_entities_indexfortemp[ MAX_VISIBLE_PACKET ];
-#endif
 } draw_list_t;
 
 typedef struct
