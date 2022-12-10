@@ -255,6 +255,11 @@ qboolean R_AddEntity( struct cl_entity_s *clent, int type )
 	}
 
 #if XASH_RAYTRACING
+    if(type == ET_TEMPENTITY)
+    {
+        assert( clent->model->type != mod_alias && clent->model->type != mod_brush );    
+    }
+
     #define RT_ORDINARY_CLENTITIES_COUNT MAX_EDICTS
     assert( clent->index >= 0 );
     assert( clent->index < RT_ORDINARY_CLENTITIES_COUNT );
@@ -915,7 +920,8 @@ void R_DrawEntitiesOnList( void )
 		RI.currententity = tr.draw_list->trans_entities[i];
 		RI.currentmodel = RI.currententity->model;
 #if XASH_RAYTRACING
-        rt_state.curTempEntityIndex = tr.draw_list->trans_entities_indexfortemp[ i ];
+		// TODO: trans_entities was sorted, so trans_entities_indexfortemp is invalid 
+        rt_state.curTempEntityIndex = 0;  // tr.draw_list->trans_entities_indexfortemp[ i ];
 #endif
 
 		// handle studiomodels with custom rendermodes on texture
@@ -1176,6 +1182,8 @@ void R_EndFrame( void )
 	gEngfuncs.GL_SwapBuffers();
 
     {
+        RT_OnBeforeDrawFrame();
+
         RgDirectionalLightUploadInfo sun = {
             .uniqueID               = 0,
             .color                  = { 10, 10, 10 },

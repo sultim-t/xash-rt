@@ -792,8 +792,7 @@ typedef struct rt_state_s
 } rt_state_t;
 extern rt_state_t rt_state;
 
-void RT_StartBatch( void );
-void RT_EndBatch( void );
+void RT_OnBeforeDrawFrame( void );
 
 #endif
 
