@@ -752,6 +752,7 @@ extern cvar_t *r_vbo_dlightmode;
 #if XASH_RAYTRACING
 #define RG_USE_SURFACE_WIN32
 #include <RTGL1/RTGL1.h>
+
 extern RgInstance rg_instance;
 #define RG_CHECK( x )									\
 	assert( ( x ) == RG_RESULT_SUCCESS ||				\
@@ -763,24 +764,29 @@ extern RgInstance rg_instance;
         0.f, 1.f, 0.f, 0.f,		\
         0.f, 0.f, 1.f, 0.f	}
 
+#define QUAKEUNIT_IN_METERS      0.025f
+#define QUAKEUNIT_TO_METRIC( x ) ( ( x ) * QUAKEUNIT_IN_METERS )
+#define METRIC_TO_QUAKEUNIT( x ) ( ( x ) / QUAKEUNIT_IN_METERS )
+
 typedef struct rt_state_s
 {
     const char* curTexture2DName;
-    qboolean	curTextureNearest;
-    qboolean	curTextureClamped;
+    qboolean    curTextureNearest;
+    qboolean    curTextureClamped;
 
-	qboolean	curIsSky;
-	qboolean	curIsRasterized;
+    qboolean curIsSky;
+    qboolean curIsRasterized;
 
-    int			curStudioBodyPart;
-    int			curStudioSubmodel;
-    int			curStudioMesh;
-    int         curStudioWeaponModel;
-    int         curStudioGlend;
+    int curStudioBodyPart;
+    int curStudioSubmodel;
+    int curStudioMesh;
+    int curStudioWeaponModel;
+    int curStudioGlend;
 
-	int			curBrushSurface;
+    int      curBrushSurface;
+    qboolean curBrushSurfaceIsWater;
 
-	uint32_t	curTempEntityIndex;
+    uint32_t curTempEntityIndex;
 
 } rt_state_t;
 extern rt_state_t rt_state;

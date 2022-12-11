@@ -1187,10 +1187,12 @@ void R_RenderBrushPoly( msurface_t *fa, int cull_type )
 #if XASH_RAYTRACING
     const msurface_t* surfbase = RI.currentmodel->surfaces + RI.currentmodel->firstmodelsurface;
     rt_state.curBrushSurface   = ( int )( fa - surfbase );
+    rt_state.curBrushSurfaceIsWater = false;
 #endif
 	DrawGLPoly( fa->polys, 0.0f, 0.0f );
 #if XASH_RAYTRACING
-    rt_state.curBrushSurface = -1;
+    rt_state.curBrushSurface        = -1;
+    rt_state.curBrushSurfaceIsWater = false;
 #endif
 
 	if( RI.currententity->curstate.rendermode == kRenderNormal )

@@ -810,6 +810,12 @@ void EmitWaterPolys( msurface_t *warp, qboolean reverse )
 	// reset fog color for nonlightmapped water
 	GL_ResetFogColor();
 
+#if XASH_RAYTRACING
+    const msurface_t* surfbase = RI.currentmodel->surfaces + RI.currentmodel->firstmodelsurface;
+    rt_state.curBrushSurface   = ( int )( warp - surfbase );
+    rt_state.curBrushSurfaceIsWater = true;
+#endif
+
 	if( useQuads )
 		pglBegin( GL_QUADS );
 
@@ -855,6 +861,11 @@ void EmitWaterPolys( msurface_t *warp, qboolean reverse )
 
 	if( useQuads )
 		pglEnd();
+
+#if XASH_RAYTRACING
+    rt_state.curBrushSurface        = -1;
+    rt_state.curBrushSurfaceIsWater = false;
+#endif
 
 	GL_SetupFogColorForSurfaces();
 }

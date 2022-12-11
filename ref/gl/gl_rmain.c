@@ -1189,17 +1189,39 @@ void R_EndFrame( void )
 
         RgDirectionalLightUploadInfo sun = {
             .uniqueID               = 0,
-            .color                  = { 10, 10, 10 },
+            .color                  = { 20, 20, 20 },
             .direction              = { -1, -1, -1 },
             .angularDiameterDegrees = 0.5f,
         };
         RgResult r2 = rgUploadDirectionalLight( rg_instance, &sun );
         RG_CHECK( r2 );
 
-        RgDrawFrameSkyParams skyParams = {
+        RgDrawFrameReflectRefractParams refl_refr_params = {
+            .maxReflectRefractDepth                = 1,
+            .typeOfMediaAroundCamera               = RG_MEDIA_TYPE_VACUUM,
+            .indexOfRefractionGlass                = 1.52f,
+            .indexOfRefractionWater                = 1.33f,
+            .waterWaveSpeed                        = 0.4f,
+            .waterWaveNormalStrength               = 0.0f,
+            .waterColor                            = { 171 / 255.0f, 193 / 255.0f, 210 / 255.0f },
+            .acidColor                             = { 0 / 255.0f, 169 / 255.0f, 145 / 255.0f },
+            .acidDensity                           = 25,
+            .waterWaveTextureDerivativesMultiplier = 5,
+            .waterTextureAreaScale = 1.0f / ( QUAKEUNIT_IN_METERS * QUAKEUNIT_IN_METERS ),
+            .portalNormalTwirl     = 0,
+        };
+        // because 1 quake unit is not 1 meter
+        refl_refr_params.waterColor.data[ 0 ] = powf( refl_refr_params.waterColor.data[ 0 ], 1.0f / METRIC_TO_QUAKEUNIT( 1.0f ) );
+        refl_refr_params.waterColor.data[ 1 ] = powf( refl_refr_params.waterColor.data[ 1 ], 1.0f / METRIC_TO_QUAKEUNIT( 1.0f ) );
+        refl_refr_params.waterColor.data[ 2 ] = powf( refl_refr_params.waterColor.data[ 2 ], 1.0f / METRIC_TO_QUAKEUNIT( 1.0f ) );
+        refl_refr_params.acidColor.data[ 0 ]  = powf( refl_refr_params.acidColor.data[ 0 ], 1.0f / METRIC_TO_QUAKEUNIT( 1.0f ) );
+        refl_refr_params.acidColor.data[ 1 ]  = powf( refl_refr_params.acidColor.data[ 1 ], 1.0f / METRIC_TO_QUAKEUNIT( 1.0f ) );
+        refl_refr_params.acidColor.data[ 2 ]  = powf( refl_refr_params.acidColor.data[ 2 ], 1.0f / METRIC_TO_QUAKEUNIT( 1.0f ) );
+    
+        RgDrawFrameSkyParams sky_params = {
             .skyType            = RG_SKY_TYPE_RASTERIZED_GEOMETRY,
             .skyColorDefault    = { 0, 0, 0 },
-            .skyColorMultiplier = 1.0f,
+            .skyColorMultiplier = 10.0f,
             .skyColorSaturation = 1.0f,
             .skyViewerPosition  = { 0, 0, 0 },
         };
@@ -1219,7 +1241,8 @@ void R_EndFrame( void )
                                 RG_DRAW_FRAME_RAY_CULL_WORLD_1_BIT | RG_DRAW_FRAME_RAY_CULL_SKY_BIT,
             .currentTime             = ( double )gpGlobals->time,
             .pRenderResolutionParams = NULL,
-            .pSkyParams              = &skyParams,
+            .pReflectRefractParams   = &refl_refr_params,
+            .pSkyParams              = &sky_params,
         };
 		
         // reinterpret cast to make matrices column-major
