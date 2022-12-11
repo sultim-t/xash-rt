@@ -2642,7 +2642,12 @@ void CL_UpdateFlashlight( cl_entity_t *ent )
 	cl_entity_t	*hit;
 	dlight_t		*dl;
 
+#if !XASH_RAYTRACING
 	if( ent->index == ( cl.playernum + 1 ))
+#else
+    qboolean islocalplayer = ent->index == ( cl.playernum + 1 );
+    if( islocalplayer )
+#endif
 	{
 		// local player case
 		AngleVectors( cl.viewangles, forward, NULL, NULL );
@@ -2691,8 +2696,26 @@ void CL_UpdateFlashlight( cl_entity_t *ent )
 	dl->color.r = bound( 0, falloff * 255, 255 );
 	dl->color.g = bound( 0, falloff * 255, 255 );
 	dl->color.b = bound( 0, falloff * 255, 255 );
+#if !XASH_RAYTRACING
 	dl->die = cl.time + 0.01f; // die on next frame
+#else
+    // decreased to 0.0001 - otherwise, there's very bright 1 frame flash in RT renderer
+    // (IsPlayerFlashlight fails and this flashlight is interpreted as a point light)
+    dl->die = ( float )cl.time + 0.0001f; // die on next frame
+#endif
 	dl->radius = 80;
+
+#if XASH_RAYTRACING
+    if( islocalplayer )
+    {
+        // mark for RT renderer mark that this dlight is a flashlight
+        convar_t* c = Cvar_FindVar( "_rt_iFlashlightKey" );
+        if( c != NULL )
+        {
+            c->value = ( float )dl->key;
+        }
+    }
+#endif
 }
 
 /*
