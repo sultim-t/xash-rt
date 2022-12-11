@@ -140,6 +140,19 @@ void R_MarkLights( dlight_t *light, int bit, mnode_t *node )
 	R_MarkLights( light, bit, node->children[1] );
 }
 
+#if XASH_RAYTRACING
+// because of units are not in meters
+#define RT_QUAKE_LIGHT_AREA_INTENSITY_FIX \
+        ( 1.0f / ( QUAKEUNIT_IN_METERS * QUAKEUNIT_IN_METERS ) )
+#define RT_FIXUP_LIGHT_INTENSITY( color, witharea )                                     \
+        do                                                                              \
+        {                                                                               \
+            const float rt_globallightmult = 1.0f;                                      \
+            float       area = ( witharea ) ? RT_QUAKE_LIGHT_AREA_INTENSITY_FIX : 1.0f; \
+            VectorScale( ( color ), ( rt_globallightmult )*area, ( color ) );           \
+        } while( 0 )
+#endif
+
 /*
 =============
 R_PushDlights
@@ -162,6 +175,30 @@ void R_PushDlights( void )
 
 		if( l->die < gpGlobals->time || !l->radius )
 			continue;
+
+#if XASH_RAYTRACING
+        if( !l->dark )
+        {
+            float falloff_mult = QUAKEUNIT_TO_METRIC( l->radius );
+
+            vec3_t color = { ( float )l->color.r / 255.0f,
+                             ( float )l->color.g / 255.0f,
+                             ( float )l->color.b / 255.0f };
+            VectorScale( color, falloff_mult, color );
+            VectorScale( color, 300, color );
+            RT_FIXUP_LIGHT_INTENSITY( color, true );
+
+            RgSphericalLightUploadInfo info = {
+                .uniqueID        = 128 + i,
+                .color           = { color[ 0 ], color[ 1 ], color[ 2 ] },
+                .position        = { l->origin[ 0 ], l->origin[ 1 ], l->origin[ 2 ] },
+                .radius          = METRIC_TO_QUAKEUNIT( 0.1f ),
+            };
+
+            RgResult r = rgUploadSphericalLight( rg_instance, &info );
+            RG_CHECK( r );
+        }
+#endif
 
 		if( GL_FrustumCullSphere( &RI.frustum, l->origin, l->radius, 15 ))
 			continue;
