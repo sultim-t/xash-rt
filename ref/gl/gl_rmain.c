@@ -1077,12 +1077,8 @@ void R_BeginFrame( qboolean clearScene )
 
 	// draw buffer stuff
 	pglDrawBuffer( GL_BACK );
-
-	RgStartFrameInfo info = {
-		.requestVSync		 = true,
-		.requestShaderReload = false,
-	};
-	RgResult r = rgStartFrame( rg_instance, &info );
+	
+	RgResult r = rgStartFrame( rg_instance );
 	RG_CHECK( r );
 
 	// update texture parameters
@@ -1201,13 +1197,13 @@ void R_EndFrame( void )
             .typeOfMediaAroundCamera               = RG_MEDIA_TYPE_VACUUM,
             .indexOfRefractionGlass                = 1.52f,
             .indexOfRefractionWater                = 1.33f,
-            .waterWaveSpeed                        = 0.4f,
-            .waterWaveNormalStrength               = 0.0f,
+            .waterWaveSpeed                        = METRIC_TO_QUAKEUNIT( 0.4f ),
+            .waterWaveNormalStrength               = 1.0f,
             .waterColor                            = { 171 / 255.0f, 193 / 255.0f, 210 / 255.0f },
             .acidColor                             = { 0 / 255.0f, 169 / 255.0f, 145 / 255.0f },
             .acidDensity                           = 25,
             .waterWaveTextureDerivativesMultiplier = 5,
-            .waterTextureAreaScale = 1.0f / ( QUAKEUNIT_IN_METERS * QUAKEUNIT_IN_METERS ),
+            .waterTextureAreaScale                 = METRIC_TO_QUAKEUNIT( 1.0f ),
             .portalNormalTwirl     = 0,
         };
         // because 1 quake unit is not 1 meter
@@ -1221,9 +1217,9 @@ void R_EndFrame( void )
         RgDrawFrameSkyParams sky_params = {
             .skyType            = RG_SKY_TYPE_RASTERIZED_GEOMETRY,
             .skyColorDefault    = { 0, 0, 0 },
-            .skyColorMultiplier = 10.0f,
+            .skyColorMultiplier = 1.0f,
             .skyColorSaturation = 1.0f,
-            .skyViewerPosition  = { 0, 0, 0 },
+            .skyViewerPosition  = { RI.vieworg[ 0 ], RI.vieworg[ 1 ], RI.vieworg[ 2 ] },
         };
 
         RgDrawFrameRenderResolutionParams resolutionParams = {
