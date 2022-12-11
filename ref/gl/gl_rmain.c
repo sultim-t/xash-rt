@@ -1077,9 +1077,11 @@ void R_BeginFrame( qboolean clearScene )
 
 	// draw buffer stuff
 	pglDrawBuffer( GL_BACK );
-	
+
+#if XASH_RAYTRACING
 	RgResult r = rgStartFrame( rg_instance );
 	RG_CHECK( r );
+#endif
 
 	// update texture parameters
 	if( FBitSet( gl_texture_nearest->flags|gl_lightmap_nearest->flags|gl_texture_anisotropy->flags|gl_texture_lodbias->flags, FCVAR_CHANGED ))
@@ -1180,74 +1182,76 @@ void R_EndFrame( void )
 	R_Set2DMode( false );
 	gEngfuncs.GL_SwapBuffers();
 
-    {
-        RT_OnBeforeDrawFrame();
+#if XASH_RAYTRACING
+    RT_OnBeforeDrawFrame();
 
-        RgDirectionalLightUploadInfo sun = {
-            .uniqueID               = 0,
-            .color                  = { 20, 20, 20 },
-            .direction              = { -1, -1, -1 },
-            .angularDiameterDegrees = 0.5f,
-        };
-        RgResult r2 = rgUploadDirectionalLight( rg_instance, &sun );
-        RG_CHECK( r2 );
+	qboolean is_camera_under_water = ENGINE_GET_PARM( PARM_WATER_LEVEL ) > 2;
 
-        RgDrawFrameReflectRefractParams refl_refr_params = {
-            .maxReflectRefractDepth                = 1,
-            .typeOfMediaAroundCamera               = RG_MEDIA_TYPE_VACUUM,
-            .indexOfRefractionGlass                = 1.52f,
-            .indexOfRefractionWater                = 1.33f,
-            .waterWaveSpeed                        = METRIC_TO_QUAKEUNIT( 0.4f ),
-            .waterWaveNormalStrength               = 1.0f,
-            .waterColor                            = { 171 / 255.0f, 193 / 255.0f, 210 / 255.0f },
-            .acidColor                             = { 0 / 255.0f, 169 / 255.0f, 145 / 255.0f },
-            .acidDensity                           = 25,
-            .waterWaveTextureDerivativesMultiplier = 5,
-            .waterTextureAreaScale                 = METRIC_TO_QUAKEUNIT( 1.0f ),
-            .portalNormalTwirl     = 0,
-        };
-        // because 1 quake unit is not 1 meter
-        refl_refr_params.waterColor.data[ 0 ] = powf( refl_refr_params.waterColor.data[ 0 ], 1.0f / METRIC_TO_QUAKEUNIT( 1.0f ) );
-        refl_refr_params.waterColor.data[ 1 ] = powf( refl_refr_params.waterColor.data[ 1 ], 1.0f / METRIC_TO_QUAKEUNIT( 1.0f ) );
-        refl_refr_params.waterColor.data[ 2 ] = powf( refl_refr_params.waterColor.data[ 2 ], 1.0f / METRIC_TO_QUAKEUNIT( 1.0f ) );
-        refl_refr_params.acidColor.data[ 0 ]  = powf( refl_refr_params.acidColor.data[ 0 ], 1.0f / METRIC_TO_QUAKEUNIT( 1.0f ) );
-        refl_refr_params.acidColor.data[ 1 ]  = powf( refl_refr_params.acidColor.data[ 1 ], 1.0f / METRIC_TO_QUAKEUNIT( 1.0f ) );
-        refl_refr_params.acidColor.data[ 2 ]  = powf( refl_refr_params.acidColor.data[ 2 ], 1.0f / METRIC_TO_QUAKEUNIT( 1.0f ) );
-    
-        RgDrawFrameSkyParams sky_params = {
-            .skyType            = RG_SKY_TYPE_RASTERIZED_GEOMETRY,
-            .skyColorDefault    = { 0, 0, 0 },
-            .skyColorMultiplier = 1.0f,
-            .skyColorSaturation = 1.0f,
-            .skyViewerPosition  = { RI.vieworg[ 0 ], RI.vieworg[ 1 ], RI.vieworg[ 2 ] },
-        };
+    RgDirectionalLightUploadInfo sun = {
+        .uniqueID               = 0,
+        .color                  = { 20, 20, 20 },
+        .direction              = { -1, -1, -1 },
+        .angularDiameterDegrees = 0.5f,
+    };
+    RgResult r2 = rgUploadDirectionalLight( rg_instance, &sun );
+    RG_CHECK( r2 );
 
-        RgDrawFrameRenderResolutionParams resolutionParams = {
-            .upscaleTechnique = RG_RENDER_UPSCALE_TECHNIQUE_AMD_FSR2,
-            .resolutionMode   = RG_RENDER_RESOLUTION_MODE_BALANCED,
-        };
+    RgDrawFrameReflectRefractParams refl_refr_params = {
+        .maxReflectRefractDepth                = 1,
+        .typeOfMediaAroundCamera               = is_camera_under_water ? RG_MEDIA_TYPE_WATER : RG_MEDIA_TYPE_VACUUM,
+        .indexOfRefractionGlass                = 1.52f,
+        .indexOfRefractionWater                = 1.33f,
+        .waterWaveSpeed                        = METRIC_TO_QUAKEUNIT( 0.4f ),
+        .waterWaveNormalStrength               = 1.0f,
+        .waterColor                            = { 171 / 255.0f, 193 / 255.0f, 210 / 255.0f },
+        .acidColor                             = { 0 / 255.0f, 169 / 255.0f, 145 / 255.0f },
+        .acidDensity                           = 25,
+        .waterWaveTextureDerivativesMultiplier = 5,
+        .waterTextureAreaScale                 = METRIC_TO_QUAKEUNIT( 1.0f ),
+        .portalNormalTwirl     = 0,
+    };
+    // because 1 quake unit is not 1 meter
+    refl_refr_params.waterColor.data[ 0 ] = powf( refl_refr_params.waterColor.data[ 0 ], 1.0f / METRIC_TO_QUAKEUNIT( 1.0f ) );
+    refl_refr_params.waterColor.data[ 1 ] = powf( refl_refr_params.waterColor.data[ 1 ], 1.0f / METRIC_TO_QUAKEUNIT( 1.0f ) );
+    refl_refr_params.waterColor.data[ 2 ] = powf( refl_refr_params.waterColor.data[ 2 ], 1.0f / METRIC_TO_QUAKEUNIT( 1.0f ) );
+    refl_refr_params.acidColor.data[ 0 ]  = powf( refl_refr_params.acidColor.data[ 0 ], 1.0f / METRIC_TO_QUAKEUNIT( 1.0f ) );
+    refl_refr_params.acidColor.data[ 1 ]  = powf( refl_refr_params.acidColor.data[ 1 ], 1.0f / METRIC_TO_QUAKEUNIT( 1.0f ) );
+    refl_refr_params.acidColor.data[ 2 ]  = powf( refl_refr_params.acidColor.data[ 2 ], 1.0f / METRIC_TO_QUAKEUNIT( 1.0f ) );
 
-        RgDrawFrameInfo info = {
-            .worldUpVector    = { 0, 0, 1 },
-            .fovYRadians      = DEG2RAD( RI.fov_y ),
-            .cameraNear       = R_GetNearClip(),
-            .cameraFar        = R_GetFarClip(),
-            .rayLength        = R_GetFarClip(),
-            .rayCullMaskWorld = RG_DRAW_FRAME_RAY_CULL_WORLD_0_BIT |
-                                RG_DRAW_FRAME_RAY_CULL_WORLD_1_BIT | RG_DRAW_FRAME_RAY_CULL_SKY_BIT,
-            .currentTime             = ( double )gpGlobals->time,
-            .pRenderResolutionParams = NULL,
-            .pReflectRefractParams   = &refl_refr_params,
-            .pSkyParams              = &sky_params,
-        };
-		
-        // reinterpret cast to make matrices column-major
-        matrix4x4* v = ( matrix4x4* )&info.view;
-        Matrix4x4_Transpose( *v, RI.worldviewMatrix );
+    RgDrawFrameSkyParams sky_params = {
+        .skyType            = RG_SKY_TYPE_RASTERIZED_GEOMETRY,
+        .skyColorDefault    = { 0, 0, 0 },
+        .skyColorMultiplier = 1.0f,
+        .skyColorSaturation = 1.0f,
+        .skyViewerPosition  = { RI.vieworg[ 0 ], RI.vieworg[ 1 ], RI.vieworg[ 2 ] },
+    };
 
-        RgResult r = rgDrawFrame( rg_instance, &info );
-        RG_CHECK( r );
-	}
+    RgDrawFrameRenderResolutionParams resolutionParams = {
+        .upscaleTechnique = RG_RENDER_UPSCALE_TECHNIQUE_AMD_FSR2,
+        .resolutionMode   = RG_RENDER_RESOLUTION_MODE_BALANCED,
+    };
+
+    RgDrawFrameInfo info = {
+        .worldUpVector    = { 0, 0, 1 },
+        .fovYRadians      = DEG2RAD( RI.fov_y ),
+        .cameraNear       = R_GetNearClip(),
+        .cameraFar        = R_GetFarClip(),
+        .rayLength        = R_GetFarClip(),
+        .rayCullMaskWorld = RG_DRAW_FRAME_RAY_CULL_WORLD_0_BIT |
+                            RG_DRAW_FRAME_RAY_CULL_WORLD_1_BIT | RG_DRAW_FRAME_RAY_CULL_SKY_BIT,
+        .currentTime             = ( double )gpGlobals->time,
+        .pRenderResolutionParams = NULL,
+        .pReflectRefractParams   = &refl_refr_params,
+        .pSkyParams              = &sky_params,
+    };
+	
+    // reinterpret cast to make matrices column-major
+    matrix4x4* v = ( matrix4x4* )&info.view;
+    Matrix4x4_Transpose( *v, RI.worldviewMatrix );
+
+    RgResult r = rgDrawFrame( rg_instance, &info );
+    RG_CHECK( r );
+#endif
 }
 
 /*
