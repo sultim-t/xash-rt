@@ -2044,9 +2044,14 @@ static rt_batchtype_t GetGlBeginEndType()
 }
 
 
-static RgViewport rt_2d_viewport                 = { 0 };
-static float      rt_2d_viewprojection[ 16 ] = { 0 };
-static qboolean   rt_2d_viewport_viewroj_changed  = false;
+typedef struct
+{
+    RgViewport viewport;
+    float      view_projection[ 16 ];
+} rt_2dstate_t;
+static rt_2dstate_t rt_2dstate         = { 0 };
+static rt_2dstate_t rt_2dstate_onbatch = { 0 };
+static qboolean     rt_2dstate_changed = false;
 
 static struct
 {
@@ -2074,8 +2079,7 @@ static qboolean AreViewParamsSame( rt_batchtype_t type )
 {
     if( type == RT_BATCH_TYPE_2D)
     {
-		// TODO: console is not rendered properly
-        // if( rt_2d_viewport_viewroj_changed )
+        if( rt_2dstate_changed )
         {
             return false;
         }
@@ -2167,10 +2171,11 @@ static void FlushBatch()
         }
         else
         {
-            RgResult r = rgUploadNonWorldPrimitive(
-                rg_instance, &rt_batch.primitive, rt_2d_viewprojection, &rt_2d_viewport );
+            RgResult r = rgUploadNonWorldPrimitive( rg_instance,
+                                                    &rt_batch.primitive,
+                                                    rt_2dstate_onbatch.view_projection,
+                                                    &rt_2dstate_onbatch.viewport );
             RG_CHECK( r );
-            rt_2d_viewport_viewroj_changed = false;
         }
     }
     rgUtilImScratchClear( rg_instance );
@@ -2196,6 +2201,12 @@ static void TryBeginBatch_Finalize( rt_batchtype_t             newtype,
             rt_batch.type      = newtype;
             rt_batch.mesh      = newmesh ? *newmesh : null_mesh;
             rt_batch.primitive = newprimitive ? *newprimitive : null_prim;
+
+			if( rt_batch.type == RT_BATCH_TYPE_2D )
+            {
+                rt_2dstate_onbatch = rt_2dstate;
+                rt_2dstate_changed = false;
+			}
         }
     }
 }
@@ -2340,25 +2351,25 @@ void RT_OnBeforeDrawFrame()
 {
 	// flush residue
     TryBeginBatch_Finalize( RT_BATCH_TYPE_NONE, NULL, NULL );
-    rt_2d_viewport_viewroj_changed = true;
+    rt_2dstate_changed = true;
 }
 
 void pglViewport( GLint x, GLint y, GLsizei width, GLsizei height )
 {
-    rt_2d_viewport.x      = ( float )x;
-    rt_2d_viewport.y      = ( float )y;
-    rt_2d_viewport.width  = ( float )width;
-    rt_2d_viewport.height = ( float )height;
+    rt_2dstate.viewport.x      = ( float )x;
+    rt_2dstate.viewport.y      = ( float )y;
+    rt_2dstate.viewport.width  = ( float )width;
+    rt_2dstate.viewport.height = ( float )height;
 
-	rt_2d_viewport_viewroj_changed = true;
+	rt_2dstate_changed = true;
 }
 
 void pglDepthRange( GLclampd zNear, GLclampd zFar )
 {
-    rt_2d_viewport.minDepth = ( float )zNear;
-    rt_2d_viewport.maxDepth = ( float )zFar;
+    rt_2dstate.viewport.minDepth = ( float )zNear;
+    rt_2dstate.viewport.maxDepth = ( float )zFar;
 
-    rt_2d_viewport_viewroj_changed = true;
+    rt_2dstate_changed = true;
 }
 
 
@@ -2374,8 +2385,8 @@ void pglLoadIdentity( void )
 {
     if( rt_matrix_mode == GL_PROJECTION )
     {
-        Matrix4x4_LoadIdentity( rt_2d_viewprojection );
-        rt_2d_viewport_viewroj_changed = true;
+        Matrix4x4_LoadIdentity( rt_2dstate.view_projection );
+        rt_2dstate_changed = true;
 
         Matrix4x4_LoadIdentity( rt_matrix_proj );
     }
@@ -2390,8 +2401,8 @@ void pglLoadMatrixf( const GLfloat* m )
 {
     if( rt_matrix_mode == GL_PROJECTION )
     {
-        memcpy( rt_2d_viewprojection, m, 16 * sizeof( float ) );
-        rt_2d_viewport_viewroj_changed = true;
+        memcpy( rt_2dstate.view_projection, m, 16 * sizeof( float ) );
+        rt_2dstate_changed = true;
 
         Matrix4x4_FromArrayFloatGL( rt_matrix_proj, m );
     }
@@ -2424,9 +2435,9 @@ void pglOrtho( GLdouble left, GLdouble right, GLdouble bottom, GLdouble top, GLd
         Matrix4x4_Copy( prev, rt_matrix_proj );
 
         Matrix4x4_Concat( rt_matrix_proj, ortho, prev );
-
-        Matrix4x4_ToArrayFloatGL( rt_matrix_proj, rt_2d_viewprojection );
-        rt_2d_viewport_viewroj_changed = true;
+		
+        Matrix4x4_ToArrayFloatGL( rt_matrix_proj, rt_2dstate.view_projection );
+        rt_2dstate_changed = true;
     }
 }
 
