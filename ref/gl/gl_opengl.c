@@ -2157,6 +2157,31 @@ static qboolean ArePrimitivesSame( rt_batchtype_t             a_type,
     return false;
 }
 
+static void TransformToMetric( RgTransform* t )
+{
+#if 0 // optimization
+    for( int i = 0; i < 3; i++ )
+    {
+        for( int j = 0; j < 4; j++ )
+        {
+            t->matrix[ i ][ j ] = QUAKEUNIT_TO_METRIC( t->matrix[ i ][ j ] );
+        }
+	}
+#else
+    static const RgTransform tometric = { {
+        { QUAKEUNIT_IN_METERS, 0, 0, 0 },
+        { 0, QUAKEUNIT_IN_METERS, 0, 0 },
+        { 0, 0, QUAKEUNIT_IN_METERS, 0 },
+    } };
+
+    matrix3x4 out;
+	Matrix3x4_ConcatTransforms( out, tometric.matrix, t->matrix );
+
+    assert( sizeof( *t ) == sizeof( out ) );
+	memcpy( t, &out, sizeof(RgTransform) );
+#endif
+}
+
 
 static void FlushBatch()
 {
@@ -2255,6 +2280,7 @@ static void TryBeginBatch( RgUtilImScratchTopology glbegin_topology )
             .emissive     = rt_raster_blend && rt_raster_additive ? 1.0f : 0.0f,
             .pEditorInfo  = NULL,
         };
+        TransformToMetric( &prim.transform );
 
         TryBeginBatch_Finalize( curtype, &mesh, &prim );
     }
@@ -2305,6 +2331,7 @@ static void TryBeginBatch( RgUtilImScratchTopology glbegin_topology )
             .emissive     = 0.0f,
             .pEditorInfo  = NULL,
         };
+        TransformToMetric( &prim.transform );
 
         TryBeginBatch_Finalize( curtype, &mesh, &prim );
     }
@@ -2330,6 +2357,7 @@ static void TryBeginBatch( RgUtilImScratchTopology glbegin_topology )
             .emissive             = 0.0f,
             .pEditorInfo          = NULL,
         };
+		TransformToMetric( &prim.transform );
 
         TryBeginBatch_Finalize( curtype, &mesh, &prim );
     }

@@ -1185,6 +1185,11 @@ void R_EndFrame( void )
 #if XASH_RAYTRACING
     RT_OnBeforeDrawFrame();
 
+    const vec3_t vieworg_metric = {
+        QUAKEUNIT_TO_METRIC( RI.vieworg[ 0 ] ),
+        QUAKEUNIT_TO_METRIC( RI.vieworg[ 1 ] ),
+        QUAKEUNIT_TO_METRIC( RI.vieworg[ 2 ] ),
+    };
 	qboolean is_camera_under_water = ENGINE_GET_PARM( PARM_WATER_LEVEL ) > 2;
 
     RgDirectionalLightUploadInfo sun = {
@@ -1201,29 +1206,22 @@ void R_EndFrame( void )
         .typeOfMediaAroundCamera               = is_camera_under_water ? RG_MEDIA_TYPE_WATER : RG_MEDIA_TYPE_VACUUM,
         .indexOfRefractionGlass                = 1.52f,
         .indexOfRefractionWater                = 1.33f,
-        .waterWaveSpeed                        = METRIC_TO_QUAKEUNIT( 0.4f ),
+        .waterWaveSpeed                        = 0.4f,
         .waterWaveNormalStrength               = 1.0f,
         .waterColor                            = { 171 / 255.0f, 193 / 255.0f, 210 / 255.0f },
         .acidColor                             = { 0 / 255.0f, 169 / 255.0f, 145 / 255.0f },
         .acidDensity                           = 25,
         .waterWaveTextureDerivativesMultiplier = 5,
-        .waterTextureAreaScale                 = METRIC_TO_QUAKEUNIT( 1.0f ),
+        .waterTextureAreaScale                 = 1.0f,
         .portalNormalTwirl     = 0,
     };
-    // because 1 quake unit is not 1 meter
-    refl_refr_params.waterColor.data[ 0 ] = powf( refl_refr_params.waterColor.data[ 0 ], 1.0f / METRIC_TO_QUAKEUNIT( 1.0f ) );
-    refl_refr_params.waterColor.data[ 1 ] = powf( refl_refr_params.waterColor.data[ 1 ], 1.0f / METRIC_TO_QUAKEUNIT( 1.0f ) );
-    refl_refr_params.waterColor.data[ 2 ] = powf( refl_refr_params.waterColor.data[ 2 ], 1.0f / METRIC_TO_QUAKEUNIT( 1.0f ) );
-    refl_refr_params.acidColor.data[ 0 ]  = powf( refl_refr_params.acidColor.data[ 0 ], 1.0f / METRIC_TO_QUAKEUNIT( 1.0f ) );
-    refl_refr_params.acidColor.data[ 1 ]  = powf( refl_refr_params.acidColor.data[ 1 ], 1.0f / METRIC_TO_QUAKEUNIT( 1.0f ) );
-    refl_refr_params.acidColor.data[ 2 ]  = powf( refl_refr_params.acidColor.data[ 2 ], 1.0f / METRIC_TO_QUAKEUNIT( 1.0f ) );
 
     RgDrawFrameSkyParams sky_params = {
         .skyType            = RG_SKY_TYPE_RASTERIZED_GEOMETRY,
         .skyColorDefault    = { 0, 0, 0 },
         .skyColorMultiplier = 1.0f,
         .skyColorSaturation = 1.0f,
-        .skyViewerPosition  = { RI.vieworg[ 0 ], RI.vieworg[ 1 ], RI.vieworg[ 2 ] },
+        .skyViewerPosition  = { vieworg_metric[ 0 ], vieworg_metric[ 1 ], vieworg_metric[ 2 ] },
     };
 
     RgDrawFrameRenderResolutionParams resolutionParams = {
@@ -1234,20 +1232,29 @@ void R_EndFrame( void )
     RgDrawFrameInfo info = {
         .worldUpVector    = { 0, 0, 1 },
         .fovYRadians      = DEG2RAD( RI.fov_y ),
-        .cameraNear       = R_GetNearClip(),
-        .cameraFar        = R_GetFarClip(),
-        .rayLength        = R_GetFarClip(),
-        .rayCullMaskWorld = RG_DRAW_FRAME_RAY_CULL_WORLD_0_BIT |
-                            RG_DRAW_FRAME_RAY_CULL_WORLD_1_BIT | RG_DRAW_FRAME_RAY_CULL_SKY_BIT,
-        .currentTime             = ( double )gpGlobals->time,
+        .cameraNear       = QUAKEUNIT_TO_METRIC( R_GetNearClip() ),
+        .cameraFar        = QUAKEUNIT_TO_METRIC( R_GetFarClip() ),
+        .rayLength        = QUAKEUNIT_TO_METRIC( R_GetFarClip() ),
+        .rayCullMaskWorld = RG_DRAW_FRAME_RAY_CULL_WORLD_0_BIT | RG_DRAW_FRAME_RAY_CULL_SKY_BIT,
+        .currentTime      = ( double )gpGlobals->time,
         .pRenderResolutionParams = NULL,
         .pReflectRefractParams   = &refl_refr_params,
         .pSkyParams              = &sky_params,
     };
-	
-    // reinterpret cast to make matrices column-major
-    matrix4x4* v = ( matrix4x4* )&info.view;
-    Matrix4x4_Transpose( *v, RI.worldviewMatrix );
+    // make view matrix
+    matrix4x4* view_dst = ( matrix4x4* )&info.view;
+	{
+        matrix4x4 view;
+        Matrix4x4_CreateModelview( view );
+        Matrix4x4_ConcatRotate( view, -RI.viewangles[ 2 ], 1, 0, 0 );
+        Matrix4x4_ConcatRotate( view, -RI.viewangles[ 0 ], 0, 1, 0 );
+        Matrix4x4_ConcatRotate( view, -RI.viewangles[ 1 ], 0, 0, 1 );
+        Matrix4x4_ConcatTranslate(
+            view, -vieworg_metric[ 0 ], -vieworg_metric[ 1 ], -vieworg_metric[ 2 ] );
+
+        // to column-major
+        Matrix4x4_Transpose( *view_dst, view );
+    }
 
     RgResult r = rgDrawFrame( rg_instance, &info );
     RG_CHECK( r );
