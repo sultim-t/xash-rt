@@ -2218,7 +2218,7 @@ static void TryBeginBatch( RgUtilImScratchTopology glbegin_topology )
     if( curtype == RT_BATCH_TYPE_2D )
     {
         RgMeshPrimitiveInfo prim = {
-            .primitiveNameInMesh  = NULL,
+            .pPrimitiveNameInMesh = NULL,
             .primitiveIndexInMesh = 0,
             .flags                = ( rt_raster_blend ? RG_MESH_PRIMITIVE_TRANSLUCENT : 0 ) |
                      ( rt_alphatest ? RG_MESH_PRIMITIVE_ALPHA_TESTED : 0 ),
@@ -2237,13 +2237,13 @@ static void TryBeginBatch( RgUtilImScratchTopology glbegin_topology )
         RgMeshInfo mesh = {
             .uniqueObjectID = UINT32_MAX,
             .pMeshName      = NULL,
-            .isStatic       = false,
+            .isExportable   = false,
             .animationName  = NULL,
             .animationTime  = 0.0f,
         };
 
         RgMeshPrimitiveInfo prim = {
-            .primitiveNameInMesh  = NULL,
+            .pPrimitiveNameInMesh = NULL,
             .primitiveIndexInMesh = 0,
             .flags                = ( rt_raster_blend ? RG_MESH_PRIMITIVE_TRANSLUCENT : 0 ) |
                      ( rt_alphatest ? RG_MESH_PRIMITIVE_ALPHA_TESTED : 0 ) |
@@ -2267,7 +2267,7 @@ static void TryBeginBatch( RgUtilImScratchTopology glbegin_topology )
         RgMeshInfo mesh = {
             .uniqueObjectID = RI.currententity->index,
             .pMeshName      = RI.currentmodel->name,
-            .isStatic       = false,
+            .isExportable   = false,
             .animationName  = NULL,
             .animationTime  = 0.0f,
         };
@@ -2288,7 +2288,7 @@ static void TryBeginBatch( RgUtilImScratchTopology glbegin_topology )
         }
 
         RgMeshPrimitiveInfo prim = {
-            .primitiveNameInMesh  = NULL,
+            .pPrimitiveNameInMesh = NULL,
             .primitiveIndexInMesh = hashStudioPrimitive( rt_state.curStudioBodyPart,
                                                          rt_state.curStudioSubmodel,
                                                          rt_state.curStudioMesh,
@@ -2313,13 +2313,13 @@ static void TryBeginBatch( RgUtilImScratchTopology glbegin_topology )
         RgMeshInfo mesh = {
             .uniqueObjectID = RI.currententity->index,
             .pMeshName      = RI.currentmodel->name,
-            .isStatic       = false,
+            .isExportable   = ( RI.currentmodel == WORLDMODEL ),
             .animationName  = NULL,
             .animationTime  = 0.0f,
         };
 
         RgMeshPrimitiveInfo prim = {
-            .primitiveNameInMesh  = NULL,
+            .pPrimitiveNameInMesh = rt_state.curTexture2DName, // NULL,
             .primitiveIndexInMesh = rt_state.curBrushSurface,
             .flags                = ( rt_alphatest ? RG_MESH_PRIMITIVE_ALPHA_TESTED : 0 ) |
                                     ( rt_state.curBrushSurfaceIsWater ? RG_MESH_PRIMITIVE_WATER : 0 ),
