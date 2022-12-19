@@ -885,6 +885,64 @@ void GL_InitCommands( void )
 
 	gEngfuncs.Cmd_AddCommand( "r_info", R_RenderInfo_f, "display renderer info" );
 	gEngfuncs.Cmd_AddCommand( "timerefresh", SCR_TimeRefresh_f, "turn quickly and print rendering statistcs" );
+
+#if XASH_RAYTRACING
+    // clang-format off
+
+    // NOTE: if start with '_' then the cvar won't be archived
+	#define CVAR_DEF_T( name, default_value, description )	\
+	    rt_cvars.name = gEngfuncs.Cvar_Get(					\
+	        ( #name ),										\
+	        ( default_value ),								\
+	        ( #name )[ 0 ] == '_' ? 0 : FCVAR_ARCHIVE,		\
+	        ( description ) );
+
+    CVAR_DEF_T( rt_vsync,					"1",	"vertical synchronization to prevent tearing" )
+	
+	CVAR_DEF_T( rt_renderscale,				"0",	"[20, 100] resolution scale")
+    CVAR_DEF_T( rt_upscale_dlss,			"0",	"0 - off, 1 - quality, 2 - balanced, 3 - perf, 4 - ultra perf, 5 - DLSS with rt_renderscale" )
+    CVAR_DEF_T( rt_upscale_fsr2,			"2",	"0 - off, 1 - quality, 2 - balanced, 3 - perf, 4 - ultra perf, 5 - FSR2 with rt_renderscale" )
+    CVAR_DEF_T( rt_sharpen,					"0",	"image sharpening" )
+
+    CVAR_DEF_T( rt_antifirefly,				"1",	"" )
+    CVAR_DEF_T( rt_shadowrays,				"2",	"" )
+	CVAR_DEF_T( rt_indir2bounces,			"1",	"" )
+
+    CVAR_DEF_T( rt_normalmap_stren,			"1",	"" )
+    CVAR_DEF_T( rt_emis_mapboost,			"30",	"" )
+    CVAR_DEF_T( rt_emis_maxscrcolor,		"32",	"" )
+    CVAR_DEF_T( rt_emis_fullbright_dflt,	"32",	"" )
+
+	CVAR_DEF_T( rt_sky,						"1",	"sky intensity")
+	CVAR_DEF_T( rt_sky_saturation,			"1",	"sky saturation")
+
+	CVAR_DEF_T( rt_reflrefr_depth,			"2",	"") 
+	CVAR_DEF_T( rt_refr_glass,				"1.52",	"") 
+	CVAR_DEF_T( rt_refr_water,				"1.33",	"") 
+
+    CVAR_DEF_T( rt_mzlflash,				"1",	"muzzle flash light source" )
+    CVAR_DEF_T( rt_texture_nearest,			"1",	"nearest texture filter for the world" )
+    CVAR_DEF_T( rt_particles_notex,			"0",	"don't use texture for particles" )
+
+	CVAR_DEF_T( rt_volume_type,				"2",	"" )
+	CVAR_DEF_T( rt_volume_far,				"1000",	"" )
+	CVAR_DEF_T( rt_volume_scatter,			"0.3",	"" )
+	CVAR_DEF_T( rt_volume_ambient,			"0.5",	"" )
+	CVAR_DEF_T( rt_volume_lintensity,		"1",	"" )
+	CVAR_DEF_T( rt_volume_lassymetry,		"0.0",	"" )
+
+    CVAR_DEF_T( rt_bloom_intensity,			"1",	"bloom intensity" )
+    CVAR_DEF_T( rt_bloom_emis_mult,			"0",	"bloom multiplier for emissive" )
+	
+    CVAR_DEF_T( rt_ef_crt,					"0",	"CRT-monitor filter" )
+    CVAR_DEF_T( rt_ef_chraber,				"0.3",	"chromatic aberration intensity" )
+    CVAR_DEF_T( rt_ef_vintage,				"0",	"[0, 4] vintage effects, disabled if rt_renderscale>0" )
+    CVAR_DEF_T( rt_ef_water,				"1",	"warp screen while under water" )
+	
+    CVAR_DEF_T( _rt_dlss_available,			"0",	"internal variable" )
+
+    // clang-format on
+#endif
 }
 
 /*
@@ -994,7 +1052,7 @@ qboolean R_Init( void )
 
             .primaryRaysMaxAlbedoLayers          = 1,
             .indirectIlluminationMaxAlbedoLayers = 1,
-            .rayCullBackFacingTriangles          = 0,
+            .rayCullBackFacingTriangles          = 1,
             .allowGeometryWithSkyFlag            = 1,
 
             .rasterizedMaxVertexCount = 1 << 20,
@@ -1020,11 +1078,18 @@ qboolean R_Init( void )
 
             // to match the GLTF standard
             .pbrTextureSwizzling = RG_TEXTURE_SWIZZLING_NULL_ROUGHNESS_METALLIC,
+
+			.worldUp = { 0, 0, 1 },
+			.worldForward = { 0, 1, 0 },
+			.worldScale = QUAKEUNIT_IN_METERS,
         };
 
 		RgResult r = rgCreateInstance(&info, &rg_instance);
-		RG_CHECK(r);
-
+		if( r != RG_RESULT_SUCCESS )
+		{
+            gEngfuncs.Host_Error( "RayTracedGL1 init error: %s", rgUtilGetResultDescription( r ) );
+		}
+		
 		{
             const rt_state_t nullstate = {
                 .curTexture2DName  = NULL,
@@ -1850,7 +1915,8 @@ void pglColor4ubv( const GLubyte* v )
 
 
 RgInstance rg_instance = NULL;
-rt_state_t rt_state = { 0 };
+rt_state_t rt_state    = { 0 };
+rt_cvars_t rt_cvars    = { 0 };
 
 void pglBindTexture( GLenum target, GLuint texture, const char* textureName )
 {

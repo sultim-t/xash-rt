@@ -793,6 +793,73 @@ extern rt_state_t rt_state;
 
 void RT_OnBeforeDrawFrame( void );
 
+// clang-format off
+typedef cvar_t* cvar_ptr_t;
+typedef struct rt_cvars_t
+{
+    cvar_ptr_t
+		rt_vsync,
+		
+		rt_renderscale,
+		rt_upscale_dlss,
+		rt_upscale_fsr2,
+		rt_sharpen,
+
+        rt_antifirefly,
+        rt_shadowrays,
+		rt_indir2bounces,
+		
+		rt_normalmap_stren,
+		rt_emis_mapboost,
+		rt_emis_maxscrcolor,
+		rt_emis_fullbright_dflt,
+		
+		rt_sky,
+		rt_sky_saturation,
+
+		rt_reflrefr_depth,
+		rt_refr_glass,
+		rt_refr_water,
+		
+		rt_mzlflash,
+		rt_texture_nearest,
+		rt_particles_notex,
+
+		rt_volume_type,
+		rt_volume_far,
+		rt_volume_scatter,
+		rt_volume_ambient,
+		rt_volume_lintensity,
+		rt_volume_lassymetry,
+		
+		rt_bloom_intensity,
+		rt_bloom_emis_mult,
+		
+		rt_ef_crt,
+		rt_ef_chraber,
+		rt_ef_vintage,
+		rt_ef_water,
+		
+		_rt_dlss_available;
+} rt_cvars_t;
+extern rt_cvars_t rt_cvars;
+
+#define CVAR_TO_FLOAT( x )  ( ( x )->value )
+#define CVAR_TO_UINT32( x ) ( ( ( x )->value > 0.5f ) ? ( ( uint32_t )( x )->value ) : 0u )
+#define CVAR_TO_INT32( x )  ( ( int )( x )->value )
+
+#define RT_CVAR_TO_BOOL( x )   CVAR_TO_BOOL( rt_cvars.x )
+#define RT_CVAR_TO_FLOAT( x )  CVAR_TO_FLOAT( rt_cvars.x )
+#define RT_CVAR_TO_UINT32( x ) CVAR_TO_UINT32( rt_cvars.x )
+#define RT_CVAR_TO_INT32( x )  CVAR_TO_INT32( rt_cvars.x )
+
+#define RT_VEC3(x)         { ( x )[ 0 ], ( x )[ 1 ], ( x )[ 2 ] }
+#define RT_VEC3_MULT(x, a) { ( x )[ 0 ] * ( a ), ( x )[ 1 ] * ( a ), ( x )[ 2 ] * ( a ) }
+
+#define RT_CLAMP( x, xmin, xmax ) \
+    ( ( x ) < ( xmin ) ? ( xmin ) : ( ( x ) > ( xmax ) ? ( xmax ) : ( x ) ) )
+
+// clang-format on
 #endif
 
 
