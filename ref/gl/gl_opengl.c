@@ -929,7 +929,7 @@ void GL_InitCommands( void )
 	CVAR_DEF_T( rt_volume_scatter,			"0.3",	"" )
 	CVAR_DEF_T( rt_volume_ambient,			"0.5",	"" )
 	CVAR_DEF_T( rt_volume_lintensity,		"1",	"" )
-	CVAR_DEF_T( rt_volume_lassymetry,		"0.0",	"" )
+	CVAR_DEF_T( rt_volume_lassymetry,		"0.75",	"" )
 
     CVAR_DEF_T( rt_bloom_intensity,			"1",	"bloom intensity" )
     CVAR_DEF_T( rt_bloom_emis_mult,			"0",	"bloom multiplier for emissive" )
@@ -996,14 +996,14 @@ void GL_RemoveCommands( void )
 }
 
 
-static void PrintMessage(const char* pMessage, RgMessageSeverityFlags severity, void* pUserData)
+static void PrintMessage( const char* pMessage, RgMessageSeverityFlags severity, void* pUserData )
 {
-	if (severity & RG_MESSAGE_SEVERITY_ERROR)
-	{
-		gEngfuncs.Host_Error(pMessage);
-	}
+    if( severity & RG_MESSAGE_SEVERITY_ERROR )
+    {
+        gEngfuncs.Host_Error( "%s\n", pMessage );
+    }
 
-	gEngfuncs.Con_Printf(pMessage);
+    gEngfuncs.Con_Printf( "%s\n", pMessage );
 }
 
 /*
@@ -1045,10 +1045,9 @@ qboolean R_Init( void )
 
             .pWin32SurfaceInfo = &win32Info,
 
-            .pfnPrint = PrintMessage,
+            .pOverrideFolderPath = ASSET_DIRECTORY,
 
-            .pShaderFolderPath  = ASSET_DIRECTORY "shaders/",
-            .pBlueNoiseFilePath = ASSET_DIRECTORY "BlueNoise_LDR_RGBA_128.ktx2",
+            .pfnPrint = PrintMessage,
 
             .primaryRaysMaxAlbedoLayers          = 1,
             .indirectIlluminationMaxAlbedoLayers = 1,
@@ -1060,21 +1059,9 @@ qboolean R_Init( void )
             .rasterizedVertexColorGamma = true,
 
             .rasterizedSkyCubemapSize = 256,
-
-            .maxTextureCount                             = MAX_TEXTURES,
+			
             .textureSamplerForceMinificationFilterLinear = true,
-
-            .pOverridenTexturesFolderPath = ASSET_DIRECTORY,
-
-            .overridenAlbedoAlphaTextureIsSRGB               = true,
-            .overridenRoughnessMetallicEmissionTextureIsSRGB = false,
-            .overridenNormalTextureIsSRGB                    = false,
-
-            .originalAlbedoAlphaTextureIsSRGB               = true,
-            .originalRoughnessMetallicEmissionTextureIsSRGB = false,
-            .originalNormalTextureIsSRGB                    = false,
-
-            .pWaterNormalTexturePath = ASSET_DIRECTORY "WaterNormal_n.ktx2",
+            .textureSamplerForceNormalMapFilterLinear    = true,
 
             // to match the GLTF standard
             .pbrTextureSwizzling = RG_TEXTURE_SWIZZLING_NULL_ROUGHNESS_METALLIC,
@@ -2209,7 +2196,7 @@ static qboolean ArePrimitivesSame( rt_batchtype_t             a_type,
                 assert( a_type == b_type );
 
                 if( AreTransformsAlwaysIdentity( a_type ) ||
-                    AreTransformsClose( &a_primitive->transform, &b_primitive->transform ) )
+                    AreTransformsClose( &a_mesh->transform, &b_mesh->transform ) )
                 {
                     if( AreViewParamsSame( a_type ) )
                     {
@@ -2288,7 +2275,6 @@ static void TryBeginBatch( RgUtilImScratchTopology glbegin_topology )
             .primitiveIndexInMesh = 0,
             .flags                = ( rt_raster_blend ? RG_MESH_PRIMITIVE_TRANSLUCENT : 0 ) |
                      ( rt_alphatest ? RG_MESH_PRIMITIVE_ALPHA_TESTED : 0 ),
-            .transform    = RG_TRANSFORM_IDENTITY,
             .pTextureName = rt_state.curTexture2DName,
             .textureFrame = 0,
             .color        = rgUtilPackColorByte4D( 255, 255, 255, 255 ),
@@ -2303,6 +2289,7 @@ static void TryBeginBatch( RgUtilImScratchTopology glbegin_topology )
         RgMeshInfo mesh = {
             .uniqueObjectID = UINT32_MAX,
             .pMeshName      = NULL,
+            .transform      = RG_TRANSFORM_IDENTITY,
             .isExportable   = false,
             .animationName  = NULL,
             .animationTime  = 0.0f,
@@ -2314,7 +2301,6 @@ static void TryBeginBatch( RgUtilImScratchTopology glbegin_topology )
             .flags                = ( rt_raster_blend ? RG_MESH_PRIMITIVE_TRANSLUCENT : 0 ) |
                      ( rt_alphatest ? RG_MESH_PRIMITIVE_ALPHA_TESTED : 0 ) |
                      ( rt_state.curIsSky ? RG_MESH_PRIMITIVE_SKY : 0 ),
-            .transform    = RG_TRANSFORM_IDENTITY,
             .pTextureName = rt_state.curTexture2DName,
             .textureFrame = 0,
             .color        = rgUtilPackColorByte4D( 255, 255, 255, 255 ),
@@ -2333,6 +2319,7 @@ static void TryBeginBatch( RgUtilImScratchTopology glbegin_topology )
         RgMeshInfo mesh = {
             .uniqueObjectID = RI.currententity->index,
             .pMeshName      = RI.currentmodel->name,
+            .transform      = RG_TRANSFORM_IDENTITY,
             .isExportable   = false,
             .animationName  = NULL,
             .animationTime  = 0.0f,
@@ -2364,7 +2351,6 @@ static void TryBeginBatch( RgUtilImScratchTopology glbegin_topology )
                 ( rt_alphatest ? RG_MESH_PRIMITIVE_ALPHA_TESTED : 0 ) |
                 ( isviewmodel ? RG_MESH_PRIMITIVE_FIRST_PERSON
                               : ( isplayerviewer ? RG_MESH_PRIMITIVE_FIRST_PERSON_VIEWER : 0 ) ),
-            .transform    = RG_TRANSFORM_IDENTITY,
             .pTextureName = rt_state.curTexture2DName,
             .textureFrame = 0,
             .color        = rgUtilPackColorByte4D( 255, 255, 255, 255 ),
@@ -2379,6 +2365,7 @@ static void TryBeginBatch( RgUtilImScratchTopology glbegin_topology )
         RgMeshInfo mesh = {
             .uniqueObjectID = RI.currententity->index,
             .pMeshName      = RI.currentmodel->name,
+            .transform      = MATRIX4_TO_RGTRANSFORM( RI.objectMatrix ),
             .isExportable   = ( RI.currentmodel == WORLDMODEL ),
             .animationName  = NULL,
             .animationTime  = 0.0f,
@@ -2389,7 +2376,6 @@ static void TryBeginBatch( RgUtilImScratchTopology glbegin_topology )
             .primitiveIndexInMesh = rt_state.curBrushSurface,
             .flags                = ( rt_alphatest ? RG_MESH_PRIMITIVE_ALPHA_TESTED : 0 ) |
                                     ( rt_state.curBrushSurfaceIsWater ? RG_MESH_PRIMITIVE_WATER : 0 ),
-            .transform            = MATRIX4_TO_RGTRANSFORM( RI.objectMatrix ),
             .pTextureName         = rt_state.curTexture2DName,
             .textureFrame         = 0,
             .color                = rgUtilPackColorByte4D( 255, 255, 255, 255 ),
