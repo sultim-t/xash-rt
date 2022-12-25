@@ -882,11 +882,11 @@ static void CalculateFlaslightPosition( vec3_t out_position )
 {
     vec3_t u;
     VectorCopy( RI.vup, u );
-    VectorScale( u, METRIC_TO_QUAKEUNIT( RT_CVAR_TO_FLOAT( rt_flsh_y ) ), u );
+    VectorScale( u, METRIC_TO_QUAKEUNIT( RT_CVAR_TO_FLOAT( rt_flsh_u ) ), u );
 
     vec3_t r;
     VectorCopy( RI.vright, r );
-    VectorScale( r, METRIC_TO_QUAKEUNIT( RT_CVAR_TO_FLOAT( rt_flsh_x ) ), r );
+    VectorScale( r, METRIC_TO_QUAKEUNIT( RT_CVAR_TO_FLOAT( rt_flsh_r ) ), r );
 
     VectorCopy( RI.vieworg, out_position );
     VectorAdd( out_position, u, out_position );

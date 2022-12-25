@@ -827,8 +827,8 @@ typedef struct rt_cvars_t
 		rt_flsh,
 		rt_flsh_radius,
 		rt_flsh_angle,
-		rt_flsh_x,
-		rt_flsh_y,
+		rt_flsh_r,
+		rt_flsh_u,
 		_rt_flsh_key,
 
 		rt_reflrefr_depth,
