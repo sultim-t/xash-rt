@@ -930,7 +930,13 @@ void GL_InitCommands( void )
 	CVAR_DEF_T( rt_refr_glass,				"1.52",	"") 
 	CVAR_DEF_T( rt_refr_water,				"1.33",	"") 
 
-    CVAR_DEF_T( rt_mzlflash,				"1",	"muzzle flash light source" )
+    CVAR_DEF_T( rt_mzlflash,				"1",	"enable muzzle flash light source" )
+    CVAR_DEF_T( rt_mzlflash_life,			"0.1",	"how long muzzle flash light should exist" )
+    CVAR_DEF_T( rt_mzlflash_f,				"1.7",  "muzzle flash light offset - forward" )
+    CVAR_DEF_T( rt_mzlflash_u,				"0.0",  "muzzle flash light offset - up" )
+    CVAR_DEF_T( rt_mzlflash_size,			"1",	"additional muzzle flash light size" )
+    CVAR_DEF_T( rt_mzlflash_decay,			"1",	"how fast muzzle flash light size should decrease" )
+
     CVAR_DEF_T( rt_texture_nearest,			"1",	"nearest texture filter for the world" )
     CVAR_DEF_T( rt_particles_notex,			"0",	"don't use texture for particles" )
 

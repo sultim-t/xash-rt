@@ -836,6 +836,12 @@ typedef struct rt_cvars_t
 		rt_refr_water,
 		
 		rt_mzlflash,
+		rt_mzlflash_life,
+		rt_mzlflash_f,
+		rt_mzlflash_u,
+		rt_mzlflash_size,
+		rt_mzlflash_decay,
+
 		rt_texture_nearest,
 		rt_particles_notex,
 

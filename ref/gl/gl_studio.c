@@ -2829,18 +2829,76 @@ static void R_StudioClientEvents( void )
 		Matrix3x4_OriginFromMatrix( g_studio.rotationmatrix, e->attachment[3] );
 	}
 
+#if !XASH_RAYTRACING
 	if( FBitSet( e->curstate.effects, EF_MUZZLEFLASH ))
+#else
+    if( FBitSet( e->curstate.effects, EF_MUZZLEFLASH ) && RT_CVAR_TO_BOOL( rt_mzlflash ) )
+#endif
 	{
 		dlight_t	*el = gEngfuncs.CL_AllocElight( 0 );
 
 		ClearBits( e->curstate.effects, EF_MUZZLEFLASH );
-		VectorCopy( e->attachment[0], el->origin );
+#if !XASH_RAYTRACING
+        VectorCopy( e->attachment[0], el->origin );
 		el->die = gpGlobals->time + 0.05f;
 		el->color.r = 255;
 		el->color.g = 192;
 		el->color.b = 64;
 		el->decay = 320;
 		el->radius = 24;
+#else
+        vec3_t original_pos, offsetted_pos;
+        VectorCopy( e->attachment[ 0 ], original_pos );
+        VectorCopy( original_pos, offsetted_pos );
+
+        VectorCopy( original_pos, el->origin );
+        el->die = gpGlobals->time + RT_CVAR_TO_FLOAT( rt_mzlflash_life );
+        el->color.r = 255;
+        el->color.g = 192;
+        el->color.b = 64;
+        el->decay  = 320 * RT_CVAR_TO_FLOAT( rt_mzlflash_decay );
+        el->radius  = 24 + 24 * gEngfuncs.COM_RandomFloat( 0.0f, 1.0f ) *
+                              RT_CVAR_TO_FLOAT( rt_mzlflash_size );
+        {
+            vec3_t v_forward, v_right, v_up;
+            AngleVectors( e->angles, v_forward, v_right, v_up );
+
+            VectorMA( offsetted_pos,
+                      METRIC_TO_QUAKEUNIT( RT_CVAR_TO_FLOAT( rt_mzlflash_f ) ),
+                      v_forward,
+                      offsetted_pos );
+
+            VectorMA( offsetted_pos,
+                      METRIC_TO_QUAKEUNIT( RT_CVAR_TO_FLOAT( rt_mzlflash_u ) ),
+                      v_up,
+                      offsetted_pos );
+
+            const pmtrace_t trace =
+                gEngfuncs.CL_TraceLine( original_pos, offsetted_pos, PM_NORMAL );
+
+            // if started inside
+            if( trace.startsolid )
+            {
+                if( RI.currententity == gEngfuncs.GetViewModel() )
+                {
+                    // fallback to camera position, if from first person view
+                    VectorCopy( RI.vieworg, offsetted_pos );
+                }
+                else
+                {
+                    VectorCopy( original_pos, offsetted_pos );
+                }
+            }
+            // if hit and plane is valid
+            else if( trace.fraction < 1.0f && !trace.allsolid )
+            {
+                // endpos in on surface, offset a bit along its normal
+                VectorMA( trace.endpos, 1.0f, trace.plane.normal, offsetted_pos );
+            }
+
+            VectorCopy( offsetted_pos, el->origin );
+        }
+#endif
 	}
 
 	sequence = bound( 0, e->curstate.sequence, m_pStudioHeader->numseq - 1 );
