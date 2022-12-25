@@ -1368,6 +1368,7 @@ void R_EndFrame( void )
 
 #if XASH_RAYTRACING
     RT_OnBeforeDrawFrame();
+    RT_UploadAllLights();
 
     RgExtent2D       pixstorage = { 0 };
     const RgExtent2D winsize    = { .width = gpGlobals->width, .height = gpGlobals->height };
@@ -1377,14 +1378,15 @@ void R_EndFrame( void )
     UpscaleCvarsToRtgl( &resolution_params );
 
     RgDrawFrameIlluminationParams illum_params = {
-        .maxBounceShadows                            = RT_CVAR_TO_UINT32( rt_shadowrays ),
-        .enableSecondBounceForIndirect               = RT_CVAR_TO_BOOL( rt_indir2bounces ),
-        .cellWorldSize                               = METRIC_TO_QUAKEUNIT( 2.0f ),
-        .directDiffuseSensitivityToChange            = 0.5f,
-        .indirectDiffuseSensitivityToChange          = 0.2f,
-        .specularSensitivityToChange                 = 0.5f,
-        .polygonalLightSpotlightFactor               = 2.0f,
-        .lightUniqueIdIgnoreFirstPersonViewerShadows = NULL,
+        .maxBounceShadows                   = RT_CVAR_TO_UINT32( rt_shadowrays ),
+        .enableSecondBounceForIndirect      = RT_CVAR_TO_BOOL( rt_indir2bounces ),
+        .cellWorldSize                      = METRIC_TO_QUAKEUNIT( 2.0f ),
+        .directDiffuseSensitivityToChange   = 0.5f,
+        .indirectDiffuseSensitivityToChange = 0.2f,
+        .specularSensitivityToChange        = 0.5f,
+        .polygonalLightSpotlightFactor      = 2.0f,
+        .lightUniqueIdIgnoreFirstPersonViewerShadows =
+            rt_state.flashlight_uniqueid ? &rt_state.flashlight_uniqueid : NULL
     };
 
     RgDrawFrameBloomParams bloom_params = {
@@ -1395,16 +1397,7 @@ void R_EndFrame( void )
 
     RgMediaType cameramedia =
         ENGINE_GET_PARM( PARM_WATER_LEVEL ) > 2 ? RG_MEDIA_TYPE_WATER : RG_MEDIA_TYPE_VACUUM;
-
-    RgDirectionalLightUploadInfo sun = {
-        .uniqueID               = 0,
-        .color                  = { 20, 20, 20 },
-        .direction              = { -1, -1, -1 },
-        .angularDiameterDegrees = 0.5f,
-    };
-    RgResult r2 = rgUploadDirectionalLight( rg_instance, &sun );
-    RG_CHECK( r2 );
-
+	
     RgDrawFrameReflectRefractParams refl_refr_params = {
         .maxReflectRefractDepth                = RT_CVAR_TO_UINT32( rt_reflrefr_depth ),
         .typeOfMediaAroundCamera               = cameramedia,
@@ -1441,18 +1434,12 @@ void R_EndFrame( void )
         .skyViewerPosition  = RT_VEC3( RI.vieworg ),
     };
 
-    vec3_t volume_light_dir;
-    vec3_t volume_light_color;
-    vec3_t volume_light_ambient;
-    // if( sun )
-    {
-        VectorCopy( sun.direction.data, volume_light_dir );
-        VectorCopy( sun.color.data, volume_light_color );
-        VectorSet( volume_light_ambient,
-                   RT_CVAR_TO_FLOAT( rt_volume_ambient ),
-                   RT_CVAR_TO_FLOAT( rt_volume_ambient ),
-                   RT_CVAR_TO_FLOAT( rt_volume_ambient ) );
-    }
+	// TODO: remove
+    vec3_t volume_light_dir = { -1, -1, -1 };
+    vec3_t volume_light_color   = { 1, 1, 1 };
+    vec3_t volume_light_ambient = { RT_CVAR_TO_FLOAT( rt_volume_ambient ),
+                                          RT_CVAR_TO_FLOAT( rt_volume_ambient ),
+                                          RT_CVAR_TO_FLOAT( rt_volume_ambient ) };
 
     RgDrawFrameVolumetricParams volumetric_params = {
         .enable = RT_CVAR_TO_UINT32( rt_volume_type ) != 0,

@@ -788,10 +788,14 @@ typedef struct rt_state_s
 
     uint32_t curTempEntityIndex;
 
+	uint64_t flashlight_uniqueid;
+
 } rt_state_t;
 extern rt_state_t rt_state;
 
 void RT_OnBeforeDrawFrame( void );
+void RT_ParseStaticLightEntities( void );
+void RT_UploadAllLights( void );
 
 // clang-format off
 typedef cvar_t* cvar_ptr_t;
@@ -816,6 +820,16 @@ typedef struct rt_cvars_t
 		
 		rt_sky,
 		rt_sky_saturation,
+
+		rt_sun,
+		rt_sun_diameter,
+
+		rt_flsh,
+		rt_flsh_radius,
+		rt_flsh_angle,
+		rt_flsh_x,
+		rt_flsh_y,
+		_rt_flsh_key,
 
 		rt_reflrefr_depth,
 		rt_refr_glass,

@@ -183,4 +183,7 @@ void R_NewMap( void )
 	if( gEngfuncs.drawFuncs->R_NewMap != NULL )
 		gEngfuncs.drawFuncs->R_NewMap();
 
+#if XASH_RAYTRACING
+    RT_ParseStaticLightEntities();
+#endif
 }
