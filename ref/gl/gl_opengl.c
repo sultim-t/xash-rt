@@ -955,7 +955,8 @@ void GL_InitCommands( void )
     CVAR_DEF_T( rt_ef_vintage,				"0",	"[0, 4] vintage effects, disabled if rt_renderscale>0" )
     CVAR_DEF_T( rt_ef_water,				"1",	"warp screen while under water" )
 
-    CVAR_DEF_T( _rt_labcoat,				"0",	"local player's model: 0 - use default, 1 - force labcoat (without HEV suit)" )
+    CVAR_DEF_T( _rt_labcoat,				"0",	"internal variable; 0 - use default model, 1 - use labcoat (without HEV suit)" )
+    CVAR_DEF_T( rt_labcoat_force,			"0",	"1 - force labcoat player model, 2 - force HEV, 0 - auto" )
     CVAR_DEF_T( rt_labcoat_model,			"rt/valve/models_rt/gordon_scientist.mdl", "path to Gordon's model without the HEV suit" )
 	
     CVAR_DEF_T( _rt_dlss_available,			"0",	"internal variable; for menu" )

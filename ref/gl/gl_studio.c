@@ -2716,6 +2716,15 @@ void R_StudioResetPlayerModels( void )
 static model_t* RT_GetCurrentLocalPlayerModel()
 {
     qboolean labcoat = RT_CVAR_TO_BOOL( _rt_labcoat );
+
+	if( RT_CVAR_TO_UINT32( rt_labcoat_force ) == 1 )
+    {
+        labcoat = true;
+    }
+    else if( RT_CVAR_TO_UINT32( rt_labcoat_force ) == 2 )
+    {
+        labcoat = false;
+    }
 	
     if( labcoat )
     {

@@ -861,6 +861,7 @@ typedef struct rt_cvars_t
 		rt_ef_water,
 
 	    _rt_labcoat,
+	    rt_labcoat_force,
 	    rt_labcoat_model,
 		
 		_rt_dlss_available;
