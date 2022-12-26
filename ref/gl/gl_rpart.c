@@ -64,7 +64,12 @@ void CL_DrawParticles( double frametime, particle_t *cl_active_particles, float 
 	pglDisable( GL_ALPHA_TEST );
 	pglBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
 
+#if !XASH_RAYTRACING
 	GL_Bind( XASH_TEXTURE0, tr.particleTexture );
+#else
+    GL_Bind( XASH_TEXTURE0,
+             RT_CVAR_TO_BOOL( rt_particles_notex ) ? tr.whiteTexture : tr.particleTexture );
+#endif
 	pglTexEnvf( GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE );
 	pglDepthMask( GL_FALSE );
 
