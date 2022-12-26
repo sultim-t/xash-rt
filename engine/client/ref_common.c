@@ -647,9 +647,17 @@ qboolean R_Init( void )
 
 	// cvars that are expected to exist
 	Cvar_Get( "r_speeds", "0", FCVAR_ARCHIVE, "shows renderer speeds" );
+#if !XASH_RAYTRACING
 	Cvar_Get( "r_fullbright", "0", FCVAR_CHEAT, "disable lightmaps, get fullbright for entities" );
+#else
+	Cvar_Get( "r_fullbright", "1", 0, "disable lightmaps, get fullbright for entities" );
+#endif
 	Cvar_Get( "r_norefresh", "0", 0, "disable 3D rendering (use with caution)" );
+#if !XASH_RAYTRACING
 	Cvar_Get( "r_dynamic", "1", FCVAR_ARCHIVE, "allow dynamic lighting (dlights, lightstyles)" );
+#else
+	Cvar_Get( "r_dynamic", "0", 0, "allow dynamic lighting (dlights, lightstyles)" );
+#endif
 	Cvar_Get( "r_lightmap", "0", FCVAR_CHEAT, "lightmap debugging tool" );
 	Cvar_Get( "tracerred", "0.8", 0, "tracer red component weight ( 0 - 1.0 )" );
 	Cvar_Get( "tracergreen", "0.8", 0, "tracer green component weight ( 0 - 1.0 )" );
