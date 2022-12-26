@@ -1122,7 +1122,11 @@ int EXPORT Host_Main( int argc, char **argv, const char *progname, int bChangeGa
 	}
 
 	host_serverstate = Cvar_Get( "host_serverstate", "0", FCVAR_READ_ONLY, "displays current server state" );
+#if !XASH_RAYTRACING
 	host_maxfps = Cvar_Get( "fps_max", "72", FCVAR_ARCHIVE|FCVAR_FILTERABLE, "host fps upper limit" );
+#else
+	host_maxfps = Cvar_Get( "fps_max", "300", FCVAR_ARCHIVE|FCVAR_FILTERABLE, "host fps upper limit" );
+#endif
 	host_framerate = Cvar_Get( "host_framerate", "0", FCVAR_FILTERABLE, "locks frame timing to this value in seconds" );
 	host_sleeptime = Cvar_Get( "sleeptime", "1", FCVAR_ARCHIVE|FCVAR_FILTERABLE, "milliseconds to sleep for each frame. higher values reduce fps accuracy" );
 	host_gameloaded = Cvar_Get( "host_gameloaded", "0", FCVAR_READ_ONLY, "inidcates a loaded game.dll" );
