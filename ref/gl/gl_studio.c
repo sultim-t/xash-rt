@@ -2735,11 +2735,10 @@ static model_t* RT_GetCurrentLocalPlayerModel()
                     rt_cvars.rt_labcoat_model->string );
 
         gEngfuncs.fsapi->AllowDirectPaths( true );
-        if( gEngfuncs.fsapi->FileExists( labcoat_model_path, false ) )
-        {
-            return gEngfuncs.Mod_ForName( labcoat_model_path, false, false );
-        }
-        gEngfuncs.fsapi->AllowDirectPaths( true );
+        model_t* mdl = gEngfuncs.Mod_ForName( labcoat_model_path, false, false );
+        gEngfuncs.fsapi->AllowDirectPaths( false );
+
+		return mdl;
     }
 
     return NULL;
