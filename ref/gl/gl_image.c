@@ -1188,6 +1188,7 @@ static qboolean GL_UploadTexture( gl_texture_t *tex, rgbdata_t *pic )
 #if XASH_RAYTRACING
     rt_state.curTextureNearest = ( tex->flags & TF_NEAREST );
     rt_state.curTextureClamped = ( tex->flags & TF_BORDER ) || ( tex->flags & TF_CLAMP );
+    rt_state.curTextureIsHUD   = ( tex->flags & TF_IMAGE );
 #endif
 
 	GL_SetTextureDimensions( tex, pic->width, pic->height, pic->depth );

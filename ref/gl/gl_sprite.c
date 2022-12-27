@@ -59,6 +59,10 @@ static const dframetype_t *R_SpriteLoadFrame( model_t *mod, const void *pin, msp
 	if( sprite_version == SPRITE_VERSION_32 )
 		bytes = 4;
 
+#if XASH_RAYTRACING
+    rt_state.curTexturePreferLinear = true;
+#endif
+
 	// build uinque frame name
 	if( FBitSet( mod->flags, MODEL_CLIENT )) // it's a HUD sprite
 	{
@@ -78,6 +82,10 @@ static const dframetype_t *R_SpriteLoadFrame( model_t *mod, const void *pin, msp
 #endif
 		gl_texturenum = GL_LoadTexture( texname, pin, pinframe.width * pinframe.height * bytes, r_texFlags );
 	}
+
+#if XASH_RAYTRACING
+    rt_state.curTexturePreferLinear = false;
+#endif
 
 	// setup frame description
 	pspriteframe = Mem_Malloc( mod->mempool, sizeof( mspriteframe_t ));

@@ -468,6 +468,10 @@ void R_SetupSky( const char *skyboxname )
 	R_UnloadSkybox();
 	gEngfuncs.Con_DPrintf( "SKY:  " );
 
+#if XASH_RAYTRACING
+    rt_state.curTexturePreferLinear = true;
+#endif
+
 	for( i = 0; i < 6; i++ )
 	{
 		tr.skyboxTextures[i] = GL_LoadTexture( sidenames[i], NULL, 0, TF_CLAMP|TF_SKY );
@@ -477,6 +481,10 @@ void R_SetupSky( const char *skyboxname )
 
 		gEngfuncs.Con_DPrintf( "%s%s%s", skyboxname, r_skyBoxSuffix[i], i != 5 ? ", " : ". " );
 	}
+
+#if XASH_RAYTRACING
+    rt_state.curTexturePreferLinear = false;
+#endif
 
 	if( i == 6 )
 	{

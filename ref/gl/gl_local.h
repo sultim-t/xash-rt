@@ -772,6 +772,8 @@ typedef struct rt_state_s
 {
     const char* curTexture2DName;
     qboolean    curTextureNearest;
+    qboolean    curTexturePreferLinear;
+    qboolean    curTextureIsHUD;
     qboolean    curTextureClamped;
 
     qboolean curIsSky;
