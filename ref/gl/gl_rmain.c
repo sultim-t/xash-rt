@@ -1534,7 +1534,7 @@ void R_EndFrame( void )
 		.postEffectParams =
 			{
 				.pChromaticAberration = &chromatic_aberration_effect,
-				.pWaves = RT_CVAR_TO_FLOAT( rt_ef_water ) > 0.001f ? &waves_effect : NULL,
+				.pWaves = ENGINE_GET_PARM( PARM_CONNSTATE ) == ca_active ? &waves_effect : NULL,
 				.pCRT = &crt_effect,
 			},
     };
