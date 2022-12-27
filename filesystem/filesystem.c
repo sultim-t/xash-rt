@@ -1196,13 +1196,7 @@ void FS_Rescan( void )
 
 #if XASH_RAYTRACING
 	// last FS_AddGameHierarchy has higher priority
-    {
-        char rtgame[ MAX_OSPATH ] = "";
-        Q_strcat( rtgame, "rt/", sizeof( rtgame ) );
-        Q_strcat( rtgame, GI->gamefolder, sizeof( rtgame ) );
-
-        FS_AddGameHierarchy( rtgame, 0 );
-    }
+    FS_AddGameHierarchy( va( "rt/%s", GI->gamefolder ), FS_NOWRITE_PATH | FS_CUSTOM_PATH );
 #endif
 }
 
