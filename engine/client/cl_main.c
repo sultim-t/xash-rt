@@ -2874,7 +2874,11 @@ void CL_InitLocal( void )
 	cl_bmodelinterp = Cvar_Get( "cl_bmodelinterp", "1", FCVAR_ARCHIVE, "enable bmodel interpolation" );
 	cl_clockreset = Cvar_Get( "cl_clockreset", "0.1", FCVAR_ARCHIVE, "frametime delta maximum value before reset" );
 	cl_fixtimerate = Cvar_Get( "cl_fixtimerate", "7.5", FCVAR_ARCHIVE, "time in msec to client clock adjusting" );
+#if !XASH_RAYTRACING
 	hud_scale = Cvar_Get( "hud_scale", "0", FCVAR_ARCHIVE|FCVAR_LATCH, "scale hud at current resolution" );
+#else
+	hud_scale = Cvar_Get( "hud_scale", "2", FCVAR_ARCHIVE|FCVAR_LATCH, "scale hud at current resolution" );
+#endif
 	Cvar_Get( "cl_background", "0", FCVAR_READ_ONLY, "indicate what background map is running" );
 	cl_showevents = Cvar_Get( "cl_showevents", "0", FCVAR_ARCHIVE, "show events playback" );
 	Cvar_Get( "lastdemo", "", FCVAR_ARCHIVE, "last played demo" );
