@@ -1188,22 +1188,22 @@ void FS_Rescan( void )
 		FS_AddArchive_Fullpath( str, NULL, extrasFlags );
 #endif
 
-#if XASH_RAYTRACING
-	{
-		char rtGame[MAX_OSPATH] = "";
-
-		Q_strcat( rtGame, "rt/", sizeof( rtGame ) );
-		Q_strcat( rtGame, GI->gamefolder, sizeof( rtGame ) );
-
-		FS_AddGameHierarchy( rtGame, 0 );
-	}
-#endif
-
 	if( Q_stricmp( GI->basedir, GI->gamefolder ))
 		FS_AddGameHierarchy( GI->basedir, 0 );
 	if( Q_stricmp( GI->basedir, GI->falldir ) && Q_stricmp( GI->gamefolder, GI->falldir ))
 		FS_AddGameHierarchy( GI->falldir, 0 );
 	FS_AddGameHierarchy( GI->gamefolder, FS_GAMEDIR_PATH );
+
+#if XASH_RAYTRACING
+	// last FS_AddGameHierarchy has higher priority
+    {
+        char rtgame[ MAX_OSPATH ] = "";
+        Q_strcat( rtgame, "rt/", sizeof( rtgame ) );
+        Q_strcat( rtgame, GI->gamefolder, sizeof( rtgame ) );
+
+        FS_AddGameHierarchy( rtgame, 0 );
+    }
+#endif
 }
 
 /*
