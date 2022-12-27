@@ -2040,7 +2040,11 @@ static void Mod_LoadTextures( dbspmodel_t *bmod )
 				int	size = (int)sizeof( mip_t ) + ((mt->width * mt->height * 85)>>6);
 
 				if( custom_palette ) size += sizeof( short ) + 768;
+#if !XASH_RAYTRACING
 				Q_snprintf( texname, sizeof( texname ), "#%s:%s.mip", loadstat.name, mt->name );
+#else
+				Q_snprintf( texname, sizeof( texname ), "#%s/%s.mip", loadstat.name, mt->name );
+#endif
 				tx->gl_texturenum = ref.dllFuncs.GL_LoadTexture( texname, (byte *)mt, size, txFlags );
 			}
 
@@ -2054,8 +2058,11 @@ static void Mod_LoadTextures( dbspmodel_t *bmod )
 			// check for luma texture
 			if( FBitSet( REF_GET_PARM( PARM_TEX_FLAGS, tx->gl_texturenum ), TF_HAS_LUMA ))
 			{
+#if !XASH_RAYTRACING
 				Q_snprintf( texname, sizeof( texname ), "#%s:%s_luma.mip", loadstat.name, mt->name );
-
+#else
+			    Q_snprintf( texname, sizeof( texname ), "#%s/%s_luma.mip", loadstat.name, mt->name );
+#endif
 				if( mt->offsets[0] > 0 )
 				{
 					// NOTE: imagelib detect miptex version by size
