@@ -1007,10 +1007,15 @@ void Host_InitCommon( int argc, char **argv, const char *progname, qboolean bCha
 	}
 
 	len = Q_strlen( host.rootdir );
-	
+
+#if !XASH_RAYTRACING
+	if( len && host.rootdir[len - 1] == '/' )
+		host.rootdir[len - 1] = 0;
+#else
 	if( len && ( host.rootdir[len - 1] == '/' || host.rootdir[len - 1] == '\\') )
 		host.rootdir[len - 1] = 0;
 	Q_strncat(host.rootdir, PATH_SPLITTER "..", sizeof(host.rootdir));
+#endif
 
 	// get readonly root. The order is: check for arg, then env.
 	// if still not got it, rodir is disabled.

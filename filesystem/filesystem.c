@@ -1188,6 +1188,7 @@ void FS_Rescan( void )
 		FS_AddArchive_Fullpath( str, NULL, extrasFlags );
 #endif
 
+#if XASH_RAYTRACING
 	{
 		char rtGame[MAX_OSPATH] = "";
 
@@ -1196,6 +1197,7 @@ void FS_Rescan( void )
 
 		FS_AddGameHierarchy( rtGame, 0 );
 	}
+#endif
 
 	if( Q_stricmp( GI->basedir, GI->gamefolder ))
 		FS_AddGameHierarchy( GI->basedir, 0 );
