@@ -911,7 +911,7 @@ void GL_InitCommands( void )
     CVAR_DEF_T( rt_normalmap_stren,			"1",	"" )
     CVAR_DEF_T( rt_emis_mapboost,			"30",	"" )
     CVAR_DEF_T( rt_emis_maxscrcolor,		"32",	"" )
-    CVAR_DEF_T( rt_emis_fullbright_dflt,	"32",	"" )
+    CVAR_DEF_T( rt_emis_additive_dflt,		"0.01",	"" )
 
 	CVAR_DEF_T( rt_sky,						"1",	"sky intensity")
 	CVAR_DEF_T( rt_sky_saturation,			"1",	"sky saturation")
@@ -948,7 +948,7 @@ void GL_InitCommands( void )
 	CVAR_DEF_T( rt_volume_lassymetry,		"0.75",	"" )
 
     CVAR_DEF_T( rt_bloom_intensity,			"1",	"bloom intensity" )
-    CVAR_DEF_T( rt_bloom_emis_mult,			"0",	"bloom multiplier for emissive" )
+    CVAR_DEF_T( rt_bloom_emis_mult,			"32",	"bloom multiplier for emissive" )
 	
     CVAR_DEF_T( rt_ef_crt,					"0",	"CRT-monitor filter" )
     CVAR_DEF_T( rt_ef_chraber,				"0.3",	"chromatic aberration intensity" )
@@ -2308,7 +2308,9 @@ static void TryBeginBatch( RgUtilImScratchTopology glbegin_topology )
             .pTextureName = rt_state.curTexture2DName,
             .textureFrame = 0,
             .color        = rgUtilPackColorByte4D( 255, 255, 255, 255 ),
-            .emissive     = rt_raster_blend && rt_raster_additive ? 1.0f : 0.0f,
+            .emissive     = rt_raster_blend && rt_raster_additive
+                                ? RT_CVAR_TO_FLOAT( rt_emis_additive_dflt )
+                                : 0.0f,
             .pEditorInfo  = NULL,
         };
 
@@ -2334,7 +2336,9 @@ static void TryBeginBatch( RgUtilImScratchTopology glbegin_topology )
             .pTextureName = rt_state.curTexture2DName,
             .textureFrame = 0,
             .color        = rgUtilPackColorByte4D( 255, 255, 255, 255 ),
-            .emissive     = rt_raster_blend && rt_raster_additive ? 1.0f : 0.0f,
+            .emissive     = rt_raster_blend && rt_raster_additive
+                                ? RT_CVAR_TO_FLOAT( rt_emis_additive_dflt )
+                                : 0.0f,
             .pEditorInfo  = NULL,
         };
 
