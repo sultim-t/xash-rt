@@ -1520,7 +1520,7 @@ void R_EndFrame( void )
         .rayLength        = R_GetFarClip(),
         .rayCullMaskWorld = RG_DRAW_FRAME_RAY_CULL_WORLD_0_BIT |
                             RG_DRAW_FRAME_RAY_CULL_WORLD_1_BIT | RG_DRAW_FRAME_RAY_CULL_SKY_BIT,
-        .currentTime             = ( double )gpGlobals->time,
+        .currentTime             = gpGlobals->realtime,
         .pMapName                = mapname,
 		.disableEyeAdaptation = false,
 		.forceAntiFirefly = RT_CVAR_TO_BOOL( rt_antifirefly ),
