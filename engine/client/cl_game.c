@@ -1609,6 +1609,23 @@ int GAME_EXPORT CL_GetScreenInfo( SCREENINFO *pscrinfo )
 {
 	float scale_factor = hud_scale->value;
 
+#if XASH_RAYTRACING
+    extern convar_t* rt_hud_scale;
+    if( CVAR_TO_BOOL( rt_hud_scale ) )
+    {
+        #define RT_LERP_CLAMPED( t, a, b ) \
+            bound( ( a ), ( 1.0f - ( t ) ) * ( a ) + ( t ) * ( b ), ( b ) )
+
+        const float rmin = 720;
+        const float rmax = 1440;
+
+        float relativeScale =
+            ( bound( ( float )refState.height, rmin, rmax ) - rmin ) / ( rmax - rmin );
+
+        scale_factor = RT_LERP_CLAMPED( relativeScale, 0.75f, 2.0f );
+    }
+#endif
+
 	// setup screen info
 	clgame.scrInfo.iSize = sizeof( clgame.scrInfo );
 	clgame.scrInfo.iFlags = SCRINFO_SCREENFLASH;

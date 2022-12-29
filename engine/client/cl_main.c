@@ -2803,6 +2803,10 @@ void CL_Escape_f( void )
 	else UI_SetActiveMenu( true );
 }
 
+#if XASH_RAYTRACING
+convar_t* rt_hud_scale = NULL;
+#endif
+
 /*
 =================
 CL_InitLocal
@@ -2874,15 +2878,19 @@ void CL_InitLocal( void )
 	cl_bmodelinterp = Cvar_Get( "cl_bmodelinterp", "1", FCVAR_ARCHIVE, "enable bmodel interpolation" );
 	cl_clockreset = Cvar_Get( "cl_clockreset", "0.1", FCVAR_ARCHIVE, "frametime delta maximum value before reset" );
 	cl_fixtimerate = Cvar_Get( "cl_fixtimerate", "7.5", FCVAR_ARCHIVE, "time in msec to client clock adjusting" );
-#if !XASH_RAYTRACING
 	hud_scale = Cvar_Get( "hud_scale", "0", FCVAR_ARCHIVE|FCVAR_LATCH, "scale hud at current resolution" );
-#else
-	hud_scale = Cvar_Get( "hud_scale", "2", FCVAR_ARCHIVE|FCVAR_LATCH, "scale hud at current resolution" );
-#endif
 	Cvar_Get( "cl_background", "0", FCVAR_READ_ONLY, "indicate what background map is running" );
 	cl_showevents = Cvar_Get( "cl_showevents", "0", FCVAR_ARCHIVE, "show events playback" );
 	Cvar_Get( "lastdemo", "", FCVAR_ARCHIVE, "last played demo" );
 	ui_renderworld = Cvar_Get( "ui_renderworld", "0", FCVAR_ARCHIVE, "render world when UI is visible" );
+
+#if XASH_RAYTRACING
+    rt_hud_scale =
+        Cvar_Get( "rt_hud_scale",
+                  "1",
+                  FCVAR_ARCHIVE | FCVAR_LATCH,
+                  "if true, set HUD scale according to the resolution (hud_scale is ignored)" );
+#endif
 
 	// these two added to shut up CS 1.5 about 'unknown' commands
 	Cvar_Get( "lightgamma", "1", FCVAR_ARCHIVE, "ambient lighting level (legacy, unused)" );
