@@ -855,6 +855,7 @@ typedef struct rt_cvars_t
 		rt_volume_lassymetry,
 		
 		rt_bloom_intensity,
+		rt_bloom_threshold,
 		rt_bloom_emis_mult,
 		
 		rt_ef_crt,

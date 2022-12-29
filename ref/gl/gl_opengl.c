@@ -940,7 +940,7 @@ void GL_InitCommands( void )
     CVAR_DEF_T( rt_texture_nearest,			"1",	"nearest texture filter for the world" )
     CVAR_DEF_T( rt_particles_notex,			"0",	"don't use texture for particles" )
 
-	CVAR_DEF_T( rt_volume_type,				"2",	"" )
+	CVAR_DEF_T( rt_volume_type,				"2",	"0 - none, 1 - distance based, 2 - volumetric" )
 	CVAR_DEF_T( rt_volume_far,				"1000",	"" )
 	CVAR_DEF_T( rt_volume_scatter,			"0.3",	"" )
 	CVAR_DEF_T( rt_volume_ambient,			"0.5",	"" )
@@ -948,6 +948,7 @@ void GL_InitCommands( void )
 	CVAR_DEF_T( rt_volume_lassymetry,		"0.75",	"" )
 
     CVAR_DEF_T( rt_bloom_intensity,			"1",	"bloom intensity" )
+    CVAR_DEF_T( rt_bloom_threshold,			"4",	"bloom threshold" )
     CVAR_DEF_T( rt_bloom_emis_mult,			"32",	"bloom multiplier for emissive" )
 	
     CVAR_DEF_T( rt_ef_crt,					"0",	"CRT-monitor filter" )

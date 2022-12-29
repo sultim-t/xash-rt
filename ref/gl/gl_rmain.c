@@ -1079,8 +1079,36 @@ void R_BeginFrame( qboolean clearScene )
 	pglDrawBuffer( GL_BACK );
 
 #if XASH_RAYTRACING
-	RgResult r = rgStartFrame( rg_instance );
-	RG_CHECK( r );
+    {
+        char mapname_storage[ 64 ] = "";
+
+        char* mapname = NULL;
+        if( WORLDMODEL )
+        {
+            {
+                assert( sizeof( WORLDMODEL->name ) == sizeof( mapname_storage ) );
+                memcpy( mapname_storage, WORLDMODEL->name, sizeof( mapname_storage ) );
+                mapname_storage[ sizeof( mapname_storage ) - 1 ] = '\0';
+            }
+            mapname = mapname_storage;
+
+            // try skip "maps/"
+            if( Q_strncmp( mapname, "maps/", 5 ) == 0 )
+            {
+                mapname += 5;
+            }
+
+            // try remove ".bsp" at the end
+            char* e = Q_strstr( mapname, ".bsp" );
+            if( e != NULL )
+            {
+                *e = '\0';
+            }
+        }
+
+        RgResult r = rgStartFrame( rg_instance, mapname );
+        RG_CHECK( r );
+    }
 #endif
 
 	// update texture parameters
@@ -1391,7 +1419,7 @@ void R_EndFrame( void )
 
     RgDrawFrameBloomParams bloom_params = {
         .bloomIntensity          = RT_CVAR_TO_FLOAT( rt_bloom_intensity ),
-        .inputThreshold          = 0.0f,
+        .inputThreshold          = RT_CVAR_TO_FLOAT( rt_bloom_threshold ),
         .bloomEmissionMultiplier = RT_CVAR_TO_FLOAT( rt_bloom_emis_mult ),
     };
 
@@ -1487,32 +1515,6 @@ void R_EndFrame( void )
         .xMultiplier           = 0.5f,
     };
 
-    char mapname_storage[ 64 ] = "";
-
-    char* mapname = NULL;
-    if( WORLDMODEL )
-    {
-        {
-            assert( sizeof( WORLDMODEL->name ) == sizeof( mapname_storage ) );
-            memcpy( mapname_storage, WORLDMODEL->name, sizeof( mapname_storage ) );
-            mapname_storage[ sizeof( mapname_storage ) - 1 ] = '\0';
-        }
-        mapname = mapname_storage;
-
-		// try skip "maps/"
-		if( Q_strncmp( mapname, "maps/", 5 ) == 0)
-        {
-            mapname += 5;
-        }
-
-		// try remove ".bsp" at the end
-        char* e = Q_strstr( mapname, ".bsp" ); 
-        if( e != NULL)
-        {
-            *e = '\0';
-        }
-    }
-
     RgDrawFrameInfo info = {
         .fovYRadians      = DEG2RAD( RI.fov_y ),
         .cameraNear       = R_GetNearClip(),
@@ -1521,7 +1523,6 @@ void R_EndFrame( void )
         .rayCullMaskWorld = RG_DRAW_FRAME_RAY_CULL_WORLD_0_BIT |
                             RG_DRAW_FRAME_RAY_CULL_WORLD_1_BIT | RG_DRAW_FRAME_RAY_CULL_SKY_BIT,
         .currentTime             = gpGlobals->realtime,
-        .pMapName                = mapname,
 		.disableEyeAdaptation = false,
 		.forceAntiFirefly = RT_CVAR_TO_BOOL( rt_antifirefly ),
 		.pRenderResolutionParams = &resolution_params,
