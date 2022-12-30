@@ -913,10 +913,10 @@ void GL_InitCommands( void )
     CVAR_DEF_T( rt_emis_maxscrcolor,		"32",	"" )
     CVAR_DEF_T( rt_emis_additive_dflt,		"0.01",	"" )
 
-	CVAR_DEF_T( rt_sky,						"1",	"sky intensity")
+	CVAR_DEF_T( rt_sky,						"100",	"sky intensity")
 	CVAR_DEF_T( rt_sky_saturation,			"1",	"sky saturation")
 
-	CVAR_DEF_T( rt_sun,						"70",	"sun intensity")
+	CVAR_DEF_T( rt_sun,						"7000",	"sun intensity")
 	CVAR_DEF_T( rt_sun_diameter,			"0.5",	"sun angular diameter in degrees")
 
 	CVAR_DEF_T( rt_flsh,					"100",	"flashlight intensity")
