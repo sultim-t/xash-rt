@@ -1455,7 +1455,7 @@ void R_EndFrame( void )
         powf( refl_refr_params.acidColor.data[ 2 ], 1.0f / METRIC_TO_QUAKEUNIT( 1.0f ) );
 
     RgDrawFrameSkyParams sky_params = {
-        .skyType            = RG_SKY_TYPE_RASTERIZED_GEOMETRY,
+        .skyType            = RI.isSkyVisible ? RG_SKY_TYPE_RASTERIZED_GEOMETRY : RG_SKY_TYPE_COLOR,
         .skyColorDefault    = { 0, 0, 0 },
         .skyColorMultiplier = RT_CVAR_TO_FLOAT( rt_sky ),
         .skyColorSaturation = RT_CVAR_TO_FLOAT( rt_sky_saturation ),

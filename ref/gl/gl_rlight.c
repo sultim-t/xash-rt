@@ -850,19 +850,6 @@ void RT_ParseStaticLightEntities()
 }
 
 
-static qboolean SkyExists()
-{
-    for( int i = 0; i < 6; i++ )
-    {
-        if( tr.skyboxTextures[ i ] )
-        {
-            return true;
-        }
-    }
-    return false;
-}
-
-
 #define RT_ARRAYSIZE( arr ) ( sizeof( arr ) / sizeof( arr[ 0 ] ) )
 
 
@@ -924,7 +911,7 @@ void RT_UploadAllLights()
 {
     rt_state.flashlight_uniqueid = 0;
 
-    if( g_lights.sun_exists && SkyExists() )
+    if( g_lights.sun_exists && RI.isSkyVisible )
     {
         rt_sun_light_t* sun = &g_lights.sun;
 
