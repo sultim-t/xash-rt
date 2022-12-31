@@ -1417,6 +1417,18 @@ void R_EndFrame( void )
             rt_state.flashlight_uniqueid ? &rt_state.flashlight_uniqueid : NULL
     };
 
+    RgDrawFrameTonemappingParams tnmp_params = {
+        .ev100Min            = RT_CVAR_TO_FLOAT( rt_tnmp_ev100_min ),
+        .ev100Max            = RT_CVAR_TO_FLOAT( rt_tnmp_ev100_max ),
+        .luminanceWhitePoint = 10.0f,
+        .saturation          = { RT_CVAR_TO_FLOAT( rt_tnmp_saturation_r ),
+                                 RT_CVAR_TO_FLOAT( rt_tnmp_saturation_g ),
+                                 RT_CVAR_TO_FLOAT( rt_tnmp_saturation_b ) },
+        .crosstalk           = { RT_CVAR_TO_FLOAT( rt_tnmp_crosstalk_r ),
+                                 RT_CVAR_TO_FLOAT( rt_tnmp_crosstalk_g ),
+                                 RT_CVAR_TO_FLOAT( rt_tnmp_crosstalk_b ) },
+    };
+
     RgDrawFrameBloomParams bloom_params = {
         .bloomIntensity          = RT_CVAR_TO_FLOAT( rt_bloom_intensity ),
         .inputThreshold          = RT_CVAR_TO_FLOAT( rt_bloom_threshold ),
@@ -1528,6 +1540,7 @@ void R_EndFrame( void )
 		.pRenderResolutionParams = &resolution_params,
 		.pIlluminationParams = &illum_params,
 		.pVolumetricParams = &volumetric_params,
+		.pTonemappingParams = &tnmp_params,
 		.pBloomParams = &bloom_params,
 		.pReflectRefractParams = &refl_refr_params,
 		.pSkyParams = &sky_params,

@@ -819,6 +819,15 @@ typedef struct rt_cvars_t
 		rt_emis_mapboost,
 		rt_emis_maxscrcolor,
 		rt_emis_additive_dflt,
+
+	    rt_tnmp_ev100_min,
+	    rt_tnmp_ev100_max,
+	    rt_tnmp_saturation_r,
+	    rt_tnmp_saturation_g,
+	    rt_tnmp_saturation_b,
+	    rt_tnmp_crosstalk_r,
+	    rt_tnmp_crosstalk_g,
+	    rt_tnmp_crosstalk_b,
 		
 		rt_sky,
 		rt_sky_saturation,
@@ -832,6 +841,9 @@ typedef struct rt_cvars_t
 		rt_flsh_r,
 		rt_flsh_u,
 		_rt_flsh_key,
+
+	    rt_light_d,
+	    rt_light_s,
 
 		rt_reflrefr_depth,
 		rt_refr_glass,

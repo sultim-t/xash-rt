@@ -913,7 +913,16 @@ void GL_InitCommands( void )
     CVAR_DEF_T( rt_emis_maxscrcolor,		"32",	"" )
     CVAR_DEF_T( rt_emis_additive_dflt,		"0.01",	"" )
 
-	CVAR_DEF_T( rt_sky,						"100",	"sky intensity")
+    CVAR_DEF_T( rt_tnmp_ev100_min,			"0.0",	"min brightness for auto-exposure" )
+    CVAR_DEF_T( rt_tnmp_ev100_max,			"7.7",	"max brightness for auto-exposure" )
+    CVAR_DEF_T( rt_tnmp_saturation_r,		"0",	"-1 desaturate, +1 over saturate" )
+    CVAR_DEF_T( rt_tnmp_saturation_g,		"0",	"-1 desaturate, +1 over saturate" )
+    CVAR_DEF_T( rt_tnmp_saturation_b,		"0",	"-1 desaturate, +1 over saturate" )
+    CVAR_DEF_T( rt_tnmp_crosstalk_r,		"0.75",	"set one channel to 1.0, others to <= 1.0" )
+    CVAR_DEF_T( rt_tnmp_crosstalk_g,		"1",	"set one channel to 1.0, others to <= 1.0" )
+    CVAR_DEF_T( rt_tnmp_crosstalk_b,		"1",	"set one channel to 1.0, others to <= 1.0" )
+
+	CVAR_DEF_T( rt_sky,						"200",	"sky intensity")
 	CVAR_DEF_T( rt_sky_saturation,			"1",	"sky saturation")
 
 	CVAR_DEF_T( rt_sun,						"7000",	"sun intensity")
@@ -925,6 +934,9 @@ void GL_InitCommands( void )
 	CVAR_DEF_T( rt_flsh_r,					"-0.2",	"flashlight position offset - right")
 	CVAR_DEF_T( rt_flsh_u,					"-0.3",	"flashlight position offset - up")
 	CVAR_DEF_T( _rt_flsh_key,				"-1",	"internal variable; d-light key of the player's flashlight")
+
+	CVAR_DEF_T( rt_light_d,					"100",	"dlight intensity (explosions, other dynamic lights)")
+	CVAR_DEF_T( rt_light_s,					"100",	"map lights intensity (lights defined by a map)")
 
 	CVAR_DEF_T( rt_reflrefr_depth,			"2",	"") 
 	CVAR_DEF_T( rt_refr_glass,				"1.52",	"") 
