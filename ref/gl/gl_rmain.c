@@ -1409,9 +1409,9 @@ void R_EndFrame( void )
         .maxBounceShadows                   = RT_CVAR_TO_UINT32( rt_shadowrays ),
         .enableSecondBounceForIndirect      = RT_CVAR_TO_BOOL( rt_indir2bounces ),
         .cellWorldSize                      = METRIC_TO_QUAKEUNIT( 2.0f ),
-        .directDiffuseSensitivityToChange   = 0.5f,
-        .indirectDiffuseSensitivityToChange = 0.2f,
-        .specularSensitivityToChange        = 0.5f,
+        .directDiffuseSensitivityToChange   = 1.0f,
+        .indirectDiffuseSensitivityToChange = 0.75f,
+        .specularSensitivityToChange        = 1.0f,
         .polygonalLightSpotlightFactor      = 2.0f,
         .lightUniqueIdIgnoreFirstPersonViewerShadows =
             rt_state.flashlight_uniqueid ? &rt_state.flashlight_uniqueid : NULL
@@ -1437,7 +1437,7 @@ void R_EndFrame( void )
 
     RgMediaType cameramedia =
         ENGINE_GET_PARM( PARM_WATER_LEVEL ) > 2 ? RG_MEDIA_TYPE_WATER : RG_MEDIA_TYPE_VACUUM;
-	
+
     RgDrawFrameReflectRefractParams refl_refr_params = {
         .maxReflectRefractDepth                = RT_CVAR_TO_UINT32( rt_reflrefr_depth ),
         .typeOfMediaAroundCamera               = cameramedia,
@@ -1474,12 +1474,12 @@ void R_EndFrame( void )
         .skyViewerPosition  = RT_VEC3( RI.vieworg ),
     };
 
-	// TODO: remove
-    vec3_t volume_light_dir = { -1, -1, -1 };
+    // TODO: remove
+    vec3_t volume_light_dir     = { -1, -1, -1 };
     vec3_t volume_light_color   = { 1, 1, 1 };
     vec3_t volume_light_ambient = { RT_CVAR_TO_FLOAT( rt_volume_ambient ),
-                                          RT_CVAR_TO_FLOAT( rt_volume_ambient ),
-                                          RT_CVAR_TO_FLOAT( rt_volume_ambient ) };
+                                    RT_CVAR_TO_FLOAT( rt_volume_ambient ),
+                                    RT_CVAR_TO_FLOAT( rt_volume_ambient ) };
 
     RgDrawFrameVolumetricParams volumetric_params = {
         .enable = RT_CVAR_TO_UINT32( rt_volume_type ) != 0,
