@@ -2422,12 +2422,13 @@ static void TryBeginBatch( RgUtilImScratchTopology glbegin_topology )
             .pPrimitiveNameInMesh = rt_state.curTexture2DName, // NULL,
             .primitiveIndexInMesh = rt_state.curBrushSurface,
             .flags                = ( rt_alphatest ? RG_MESH_PRIMITIVE_ALPHA_TESTED : 0 ) |
-                                    ( rt_state.curBrushSurfaceIsWater ? RG_MESH_PRIMITIVE_WATER : 0 ),
-            .pTextureName         = rt_state.curTexture2DName,
-            .textureFrame         = 0,
-            .color                = rgUtilPackColorByte4D( 255, 255, 255, 255 ),
-            .emissive             = 0.0f,
-            .pEditorInfo          = NULL,
+                     ( rt_raster_blend ? RG_MESH_PRIMITIVE_TRANSLUCENT : 0 ) |
+                     ( rt_state.curBrushSurfaceIsWater ? RG_MESH_PRIMITIVE_WATER : 0 ),
+            .pTextureName = rt_state.curTexture2DName,
+            .textureFrame = 0,
+            .color        = rgUtilPackColorByte4D( 255, 255, 255, 255 ),
+            .emissive     = 0.0f,
+            .pEditorInfo  = NULL,
         };
 
         TryBeginBatch_Finalize( curtype, &mesh, &prim );
