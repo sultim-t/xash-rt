@@ -1963,7 +1963,9 @@ _inline void R_StudioDrawNormalMesh( short *ptricmds, vec3_t *pstudionorms, floa
 		for( ; i > 0; i--, ptricmds += 4 )
 		{
 			R_StudioSetColorBegin( ptricmds, pstudionorms );
-
+#if XASH_RAYTRACING
+            pglNormal3fv( g_studio.norms[ ptricmds[ 0 ] ] );
+#endif
 			pglTexCoord2f( ptricmds[2] * s, ptricmds[3] * t );
 			pglVertex3fv( g_studio.verts[ptricmds[0]] );
 		}
@@ -2001,6 +2003,9 @@ _inline void R_StudioDrawFloatMesh( short *ptricmds, vec3_t *pstudionorms )
 		{
 			R_StudioSetColorBegin( ptricmds, pstudionorms );
 			pglTexCoord2f( HalfToFloat( ptricmds[2] ), HalfToFloat( ptricmds[3] ));
+#if XASH_RAYTRACING
+            pglNormal3fv( g_studio.norms[ ptricmds[ 0 ] ] );
+#endif
 			pglVertex3fv( g_studio.verts[ptricmds[0]] );
 		}
 
@@ -2045,6 +2050,9 @@ _inline void R_StudioDrawChromeMesh( short *ptricmds, vec3_t *pstudionorms, floa
 				av = g_studio.verts[ptricmds[0]];
 				lv = g_studio.norms[ptricmds[0]];
 				VectorMA( av, scale, lv, vert );
+#if XASH_RAYTRACING
+                pglNormal3fv( g_studio.norms[ ptricmds[ 0 ] ] );
+#endif
 				pglColor4ub( clr->r, clr->g, clr->b, 255 );
 				pglTexCoord2f( g_studio.chrome[idx][0] * s, g_studio.chrome[idx][1] * t );
 				pglVertex3fv( vert );
@@ -2054,6 +2062,9 @@ _inline void R_StudioDrawChromeMesh( short *ptricmds, vec3_t *pstudionorms, floa
 				idx = ptricmds[1];
 				lv = (float *)g_studio.lightvalues[ptricmds[1]];
 				R_StudioSetColorBegin( ptricmds, pstudionorms );
+#if XASH_RAYTRACING
+                pglNormal3fv( g_studio.norms[ ptricmds[ 0 ] ] );
+#endif
 				pglTexCoord2f( g_studio.chrome[idx][0] * s, g_studio.chrome[idx][1] * t );
 				pglVertex3fv( g_studio.verts[ptricmds[0]] );
 			}
@@ -2353,8 +2364,22 @@ static void R_StudioDrawPoints( void )
 		float factor = (1.0f / 128.0f);
 		shellscale = Q_max( factor, RI.currententity->curstate.renderamt * factor );
 		R_StudioBuildNormalTable();
+#if !XASH_RAYTRACING
 		R_StudioGenerateNormals();
+#else
+        if( !RT_CVAR_TO_BOOL( rt_studio_norms ) )
+        {
+            R_StudioGenerateNormals();
+        }
+#endif
 	}
+
+#if XASH_RAYTRACING
+    if( RT_CVAR_TO_BOOL( rt_studio_norms ) )
+    {
+        R_StudioGenerateNormals();
+    }
+#endif
 
 	for( j = k = 0; j < m_pSubModel->nummesh; j++ )
 	{

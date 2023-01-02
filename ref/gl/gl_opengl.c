@@ -949,6 +949,8 @@ void GL_InitCommands( void )
     CVAR_DEF_T( rt_mzlflash_size,			"1",	"additional muzzle flash light size" )
     CVAR_DEF_T( rt_mzlflash_decay,			"1",	"how fast muzzle flash light size should decrease" )
 
+    CVAR_DEF_T( rt_studio_norms,			"1",	"regenerate smooth normals for studio models" )
+
     CVAR_DEF_T( rt_texture_nearest,			"1",	"nearest texture filter for the world" )
     CVAR_DEF_T( rt_particles_notex,			"0",	"don't use texture for particles" )
 
@@ -1566,17 +1568,15 @@ EMPTY_LINKAGE void EMPTY_FUNCTION( glMaterialiv )(GLenum face, GLenum pname, con
 EMPTY_LINKAGE void EMPTY_FUNCTION( glMultMatrixd )(const GLdouble *m){}
 EMPTY_LINKAGE void EMPTY_FUNCTION( glMultMatrixf )(const GLfloat *m){}
 EMPTY_LINKAGE void EMPTY_FUNCTION( glNewList )(GLuint list, GLenum mode){}
-EMPTY_LINKAGE void EMPTY_FUNCTION( glNormal3b )(GLbyte nx, GLbyte ny, GLbyte nz){}
-EMPTY_LINKAGE void EMPTY_FUNCTION( glNormal3bv )(const GLbyte *v){}
-EMPTY_LINKAGE void EMPTY_FUNCTION( glNormal3d )(GLdouble nx, GLdouble ny, GLdouble nz){}
-EMPTY_LINKAGE void EMPTY_FUNCTION( glNormal3dv )(const GLdouble *v){}
-EMPTY_LINKAGE void EMPTY_FUNCTION( glNormal3f )(GLfloat nx, GLfloat ny, GLfloat nz){}
-EMPTY_LINKAGE void EMPTY_FUNCTION( glNormal3fv )(const GLfloat *v){}
-EMPTY_LINKAGE void EMPTY_FUNCTION( glNormal3i )(GLint nx, GLint ny, GLint nz){}
-EMPTY_LINKAGE void EMPTY_FUNCTION( glNormal3iv )(const GLint *v){}
-EMPTY_LINKAGE void EMPTY_FUNCTION( glNormal3s )(GLshort nx, GLshort ny, GLshort nz){}
-EMPTY_LINKAGE void EMPTY_FUNCTION( glNormal3sv )(const GLshort *v){}
-EMPTY_LINKAGE void EMPTY_FUNCTION( glNormalPointer )(GLenum type, GLsizei stride, const GLvoid *pointer){}
+EMPTY_LINKAGE void EMPTY_FUNCTION( glNormal3b )(GLbyte nx, GLbyte ny, GLbyte nz){ assert( 0 ); }
+EMPTY_LINKAGE void EMPTY_FUNCTION( glNormal3bv )(const GLbyte *v){ assert( 0 ); }
+EMPTY_LINKAGE void EMPTY_FUNCTION( glNormal3d )(GLdouble nx, GLdouble ny, GLdouble nz){ assert( 0 ); }
+EMPTY_LINKAGE void EMPTY_FUNCTION( glNormal3dv )(const GLdouble *v){ assert( 0 ); }
+EMPTY_LINKAGE void EMPTY_FUNCTION( glNormal3i )(GLint nx, GLint ny, GLint nz){ assert( 0 ); }
+EMPTY_LINKAGE void EMPTY_FUNCTION( glNormal3iv )(const GLint *v){ assert( 0 ); }
+EMPTY_LINKAGE void EMPTY_FUNCTION( glNormal3s )(GLshort nx, GLshort ny, GLshort nz){ assert( 0 ); }
+EMPTY_LINKAGE void EMPTY_FUNCTION( glNormal3sv )(const GLshort *v){ assert( 0 ); }
+EMPTY_LINKAGE void EMPTY_FUNCTION( glNormalPointer )(GLenum type, GLsizei stride, const GLvoid *pointer){ assert( 0 ); }
 EMPTY_LINKAGE void EMPTY_FUNCTION( glPassThrough )(GLfloat token){}
 EMPTY_LINKAGE void EMPTY_FUNCTION( glPixelMapfv )(GLenum map, GLsizei mapsize, const GLfloat *values){}
 EMPTY_LINKAGE void EMPTY_FUNCTION( glPixelMapuiv )(GLenum map, GLsizei mapsize, const GLuint *values){}
@@ -1875,6 +1875,15 @@ void pglTexCoord2f( GLfloat s, GLfloat t )
 void pglTexCoord2fv( const GLfloat* v )
 {
     rgUtilImScratchTexCoord( rg_instance, v[ 0 ], v[ 1 ] );
+}
+
+void pglNormal3f( GLfloat nx, GLfloat ny, GLfloat nz )
+{
+    rgUtilImScratchNormal( rg_instance, nx, ny, nz );
+}
+void pglNormal3fv( const GLfloat* v )
+{
+    rgUtilImScratchNormal( rg_instance, v[ 0 ], v[ 1 ], v[ 2 ] );
 }
 
 void pglVertex3f( GLfloat x, GLfloat y, GLfloat z )
@@ -2404,6 +2413,11 @@ static void TryBeginBatch( RgUtilImScratchTopology glbegin_topology )
             .emissive     = 0.0f,
             .pEditorInfo  = NULL,
         };
+
+		if( RT_CVAR_TO_BOOL( rt_studio_norms ) )
+        {
+            prim.flags |= RG_MESH_PRIMITIVE_DONT_GENERATE_NORMALS;
+        }
 
         TryBeginBatch_Finalize( curtype, &mesh, &prim );
     }
