@@ -897,6 +897,8 @@ void GL_InitCommands( void )
 	        ( #name )[ 0 ] == '_' ? 0 : FCVAR_ARCHIVE,		\
 	        ( description ) );
 
+    CVAR_DEF_T( rt_classic,					"0",	"classic lightmapped renderer" )
+
     CVAR_DEF_T( rt_vsync,					"1",	"vertical synchronization to prevent tearing" )
 	
 	CVAR_DEF_T( rt_renderscale,				"0",	"[20, 100] resolution scale")

@@ -1501,9 +1501,8 @@ void R_EndFrame( void )
         .emissionMaxScreenColor = RT_CVAR_TO_FLOAT( rt_emis_maxscrcolor ),
     };
 
-    RgDrawFrameRenderResolutionParams resolutionParams = {
-        .upscaleTechnique = RG_RENDER_UPSCALE_TECHNIQUE_AMD_FSR2,
-        .resolutionMode   = RG_RENDER_RESOLUTION_MODE_BALANCED,
+    RgDrawFrameLightmapParams lightmap_params = {
+        .enableLightmaps = RT_CVAR_TO_FLOAT( rt_classic ),
     };
 
     RgPostEffectCRT crt_effect = {
@@ -1545,6 +1544,7 @@ void R_EndFrame( void )
 		.pReflectRefractParams = &refl_refr_params,
 		.pSkyParams = &sky_params,
 		.pTexturesParams = &texture_params,
+		.pLightmapParams = &lightmap_params,
 		.postEffectParams =
 			{
 				.pChromaticAberration = &chromatic_aberration_effect,
