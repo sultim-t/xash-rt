@@ -887,15 +887,15 @@ void GL_InitCommands( void )
 	gEngfuncs.Cmd_AddCommand( "timerefresh", SCR_TimeRefresh_f, "turn quickly and print rendering statistcs" );
 
 #if XASH_RAYTRACING
-    // clang-format off
 
     // NOTE: if start with '_' then the cvar won't be archived
-	#define CVAR_DEF_T( name, default_value, description )	\
-	    rt_cvars.name = gEngfuncs.Cvar_Get(					\
-	        ( #name ),										\
-	        ( default_value ),								\
-	        ( #name )[ 0 ] == '_' ? 0 : FCVAR_ARCHIVE,		\
-	        ( description ) );
+    #define CVAR_DEF_T( name, default_value, description )                                      \
+        rt_cvars.name =                                                                         \
+            gEngfuncs.Cvar_Get( ( #name ),                                                      \
+                                ( default_value ),                                              \
+                                ( ( #name )[ 0 ] == '_' ? 0 : FCVAR_ARCHIVE | FCVAR_GLCONFIG ), \
+                                ( description ) );
+    // clang-format off
 
     CVAR_DEF_T( rt_classic,					"0",	"classic lightmapped renderer" )
 
@@ -2484,7 +2484,7 @@ static void TryBeginBatch( RgUtilImScratchTopology glbegin_topology )
             .layerLightmap       = { .pTexCoord    = NULL,
                                      .pTextureName = rt_state.curLightmapTextureName,
                                      .blend        = RG_TEXTURE_LAYER_BLEND_TYPE_SHADE,
-                                     .color = rgUtilPackColorByte4D( 255 / 2, 255 / 2, 255 / 2, 255 ) },
+                                     .color = rgUtilPackColorByte4D( 255, 255, 255, 255 ) },
         };
 
         RgMeshPrimitiveInfo prim = {
