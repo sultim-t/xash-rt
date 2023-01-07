@@ -828,6 +828,13 @@ void DrawGLPoly( glpoly_t *p, float xScale, float yScale )
 	if( xScale != 0.0f && yScale != 0.0f )
 		hasScale = true;
 
+#if XASH_RAYTRACING
+    float lightmap_soffset =
+        0.0f; // ( surf->light_s - surf->info->dlight_s ) / ( float )BLOCK_SIZE;
+    float lightmap_toffset =
+        0.0f; // ( surf->light_t - surf->info->dlight_t ) / ( float )BLOCK_SIZE;
+#endif
+
 	pglBegin( GL_POLYGON );
 
 	for( i = 0, v = p->verts[0]; i < p->numverts; i++, v += VERTEXSIZE )
@@ -835,6 +842,11 @@ void DrawGLPoly( glpoly_t *p, float xScale, float yScale )
 		if( hasScale )
 			pglTexCoord2f(( v[3] + sOffset ) * xScale, ( v[4] + tOffset ) * yScale );
 		else pglTexCoord2f( v[3] + sOffset, v[4] + tOffset );
+
+#if XASH_RAYTRACING
+        rgUtilImScratchTexCoord_LayerLightmap(
+            rg_instance, v[ 5 ] - lightmap_soffset, v[ 6 ] - lightmap_toffset );
+#endif
 
 		pglVertex3fv( v );
 	}
@@ -1188,11 +1200,13 @@ void R_RenderBrushPoly( msurface_t *fa, int cull_type )
     const msurface_t* surfbase = RI.currentmodel->surfaces + RI.currentmodel->firstmodelsurface;
     rt_state.curBrushSurface   = ( int )( fa - surfbase );
     rt_state.curBrushSurfaceIsWater = false;
+    RT_BindLightmapTexture( tr.lightmapTextures[ fa->lightmaptexturenum ] );
 #endif
 	DrawGLPoly( fa->polys, 0.0f, 0.0f );
 #if XASH_RAYTRACING
     rt_state.curBrushSurface        = -1;
     rt_state.curBrushSurfaceIsWater = false;
+    RT_BindLightmapTexture( 0 );
 #endif
 
 	if( RI.currententity->curstate.rendermode == kRenderNormal )

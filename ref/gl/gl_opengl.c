@@ -1066,51 +1066,54 @@ qboolean R_Init( void )
 		return false;
 	}
 
-	{
-		RgWin32SurfaceCreateInfo win32Info = {
-			.hinstance = GetModuleHandle(NULL),
-			.hwnd = gpGlobals->rtglHwnd,
-		};
-
-		#define ASSET_DIRECTORY "rt/"
-
+#if XASH_RAYTRACING
+    {
+        RgWin32SurfaceCreateInfo win32Info = {
+            .hinstance = GetModuleHandle( NULL ),
+            .hwnd      = gpGlobals->rtglHwnd,
+        };
+		
         RgInstanceCreateInfo info = {
             .pAppName = "Xash",
             .pAppGUID = "986af412-bab4-4e44-a603-bfaf49e7ef4d",
 
             .pWin32SurfaceInfo = &win32Info,
 
-            .pOverrideFolderPath = ASSET_DIRECTORY,
+            .pOverrideFolderPath = "rt/",
 
             .pfnPrint = PrintMessage,
 
-            .primaryRaysMaxAlbedoLayers          = 1,
+            .primaryRaysMaxAlbedoLayers          = 4,
             .indirectIlluminationMaxAlbedoLayers = 1,
-            .rayCullBackFacingTriangles          = 1,
-            .allowGeometryWithSkyFlag            = 1,
+            .rayCullBackFacingTriangles          = true,
+            .allowGeometryWithSkyFlag            = true,
 
-            .rasterizedMaxVertexCount = 1 << 20,
-            .rasterizedMaxIndexCount  = 1 << 21,
+            .allowTexCoordLayer1        = false,
+            .allowTexCoordLayer2        = true,
+            .allowTexCoordLayerLightmap = true,
+
+            .rasterizedMaxVertexCount   = 1 << 20,
+            .rasterizedMaxIndexCount    = 1 << 21,
             .rasterizedVertexColorGamma = true,
 
             .rasterizedSkyCubemapSize = 256,
-			
+
             .textureSamplerForceMinificationFilterLinear = true,
             .textureSamplerForceNormalMapFilterLinear    = true,
 
             // to match the GLTF standard
             .pbrTextureSwizzling = RG_TEXTURE_SWIZZLING_NULL_ROUGHNESS_METALLIC,
 
-			.worldUp = { 0, 0, 1 },
-			.worldForward = { 0, 1, 0 },
-			.worldScale = QUAKEUNIT_IN_METERS,
+            .worldUp      = { 0, 0, 1 },
+            .worldForward = { 0, 1, 0 },
+            .worldScale   = QUAKEUNIT_IN_METERS,
         };
 
-		RgResult r = rgCreateInstance(&info, &rg_instance);
-		if( r != RG_RESULT_SUCCESS )
-		{
+        RgResult r = rgCreateInstance( &info, &rg_instance );
+        if( r != RG_RESULT_SUCCESS )
+        {
             gEngfuncs.Host_Error( "RayTracedGL1 init error: %s", rgUtilGetResultDescription( r ) );
-		}
+        }
 
         {
             const rt_state_t nullstate = {
@@ -1137,8 +1140,9 @@ qboolean R_Init( void )
                 .flashlight_uniqueid = 0,
             };
             memcpy( &rt_state, &nullstate, sizeof( rt_state ) );
-		}
-	}
+        }
+    }
+#endif
 
 	r_temppool = Mem_AllocPool( "Render Zone" );
 
@@ -2160,9 +2164,10 @@ static qboolean     rt_2dstate_changed = false;
 
 static struct
 {
-    rt_batchtype_t      type;
-    RgMeshInfo          mesh;
-    RgMeshPrimitiveInfo primitive;
+    rt_batchtype_t           type;
+    RgMeshInfo               mesh;
+    RgMeshPrimitiveInfo      primitive;
+    RgEditorInfo             additional;
 } rt_batch = { 0 };
 
 static qboolean AreTransformsAlwaysIdentity( rt_batchtype_t type )
@@ -2223,6 +2228,32 @@ static qboolean AreMeshesSame( rt_batchtype_t    a_type,
     return false;
 }
 
+static qboolean AreAdditionalsSame( const RgEditorInfo* a, const RgEditorInfo* b )
+{
+    if( !a && !b )
+    {
+        return true;
+    }
+
+    if( a && b )
+    {
+        if( !a->layerLightmapExists && !b->layerLightmapExists )
+        {
+            return true;
+        }
+
+        if( a->layerLightmapExists && b->layerLightmapExists )
+        {
+            if( a->layerLightmap.pTextureName == b->layerLightmap.pTextureName )
+            {
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
 static qboolean ArePrimitivesSame( rt_batchtype_t             a_type,
                                    const RgMeshInfo*          a_mesh,
                                    const RgMeshPrimitiveInfo* a_primitive,
@@ -2243,17 +2274,18 @@ static qboolean ArePrimitivesSame( rt_batchtype_t             a_type,
             if( a_primitive->flags == b_primitive->flags &&
                 a_primitive->color == b_primitive->color &&
                 a_primitive->pTextureName == b_primitive->pTextureName &&
-                AreFloatsClose( a_primitive->emissive, b_primitive->emissive ) )
+                AreFloatsClose( a_primitive->emissive, b_primitive->emissive ) &&
+                AreAdditionalsSame( a_primitive->pEditorInfo, b_primitive->pEditorInfo ) )
             {
                 assert( a_type == b_type );
 
                 if( AreTransformsAlwaysIdentity( a_type ) ||
                     AreTransformsClose( &a_mesh->transform, &b_mesh->transform ) )
                 {
-                    if( AreViewParamsSame( a_type ) )
-                    {
-                        return true;
-                    }
+                if( AreViewParamsSame( a_type ) )
+                {
+                    return true;
+                }
                 }
             }
         }
@@ -2292,6 +2324,7 @@ static void TryBeginBatch_Finalize( rt_batchtype_t             newtype,
 {
     static const RgMeshInfo          null_mesh = { 0 };
     static const RgMeshPrimitiveInfo null_prim = { 0 };
+    static const RgEditorInfo        null_addt = { 0 };
     assert( ( newtype != RT_BATCH_TYPE_NONE ) ||
             ( newtype == RT_BATCH_TYPE_NONE && newmesh == NULL && newprimitive == NULL ) );
 
@@ -2306,6 +2339,13 @@ static void TryBeginBatch_Finalize( rt_batchtype_t             newtype,
             rt_batch.type      = newtype;
             rt_batch.mesh      = newmesh ? *newmesh : null_mesh;
             rt_batch.primitive = newprimitive ? *newprimitive : null_prim;
+            {
+                const RgEditorInfo* src =
+                    newprimitive && newprimitive->pEditorInfo ? newprimitive->pEditorInfo : NULL;
+				// assign and relink
+                rt_batch.additional            = src ? *src : null_addt;
+                rt_batch.primitive.pEditorInfo = src ? &rt_batch.additional : NULL;
+            }
 
 			if( rt_batch.type == RT_BATCH_TYPE_2D )
             {
@@ -2431,6 +2471,14 @@ static void TryBeginBatch( RgUtilImScratchTopology glbegin_topology )
             .animationName  = NULL,
             .animationTime  = 0.0f,
         };
+		
+		RgEditorInfo additional = {
+            .layerLightmapExists = rt_state.curLightmapTextureName != NULL,
+            .layerLightmap       = { .pTexCoord    = NULL,
+                                     .pTextureName = rt_state.curLightmapTextureName,
+                                     .blend        = RG_TEXTURE_LAYER_BLEND_TYPE_SHADE,
+                                     .color        = rgUtilPackColorByte4D( 255, 255, 255, 255 ) },
+        };
 
         RgMeshPrimitiveInfo prim = {
             .pPrimitiveNameInMesh = rt_state.curTexture2DName, // NULL,
@@ -2442,7 +2490,7 @@ static void TryBeginBatch( RgUtilImScratchTopology glbegin_topology )
             .textureFrame = 0,
             .color        = rgUtilPackColorByte4D( 255, 255, 255, 255 ),
             .emissive     = 0.0f,
-            .pEditorInfo  = NULL,
+            .pEditorInfo  = &additional,
         };
 
         TryBeginBatch_Finalize( curtype, &mesh, &prim );

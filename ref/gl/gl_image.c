@@ -114,9 +114,33 @@ void GL_Bind( GLint tmu, GLenum texnum )
 	if( glState.currentTextures[tmu] == texture->texnum )
 		return;
 
-	pglBindTexture( texture->target, texture->texnum, texture->name );
+#if !XASH_RAYTRACING
+	pglBindTexture( texture->target, texture->texnum );
+#else
+    pglBindTexture( texture->target, texture->texnum, texture->name );
+#endif
 	glState.currentTextures[tmu] = texture->texnum;
 }
+
+#if XASH_RAYTRACING
+void RT_BindLightmapTexture( int texnum )
+{
+    const char* texname = NULL;
+
+    if( texnum <= 0 || texnum >= MAX_TEXTURES )
+    {
+        if( texnum != 0 )
+            gEngfuncs.Con_DPrintf( S_ERROR "RT_BindLightmapTexture: invalid texturenum %d\n",
+                                   texnum );
+    }
+    else
+    {
+        texname = gl_textures[ texnum ].name;
+    }
+
+    rt_state.curLightmapTextureName = texname;
+}
+#endif
 
 /*
 =================
@@ -1214,7 +1238,11 @@ static qboolean GL_UploadTexture( gl_texture_t *tex, rgbdata_t *pic )
 
 	// uploading texture into video memory, change the binding
 	glState.currentTextures[glState.activeTMU] = tex->texnum;
-	pglBindTexture( tex->target, tex->texnum, tex->name );
+#if !XASH_RAYTRACING
+	pglBindTexture( tex->target, tex->texnum );
+#else
+    pglBindTexture( tex->target, tex->texnum, tex->name );
+#endif
 
 	for( i = 0; i < numSides; i++ )
 	{

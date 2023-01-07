@@ -776,6 +776,8 @@ typedef struct rt_state_s
     qboolean    curTextureIsHUD;
     qboolean    curTextureClamped;
 
+	const char* curLightmapTextureName;
+
     qboolean curIsSky;
     qboolean curIsRasterized;
 
@@ -798,6 +800,7 @@ extern rt_state_t rt_state;
 void RT_OnBeforeDrawFrame( void );
 void RT_ParseStaticLightEntities( void );
 void RT_UploadAllLights( void );
+void RT_BindLightmapTexture( int texnum );
 
 // clang-format off
 typedef cvar_t* cvar_ptr_t;
