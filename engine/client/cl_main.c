@@ -2888,7 +2888,7 @@ void CL_InitLocal( void )
     rt_hud_scale =
         Cvar_Get( "rt_hud_scale",
                   "1",
-                  FCVAR_ARCHIVE | FCVAR_LATCH,
+                  FCVAR_GLCONFIG | FCVAR_LATCH,
                   "if true, set HUD scale according to the resolution (hud_scale is ignored)" );
 #endif
 
