@@ -901,10 +901,10 @@ APIENTRY_LINKAGE void GL_FUNCTION( glAccum )(GLenum op, GLfloat value);
 APIENTRY_LINKAGE void GL_FUNCTION( glAlphaFunc )(GLenum func, GLclampf ref);
 APIENTRY_LINKAGE void GL_FUNCTION( glArrayElement )(GLint i);
 APIENTRY_LINKAGE void GL_FUNCTION( glBegin )(GLenum mode);
-#if XASH_RAYTRACING
-APIENTRY_LINKAGE void GL_FUNCTION( glBindTexture )(GLenum target, GLuint texture, const char *textureName);
-#else
+#if !XASH_RAYTRACING
 APIENTRY_LINKAGE void GL_FUNCTION( glBindTexture )(GLenum target, GLuint texture);
+#else
+APIENTRY_LINKAGE void GL_FUNCTION( glBindTexture )(GLenum target, GLuint texture, const char *texturename);
 #endif
 APIENTRY_LINKAGE void GL_FUNCTION( glBitmap )(GLsizei width, GLsizei height, GLfloat xorig, GLfloat yorig, GLfloat xmove, GLfloat ymove, const GLubyte *bitmap);
 APIENTRY_LINKAGE void GL_FUNCTION( glBlendFunc )(GLenum sfactor, GLenum dfactor);
@@ -962,7 +962,11 @@ APIENTRY_LINKAGE void GL_FUNCTION( glCopyTexSubImage1D )(GLenum target, GLint le
 APIENTRY_LINKAGE void GL_FUNCTION( glCopyTexSubImage2D )(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint x, GLint y, GLsizei width, GLsizei height);
 APIENTRY_LINKAGE void GL_FUNCTION( glCullFace )(GLenum mode);
 APIENTRY_LINKAGE void GL_FUNCTION( glDeleteLists )(GLuint list, GLsizei range);
+#if !XASH_RAYTRACING
 APIENTRY_LINKAGE void GL_FUNCTION( glDeleteTextures )(GLsizei n, const GLuint *textures);
+#else
+APIENTRY_LINKAGE void GL_FUNCTION( glDeleteTextures )(const char* texturename);
+#endif
 APIENTRY_LINKAGE void GL_FUNCTION( glDepthFunc )(GLenum func);
 APIENTRY_LINKAGE void GL_FUNCTION( glDepthMask )(GLboolean flag);
 APIENTRY_LINKAGE void GL_FUNCTION( glDepthRange )(GLclampd zNear, GLclampd zFar);

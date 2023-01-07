@@ -1469,7 +1469,6 @@ EMPTY_LINKAGE void EMPTY_FUNCTION( glCopyTexSubImage1D )(GLenum target, GLint le
 EMPTY_LINKAGE void EMPTY_FUNCTION( glCopyTexSubImage2D )(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint x, GLint y, GLsizei width, GLsizei height){}
 EMPTY_LINKAGE void EMPTY_FUNCTION( glCullFace )(GLenum mode){}
 EMPTY_LINKAGE void EMPTY_FUNCTION( glDeleteLists )(GLuint list, GLsizei range){}
-EMPTY_LINKAGE void EMPTY_FUNCTION( glDeleteTextures )(GLsizei n, const GLuint *textures){}
 EMPTY_LINKAGE void EMPTY_FUNCTION( glDepthFunc )(GLenum func){}
 EMPTY_LINKAGE void EMPTY_FUNCTION( glDepthMask )(GLboolean flag){}
 EMPTY_LINKAGE void EMPTY_FUNCTION( glDisableClientState )(GLenum array){}
@@ -2009,6 +2008,12 @@ void pglTexImage2D( GLenum        target,
     }
 }
 
+void pglDeleteTextures( const char* texturename )
+{
+    RgResult r = rgMarkOriginalTextureAsDeleted( rg_instance, texturename );
+    RG_CHECK( r );
+}
+
 static qboolean rt_raster_additive = false;
 static qboolean rt_raster_blend    = false;
 static qboolean rt_alphatest       = false;
@@ -2473,13 +2478,13 @@ static void TryBeginBatch( RgUtilImScratchTopology glbegin_topology )
             .animationName  = NULL,
             .animationTime  = 0.0f,
         };
-		
-		RgEditorInfo additional = {
+
+        RgEditorInfo additional = {
             .layerLightmapExists = rt_state.curLightmapTextureName != NULL,
             .layerLightmap       = { .pTexCoord    = NULL,
                                      .pTextureName = rt_state.curLightmapTextureName,
                                      .blend        = RG_TEXTURE_LAYER_BLEND_TYPE_SHADE,
-                                     .color        = rgUtilPackColorByte4D( 255, 255, 255, 255 ) },
+                                     .color = rgUtilPackColorByte4D( 255 / 2, 255 / 2, 255 / 2, 255 ) },
         };
 
         RgMeshPrimitiveInfo prim = {

@@ -1505,8 +1505,13 @@ static void GL_DeleteTexture( gl_texture_t *tex )
 	if( tex->original )
 		gEngfuncs.FS_FreeImage( tex->original );
 
+#if !XASH_RAYTRACING
 	if( glw_state.initialized )
 		pglDeleteTextures( 1, &tex->texnum );
+#else
+    if( glw_state.initialized )
+        pglDeleteTextures( tex->name );
+#endif
 	memset( tex, 0, sizeof( *tex ));
 }
 
