@@ -2027,6 +2027,7 @@ void pglDeleteTextures( const char* texturename )
 static qboolean rt_raster_additive = false;
 static qboolean rt_raster_blend    = false;
 static qboolean rt_alphatest       = false;
+static qboolean rt_depthtest       = false;
 
 void pglEnable( GLenum cap )
 {
@@ -2034,6 +2035,7 @@ void pglEnable( GLenum cap )
     {
         case GL_BLEND: rt_raster_blend = true; break;
         case GL_ALPHA_TEST: rt_alphatest = true; break;
+        case GL_DEPTH_TEST: rt_depthtest = true; break;
         default: break;
     }
 }
@@ -2043,6 +2045,7 @@ void pglDisable( GLenum cap )
     {
         case GL_BLEND: rt_raster_blend = false; break;
         case GL_ALPHA_TEST: rt_alphatest = false; break;
+        case GL_DEPTH_TEST: rt_depthtest = false; break;
         default: break;
     }
 }
@@ -2411,7 +2414,8 @@ static void TryBeginBatch( RgUtilImScratchTopology glbegin_topology )
             .primitiveIndexInMesh = 0,
             .flags                = ( rt_raster_blend ? RG_MESH_PRIMITIVE_TRANSLUCENT : 0 ) |
                      ( rt_alphatest ? RG_MESH_PRIMITIVE_ALPHA_TESTED : 0 ) |
-                     ( rt_state.curIsSky ? RG_MESH_PRIMITIVE_SKY : 0 ),
+                     ( rt_state.curIsSky ? RG_MESH_PRIMITIVE_SKY : 0 ) |
+                     ( rt_depthtest ? 0 : RG_MESH_PRIMITIVE_NO_DEPTH_TEST_ON_RASTER ),
             .pTextureName = rt_state.curTexture2DName,
             .textureFrame = 0,
             .color        = rgUtilPackColorByte4D( 255, 255, 255, 255 ),
