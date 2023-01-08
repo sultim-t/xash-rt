@@ -198,6 +198,53 @@ void R_SetupDecalTextureSpaceBasis( decal_t *pDecal, msurface_t *surf, int textu
 	VectorScale( textureSpaceBasis[1], decalWorldScale[1], textureSpaceBasis[1] );
 }
 
+#if XASH_RAYTRACING
+static void RT_CalculateDecalTransform(
+    decal_t* pDecal, msurface_t* surf, int texture, vec3_t basis[ 3 ], float scale[ 2 ] )
+{
+    vec3_t n, b1, b2;
+
+	// doesn't work, example: a large wall in front of the door with dead Barney
+	// in Unforeseen Consequences (around elevator)
+    /* if( surf->flags & SURF_PLANEBACK )
+    {
+        VectorNegate( surf->plane->normal, n );
+    }
+    else */
+    {
+        VectorCopy( surf->plane->normal, n );
+    }
+    VectorNormalize( n );
+
+	// make orthonormal
+    {
+        if( n[ 0 ] > 0.9f )
+        {
+            VectorSet( b1, 0, 1, 0 );
+        }
+        else
+        {
+            VectorSet( b1, 1, 0, 0 );
+        }
+
+        float dn = DotProduct( b1, n );
+        VectorMA( b1, -dn, n, b1 );
+        VectorNormalize( b1 );
+
+        CrossProduct( n, b1, b2 );
+    }
+    VectorCopy( n, basis[ 2 ] );
+    VectorCopy( b1, basis[ 0 ] );
+    VectorCopy( b2, basis[ 1 ] );
+
+
+    int width, height;
+    R_GetDecalDimensions( texture, &width, &height );
+    scale[ 0 ] = ( float )width / pDecal->scale;
+    scale[ 1 ] = ( float )height / pDecal->scale;
+}
+#endif
+
 // Build the initial list of vertices from the surface verts into the global array, 'verts'.
 void R_SetupDecalVertsForMSurface( decal_t *pDecal, msurface_t *surf,	vec3_t textureSpaceBasis[3], float *verts )
 {
@@ -901,16 +948,12 @@ void DrawSingleDecal( decal_t *pDecal, msurface_t *fa )
 
 #if XASH_RAYTRACING
     vec3_t basis[ 3 ];
-    float  invscale[ 2 ];
-    R_SetupDecalClip( pDecal, fa, pDecal->texture, basis, invscale );
-
-	// because the basis is already multiplied by invscale in R_SetupDecalTextureSpaceBasis
-    invscale[ 0 ] = invscale[ 0 ] * invscale[ 0 ];
-    invscale[ 1 ] = invscale[ 1 ] * invscale[ 1 ];
+    float  scaleuv[ 2 ];
+    RT_CalculateDecalTransform( pDecal, fa, pDecal->texture, basis, scaleuv );
 
     matrix4x4 scale = {
-        { 1.0f / invscale[ 0 ], 0, 0, 0 },
-        { 0, 1.0f / invscale[ 1 ], 0, 0 },
+        { scaleuv[ 0 ], 0, 0, 0 },
+        { 0, scaleuv[ 1 ], 0, 0 },
         { 0, 0, 1, 0 },
         { 0, 0, 0, 1 },
     };
