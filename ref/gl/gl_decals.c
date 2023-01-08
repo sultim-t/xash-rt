@@ -898,6 +898,53 @@ void DrawSingleDecal( decal_t *pDecal, msurface_t *fa )
 	}
 
 	pglEnd();
+
+#if XASH_RAYTRACING
+    vec3_t basis[ 3 ];
+    float  invscale[ 2 ];
+    R_SetupDecalClip( pDecal, fa, pDecal->texture, basis, invscale );
+
+	// because the basis is already multiplied by invscale in R_SetupDecalTextureSpaceBasis
+    invscale[ 0 ] = invscale[ 0 ] * invscale[ 0 ];
+    invscale[ 1 ] = invscale[ 1 ] * invscale[ 1 ];
+
+    matrix4x4 scale = {
+        { 1.0f / invscale[ 0 ], 0, 0, 0 },
+        { 0, 1.0f / invscale[ 1 ], 0, 0 },
+        { 0, 0, 1, 0 },
+        { 0, 0, 0, 1 },
+    };
+
+    // (0,0,1) transforms to normal
+    matrix4x4 rotate = {
+        { basis[ 0 ][ 0 ], basis[ 1 ][ 0 ], basis[ 2 ][ 0 ], 0 },
+        { basis[ 0 ][ 1 ], basis[ 1 ][ 1 ], basis[ 2 ][ 1 ], 0 },
+        { basis[ 0 ][ 2 ], basis[ 1 ][ 2 ], basis[ 2 ][ 2 ], 0 },
+        { 0, 0, 0, 1 },
+    };
+
+    matrix4x4 translate = {
+        { 1, 0, 0, pDecal->position[ 0 ] },
+        { 0, 1, 0, pDecal->position[ 1 ] },
+        { 0, 0, 1, pDecal->position[ 2 ] },
+        { 0, 0, 0, 1 },
+    };
+
+    matrix4x4 m;
+    Matrix4x4_Concat( m, rotate, scale );
+    Matrix4x4_Concat( m, translate, m );
+
+    RgDecalUploadInfo info = {
+        .transform    = { {
+            { m[ 0 ][ 0 ], m[ 0 ][ 1 ], m[ 0 ][ 2 ], m[ 0 ][ 3 ] },
+            { m[ 1 ][ 0 ], m[ 1 ][ 1 ], m[ 1 ][ 2 ], m[ 1 ][ 3 ] },
+            { m[ 2 ][ 0 ], m[ 2 ][ 1 ], m[ 2 ][ 2 ], m[ 2 ][ 3 ] },
+        } },
+        .pTextureName = rt_state.curTexture2DName,
+    };
+    RgResult r = rgUploadDecal( rg_instance, &info );
+    RG_CHECK( r );
+#endif
 }
 
 void DrawSurfaceDecals( msurface_t *fa, qboolean single, qboolean reverse )
