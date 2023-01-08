@@ -1502,7 +1502,7 @@ void R_EndFrame( void )
     };
 
     RgDrawFrameLightmapParams lightmap_params = {
-        .enableLightmaps = RT_CVAR_TO_FLOAT( rt_classic ),
+        .lightmapScreenCoverage = RT_CVAR_TO_FLOAT( rt_classic ),
     };
 
     RgPostEffectCRT crt_effect = {
