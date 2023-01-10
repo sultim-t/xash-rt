@@ -2019,7 +2019,7 @@ static void Mod_LoadTextures( dbspmodel_t *bmod )
 #if !XASH_RAYTRACING
 				Q_snprintf( texname, sizeof( texname ), "%s.mip", mt->name );
 #else
-				Q_snprintf( texname, sizeof( texname ), "%s", mt->name );
+				Q_snprintf( texname, sizeof( texname ), "%s.mip", mt->name );
 #endif
 
 				// check wads in reverse order
@@ -2047,7 +2047,7 @@ static void Mod_LoadTextures( dbspmodel_t *bmod )
 #if !XASH_RAYTRACING
 				Q_snprintf( texname, sizeof( texname ), "#%s:%s.mip", loadstat.name, mt->name );
 #else
-				Q_snprintf( texname, sizeof( texname ), "#maps/%s", mt->name );
+				Q_snprintf( texname, sizeof( texname ), "#maps/%s.mip", mt->name );
 #endif
 				tx->gl_texturenum = ref.dllFuncs.GL_LoadTexture( texname, (byte *)mt, size, txFlags );
 			}
@@ -2065,7 +2065,7 @@ static void Mod_LoadTextures( dbspmodel_t *bmod )
 #if !XASH_RAYTRACING
 				Q_snprintf( texname, sizeof( texname ), "#%s:%s_luma.mip", loadstat.name, mt->name );
 #else
-			    Q_snprintf( texname, sizeof( texname ), "#%s/%s_luma", loadstat.name, mt->name );
+			    Q_snprintf( texname, sizeof( texname ), "#%s/%s_luma.mip", loadstat.name, mt->name );
 #endif
 				if( mt->offsets[0] > 0 )
 				{
