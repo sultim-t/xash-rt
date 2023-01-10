@@ -976,6 +976,7 @@ void DrawSingleDecal( decal_t *pDecal, msurface_t *fa )
     matrix4x4 m;
     Matrix4x4_Concat( m, rotate, scale );
     Matrix4x4_Concat( m, translate, m );
+    Matrix4x4_Concat( m, RI.objectMatrix, m );
 
     RgDecalUploadInfo info = {
         .transform    = { {
