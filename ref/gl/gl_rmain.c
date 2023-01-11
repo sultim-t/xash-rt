@@ -1405,6 +1405,12 @@ void R_EndFrame( void )
     ResolutionToRtgl( &resolution_params, winsize, &pixstorage );
     UpscaleCvarsToRtgl( &resolution_params );
 
+	float lightstyles[ RT_ARRAYSIZE( tr.lightstylevalue ) ];
+    for( uint32_t i = 0; i < RT_ARRAYSIZE( tr.lightstylevalue ); i++ )
+    {
+        lightstyles[ i ] = ( float )bound( 0, tr.lightstylevalue[ i ], 255 ) / 255.0f;
+    }
+
     RgDrawFrameIlluminationParams illum_params = {
         .maxBounceShadows                   = RT_CVAR_TO_UINT32( rt_shadowrays ),
         .enableSecondBounceForIndirect      = RT_CVAR_TO_BOOL( rt_indir2bounces ),
@@ -1414,7 +1420,9 @@ void R_EndFrame( void )
         .specularSensitivityToChange        = 1.0f,
         .polygonalLightSpotlightFactor      = 2.0f,
         .lightUniqueIdIgnoreFirstPersonViewerShadows =
-            rt_state.flashlight_uniqueid ? &rt_state.flashlight_uniqueid : NULL
+            rt_state.flashlight_uniqueid ? &rt_state.flashlight_uniqueid : NULL,
+        .lightstyleValuesCount = RT_ARRAYSIZE( lightstyles ),
+        .pLightstyleValues     = lightstyles,
     };
 
     RgDrawFrameTonemappingParams tnmp_params = {

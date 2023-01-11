@@ -900,6 +900,8 @@ extern rt_cvars_t rt_cvars;
 #define RT_CVAR_TO_UINT32( x ) CVAR_TO_UINT32( rt_cvars.x )
 #define RT_CVAR_TO_INT32( x )  CVAR_TO_INT32( rt_cvars.x )
 
+#define RT_ARRAYSIZE( arr ) ( sizeof( arr ) / sizeof( ( arr )[ 0 ] ) )
+
 #define RT_VEC3(x)         { ( x )[ 0 ], ( x )[ 1 ], ( x )[ 2 ] }
 #define RT_VEC3_MULT(x, a) { ( x )[ 0 ] * ( a ), ( x )[ 1 ] * ( a ), ( x )[ 2 ] * ( a ) }
 
