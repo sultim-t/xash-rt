@@ -2882,9 +2882,10 @@ void CL_InitLocal( void )
 	Cvar_Get( "cl_background", "0", FCVAR_READ_ONLY, "indicate what background map is running" );
 	cl_showevents = Cvar_Get( "cl_showevents", "0", FCVAR_ARCHIVE, "show events playback" );
 	Cvar_Get( "lastdemo", "", FCVAR_ARCHIVE, "last played demo" );
+#if !XASH_RAYTRACING
 	ui_renderworld = Cvar_Get( "ui_renderworld", "0", FCVAR_ARCHIVE, "render world when UI is visible" );
-
-#if XASH_RAYTRACING
+#else
+	ui_renderworld = Cvar_Get( "ui_renderworld", "1", FCVAR_ARCHIVE, "render world when UI is visible" );
     rt_hud_scale =
         Cvar_Get( "rt_hud_scale",
                   "1",
