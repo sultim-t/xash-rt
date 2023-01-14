@@ -806,7 +806,7 @@ void RT_BindLightmapTexture( int texnum );
 typedef cvar_t* cvar_ptr_t;
 typedef struct rt_cvars_t
 {
-    cvar_ptr_t
+	cvar_ptr_t
 		rt_classic,
 
 		rt_vsync,
@@ -816,8 +816,8 @@ typedef struct rt_cvars_t
 		rt_upscale_fsr2,
 		rt_sharpen,
 
-        rt_antifirefly,
-        rt_shadowrays,
+		rt_antifirefly,
+		rt_shadowrays,
 		rt_indir2bounces,
 		
 		rt_normalmap_stren,
@@ -825,14 +825,14 @@ typedef struct rt_cvars_t
 		rt_emis_maxscrcolor,
 		rt_emis_additive_dflt,
 
-	    rt_tnmp_ev100_min,
-	    rt_tnmp_ev100_max,
-	    rt_tnmp_saturation_r,
-	    rt_tnmp_saturation_g,
-	    rt_tnmp_saturation_b,
-	    rt_tnmp_crosstalk_r,
-	    rt_tnmp_crosstalk_g,
-	    rt_tnmp_crosstalk_b,
+		rt_tnmp_ev100_min,
+		rt_tnmp_ev100_max,
+		rt_tnmp_saturation_r,
+		rt_tnmp_saturation_g,
+		rt_tnmp_saturation_b,
+		rt_tnmp_crosstalk_r,
+		rt_tnmp_crosstalk_g,
+		rt_tnmp_crosstalk_b,
 		
 		rt_sky,
 		rt_sky_saturation,
@@ -847,9 +847,9 @@ typedef struct rt_cvars_t
 		rt_flsh_u,
 		_rt_flsh_key,
 
-	    rt_light_d,
-	    rt_light_s,
-	    rt_light_radius,
+		rt_light_d,
+		rt_light_s,
+		rt_light_radius,
 
 		rt_reflrefr_depth,
 		rt_refr_glass,
@@ -862,7 +862,7 @@ typedef struct rt_cvars_t
 		rt_mzlflash_size,
 		rt_mzlflash_decay,
 
-	    rt_studio_norms,
+		rt_studio_norms,
 
 		rt_texture_nearest,
 		rt_particles_notex,
@@ -883,11 +883,13 @@ typedef struct rt_cvars_t
 		rt_ef_vintage,
 		rt_ef_water,
 
-	    _rt_labcoat,
-	    rt_labcoat_force,
-	    rt_labcoat_model,
+		_rt_labcoat,
+		rt_labcoat_force,
+		rt_labcoat_model,
 
 		rt_forcecvars,
+
+		_rt_chapter,
 		
 		_rt_dlss_available;
 } rt_cvars_t;
@@ -896,11 +898,13 @@ extern rt_cvars_t rt_cvars;
 #define CVAR_TO_FLOAT( x )  ( ( x )->value )
 #define CVAR_TO_UINT32( x ) ( ( ( x )->value > 0.5f ) ? ( ( uint32_t )( x )->value ) : 0u )
 #define CVAR_TO_INT32( x )  ( ( int )( x )->value )
+#define CVAR_TO_STR( x ) ( ( ( x ) && ( x )->string && ( x )->string[ 0 ] != '\0' ) ? ( x )->string : NULL )
 
 #define RT_CVAR_TO_BOOL( x )   CVAR_TO_BOOL( rt_cvars.x )
 #define RT_CVAR_TO_FLOAT( x )  CVAR_TO_FLOAT( rt_cvars.x )
 #define RT_CVAR_TO_UINT32( x ) CVAR_TO_UINT32( rt_cvars.x )
 #define RT_CVAR_TO_INT32( x )  CVAR_TO_INT32( rt_cvars.x )
+#define RT_CVAR_TO_STR( x )    CVAR_TO_STR( rt_cvars.x )
 
 #define RT_ARRAYSIZE( arr ) ( sizeof( arr ) / sizeof( ( arr )[ 0 ] ) )
 

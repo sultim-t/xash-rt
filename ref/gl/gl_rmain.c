@@ -1056,6 +1056,139 @@ void R_CheckGamma( void )
 	}
 }
 
+#if XASH_RAYTRACING
+static float RT_LerpAlpha( float a, float b, float lerp )
+{
+    float r = a + bound( 0.0f, lerp, 1.0f ) * ( b - a );
+
+	r = powf( r, 2.2f );
+    return bound( 0.0f, r, 1.0f );
+}
+
+static void RT_TryDrawCustomChapterIntro()
+{
+    const float delay            = 3.0f;
+    const float duration_solid   = 3.0f;
+    const float duration_fadeout = 2.0f;
+    Assert( duration_fadeout > 0 );
+    const float background_opacity = 0.3f;
+
+    const char* chaptername = CVAR_TO_STR( rt_cvars._rt_chapter );
+    if( !chaptername )
+    {
+        return;
+    }
+
+    char tex[ 256 ] = "resource/ch/";
+    Q_strncat( tex, chaptername, RT_ARRAYSIZE( tex ) - RT_ARRAYSIZE( "resource/ch/" ) - 1 );
+
+    static char tex_prev[ RT_ARRAYSIZE( tex ) ] = "";
+    qboolean    same = Q_strncmp( tex, tex_prev, RT_ARRAYSIZE( tex ) ) == 0;
+
+    static float time_start     = 0.0f;
+    static float time_beginfade = 0.0f;
+    static float time_end       = 0.0f;
+
+    if( !same )
+    {
+        {
+            RgResult r = rgMarkOriginalTextureAsDeleted( rg_instance, tex_prev );
+            RG_CHECK( r );
+        }
+        {
+            const uint32_t pix = 0xFF000000;
+
+            RgOriginalTextureInfo info = {
+                .pTextureName = tex,
+                .pPixels      = &pix,
+                .size         = { 1, 1 },
+                .filter       = RG_SAMPLER_FILTER_LINEAR,
+                .addressModeU = RG_SAMPLER_ADDRESS_MODE_CLAMP,
+                .addressModeV = RG_SAMPLER_ADDRESS_MODE_CLAMP,
+            };
+            RgResult r = rgProvideOriginalTexture( rg_instance, &info );
+            RG_CHECK( r );
+        }
+
+        Q_strncpy( tex_prev, tex, RT_ARRAYSIZE( tex ) );
+
+        time_start     = ( float )gpGlobals->realtime + delay;
+        time_beginfade = time_start + duration_solid;
+        time_end       = time_start + duration_solid + duration_fadeout;
+    }
+
+    float curtime = ( float )gpGlobals->realtime;
+
+    float alpha;
+    if( curtime < time_start || curtime > time_end )
+    {
+        alpha = 0.0f;
+    }
+    else if( curtime < time_beginfade )
+    {
+        alpha = 1.0f;
+    }
+    else
+    {
+        alpha = RT_LerpAlpha( 1.0f, 0.0f, ( curtime - time_beginfade ) / duration_fadeout );
+    }
+
+    if( alpha < 1.0f / 255.0f )
+    {
+        return;
+    }
+
+    static const RgPrimitiveVertex verts[] = {
+        { .position = { -1, +1, 0 }, .texCoord = { 0, 1 }, .color = 0xFFFFFFFF },
+        { .position = { -1, -1, 0 }, .texCoord = { 0, 0 }, .color = 0xFFFFFFFF },
+        { .position = { +1, -1, 0 }, .texCoord = { 1, 0 }, .color = 0xFFFFFFFF },
+        { .position = { +1, +1, 0 }, .texCoord = { 1, 1 }, .color = 0xFFFFFFFF },
+    };
+
+    static const uint32_t indices[] = { 0, 1, 2, 2, 3, 0 };
+
+    // background
+    {
+        RgMeshPrimitiveInfo prim = {
+            .pPrimitiveNameInMesh = NULL,
+            .primitiveIndexInMesh = 0,
+            .flags                = RG_MESH_PRIMITIVE_TRANSLUCENT,
+            .pVertices            = verts,
+            .vertexCount          = sizeof( verts ) / sizeof( verts[ 0 ] ),
+            .pIndices             = indices,
+            .indexCount           = sizeof( indices ) / sizeof( indices[ 0 ] ),
+            .pTextureName         = NULL,
+            .textureFrame         = 0,
+            .color       = rgUtilPackColorFloat4D( 0.0f, 0.0f, 0.0f, alpha * background_opacity ),
+            .emissive    = 0,
+            .pEditorInfo = NULL,
+        };
+        RgResult r = rgUploadNonWorldPrimitive( rg_instance, &prim, matrix4x4_identity, NULL );
+        RG_CHECK( r );
+    }
+    // text
+    {
+        RgMeshPrimitiveInfo prim = {
+            .pPrimitiveNameInMesh = NULL,
+            .primitiveIndexInMesh = 0,
+            .flags                = RG_MESH_PRIMITIVE_TRANSLUCENT,
+            .pVertices            = verts,
+            .vertexCount          = sizeof( verts ) / sizeof( verts[ 0 ] ),
+            .pIndices             = indices,
+            .indexCount           = sizeof( indices ) / sizeof( indices[ 0 ] ),
+            .pTextureName         = tex,
+            .textureFrame         = 0,
+            .color                = rgUtilPackColorFloat4D( 1.0f, 1.0f, 1.0f, alpha ),
+            .emissive             = 0,
+            .pEditorInfo          = NULL,
+        };
+
+        RgResult r = rgUploadNonWorldPrimitive( rg_instance, &prim, matrix4x4_identity, NULL );
+        RG_CHECK( r );
+    }
+}
+#endif
+
 /*
 ===============
 R_BeginFrame
@@ -1237,6 +1370,10 @@ void R_RenderFrame( const ref_viewpass_t *rvp )
 
 	tr.realframecount++; // right called after viewmodel events
 	R_RenderScene();
+
+#if XASH_RAYTRACING
+    RT_TryDrawCustomChapterIntro();
+#endif
 
 	return;
 }
