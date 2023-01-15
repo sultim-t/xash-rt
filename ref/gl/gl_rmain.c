@@ -1162,14 +1162,44 @@ static void RT_TryDrawCustomChapterIntro()
         return;
     }
 
-    static const RgPrimitiveVertex verts[] = {
+    static const uint32_t indices[] = { 0, 1, 2, 2, 3, 0 };
+
+    static const RgPrimitiveVertex verts_fullscreen[] = {
         { .position = { -1, +1, 0 }, .texCoord = { 0, 1 }, .color = 0xFFFFFFFF },
         { .position = { -1, -1, 0 }, .texCoord = { 0, 0 }, .color = 0xFFFFFFFF },
         { .position = { +1, -1, 0 }, .texCoord = { 1, 0 }, .color = 0xFFFFFFFF },
         { .position = { +1, +1, 0 }, .texCoord = { 1, 1 }, .color = 0xFFFFFFFF },
     };
 
-    static const uint32_t indices[] = { 0, 1, 2, 2, 3, 0 };
+    RgPrimitiveVertex verts_16by9[] = {
+        { .position = { 0 }, .texCoord = { 0, 1 }, .color = 0xFFFFFFFF },
+        { .position = { 0 }, .texCoord = { 0, 0 }, .color = 0xFFFFFFFF },
+        { .position = { 0 }, .texCoord = { 1, 0 }, .color = 0xFFFFFFFF },
+        { .position = { 0 }, .texCoord = { 1, 1 }, .color = 0xFFFFFFFF },
+    };
+
+    {
+        float xwin = ( float )gpGlobals->width / ( float )gpGlobals->height;
+        float ximg = 16.0f / 9.0f;
+		
+		float tx, ty;
+
+        if( ximg < xwin )
+        {
+            tx = ximg / xwin;
+            ty = 1.0f;
+        }
+        else
+        {
+            tx = 1.0f;
+            ty = xwin / ximg;
+        }
+
+		VectorSet( verts_16by9[ 0 ].position, -tx, +ty, 0 );
+        VectorSet( verts_16by9[ 1 ].position, -tx, -ty, 0 );
+		VectorSet( verts_16by9[ 2 ].position, +tx, -ty, 0 );
+		VectorSet( verts_16by9[ 3 ].position, +tx, +ty, 0 );
+    }
 
     // background
     {
@@ -1177,10 +1207,10 @@ static void RT_TryDrawCustomChapterIntro()
             .pPrimitiveNameInMesh = NULL,
             .primitiveIndexInMesh = 0,
             .flags                = RG_MESH_PRIMITIVE_TRANSLUCENT,
-            .pVertices            = verts,
-            .vertexCount          = sizeof( verts ) / sizeof( verts[ 0 ] ),
+            .pVertices            = verts_fullscreen,
+            .vertexCount          = RT_ARRAYSIZE( verts_fullscreen ),
             .pIndices             = indices,
-            .indexCount           = sizeof( indices ) / sizeof( indices[ 0 ] ),
+            .indexCount           = RT_ARRAYSIZE( indices ),
             .pTextureName         = NULL,
             .textureFrame         = 0,
             .color       = rgUtilPackColorFloat4D( 0.0f, 0.0f, 0.0f, alpha * background_opacity ),
@@ -1196,10 +1226,10 @@ static void RT_TryDrawCustomChapterIntro()
             .pPrimitiveNameInMesh = NULL,
             .primitiveIndexInMesh = 0,
             .flags                = RG_MESH_PRIMITIVE_TRANSLUCENT,
-            .pVertices            = verts,
-            .vertexCount          = sizeof( verts ) / sizeof( verts[ 0 ] ),
+            .pVertices            = verts_16by9,
+            .vertexCount          = RT_ARRAYSIZE( verts_16by9 ),
             .pIndices             = indices,
-            .indexCount           = sizeof( indices ) / sizeof( indices[ 0 ] ),
+            .indexCount           = RT_ARRAYSIZE( indices ),
             .pTextureName         = texname,
             .textureFrame         = 0,
             .color                = rgUtilPackColorFloat4D( 1.0f, 1.0f, 1.0f, alpha ),
