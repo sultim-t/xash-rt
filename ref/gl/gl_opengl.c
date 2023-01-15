@@ -985,7 +985,8 @@ void GL_InitCommands( void )
 	
 	CVAR_DEF_T( rt_forcecvars,				"1",	"force original cvars to be set to be compatible with RT" )
 
-	CVAR_DEF_T( _rt_chapter,				"",		"show custom chapter info screen, folder check: rt/mat/resource/ch/" )
+	CVAR_DEF_T( _rt_chapter,				"",		"chapter logo name; checking folder: rt/mat/resource/ch/" )
+	CVAR_DEF_T( _rt_chaptershow,			"0",	"show chapter logo" )
 
 	CVAR_DEF_T( _rt_dlss_available,			"0",	"internal variable; for menu" )
     // clang-format on

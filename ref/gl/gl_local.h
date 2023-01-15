@@ -801,6 +801,7 @@ void RT_OnBeforeDrawFrame( void );
 void RT_ParseStaticLightEntities( void );
 void RT_UploadAllLights( void );
 void RT_BindLightmapTexture( int texnum );
+void RT_ResetChapterLogo( void );
 
 // clang-format off
 typedef cvar_t* cvar_ptr_t;
@@ -890,6 +891,7 @@ typedef struct rt_cvars_t
 		rt_forcecvars,
 
 		_rt_chapter,
+		_rt_chaptershow,
 		
 		_rt_dlss_available;
 } rt_cvars_t;

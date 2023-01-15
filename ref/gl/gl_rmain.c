@@ -1065,73 +1065,97 @@ static float RT_LerpAlpha( float a, float b, float lerp )
     return bound( 0.0f, r, 1.0f );
 }
 
+static const char* RT_TryUploadChapterIntroTexture()
+{
+    const char* chaptername = CVAR_TO_STR( rt_cvars._rt_chapter );
+    if( !chaptername )
+    {
+        return NULL;
+    }
+
+    static char tex[ 256 ]                      = "";
+    static char tex_prev[ RT_ARRAYSIZE( tex ) ] = "";
+
+	Q_strncpy( tex, "resource/ch/", RT_ARRAYSIZE( tex ) );
+    Q_strncat( tex, chaptername, RT_ARRAYSIZE( tex ) - RT_ARRAYSIZE( "resource/ch/" ) - 1 );
+
+	// same as previous
+    if( Q_strncmp( tex, tex_prev, RT_ARRAYSIZE( tex ) ) == 0 )
+    {
+        return tex;
+    }
+
+    {
+        RgResult r = rgMarkOriginalTextureAsDeleted( rg_instance, tex_prev );
+        RG_CHECK( r );
+    }
+    {
+        const uint32_t pix = 0xFF000000;
+
+        RgOriginalTextureInfo info = {
+            .pTextureName = tex,
+            .pPixels      = &pix,
+            .size         = { 1, 1 },
+            .filter       = RG_SAMPLER_FILTER_LINEAR,
+            .addressModeU = RG_SAMPLER_ADDRESS_MODE_CLAMP,
+            .addressModeV = RG_SAMPLER_ADDRESS_MODE_CLAMP,
+        };
+        RgResult r = rgProvideOriginalTexture( rg_instance, &info );
+        RG_CHECK( r );
+    }
+
+    Q_strncpy( tex_prev, tex, RT_ARRAYSIZE( tex ) );
+    return tex;
+}
+
+static float rt_chaptertime_start     = -1;
+static float rt_chaptertime_beginfade = -1;
+static float rt_chaptertime_end       = -1;
+void RT_ResetChapterLogo( void )
+{
+    rt_chaptertime_start     = -1;
+    rt_chaptertime_beginfade = -1;
+    rt_chaptertime_end       = -1;
+}
+
 static void RT_TryDrawCustomChapterIntro()
 {
-    const float delay            = 3.0f;
+    const char* texname = RT_TryUploadChapterIntroTexture();
+
+    if( !texname )
+    {
+        return;
+    }
+	
     const float duration_solid   = 3.0f;
     const float duration_fadeout = 2.0f;
     Assert( duration_fadeout > 0 );
     const float background_opacity = 0.3f;
+	
+    if( RT_CVAR_TO_BOOL( _rt_chaptershow ) )
+    {
+        rt_chaptertime_start     = gpGlobals->time;
+        rt_chaptertime_beginfade = rt_chaptertime_start + duration_solid;
+        rt_chaptertime_end       = rt_chaptertime_start + duration_solid + duration_fadeout;
 
-    const char* chaptername = CVAR_TO_STR( rt_cvars._rt_chapter );
-    if( !chaptername )
+		gEngfuncs.Cvar_Set( rt_cvars._rt_chaptershow->name, "0" );
+    }
+
+    float curtime = gpGlobals->time;
+
+    if( curtime < rt_chaptertime_start )
     {
         return;
     }
 
-    char tex[ 256 ] = "resource/ch/";
-    Q_strncat( tex, chaptername, RT_ARRAYSIZE( tex ) - RT_ARRAYSIZE( "resource/ch/" ) - 1 );
-
-    static char tex_prev[ RT_ARRAYSIZE( tex ) ] = "";
-    qboolean    same = Q_strncmp( tex, tex_prev, RT_ARRAYSIZE( tex ) ) == 0;
-
-    static float time_start     = 0.0f;
-    static float time_beginfade = 0.0f;
-    static float time_end       = 0.0f;
-
-    if( !same )
+	if( curtime > rt_chaptertime_end )
     {
-        {
-            RgResult r = rgMarkOriginalTextureAsDeleted( rg_instance, tex_prev );
-            RG_CHECK( r );
-        }
-        {
-            const uint32_t pix = 0xFF000000;
-
-            RgOriginalTextureInfo info = {
-                .pTextureName = tex,
-                .pPixels      = &pix,
-                .size         = { 1, 1 },
-                .filter       = RG_SAMPLER_FILTER_LINEAR,
-                .addressModeU = RG_SAMPLER_ADDRESS_MODE_CLAMP,
-                .addressModeV = RG_SAMPLER_ADDRESS_MODE_CLAMP,
-            };
-            RgResult r = rgProvideOriginalTexture( rg_instance, &info );
-            RG_CHECK( r );
-        }
-
-        Q_strncpy( tex_prev, tex, RT_ARRAYSIZE( tex ) );
-
-        time_start     = ( float )gpGlobals->realtime + delay;
-        time_beginfade = time_start + duration_solid;
-        time_end       = time_start + duration_solid + duration_fadeout;
+        RT_ResetChapterLogo();
+        return;
     }
 
-    float curtime = ( float )gpGlobals->realtime;
-
-    float alpha;
-    if( curtime < time_start || curtime > time_end )
-    {
-        alpha = 0.0f;
-    }
-    else if( curtime < time_beginfade )
-    {
-        alpha = 1.0f;
-    }
-    else
-    {
-        alpha = RT_LerpAlpha( 1.0f, 0.0f, ( curtime - time_beginfade ) / duration_fadeout );
-    }
+    float alpha = RT_LerpAlpha(
+        1.0f, 0.0f, Q_max( 0, curtime - rt_chaptertime_beginfade ) / duration_fadeout );
 
     if( alpha < 1.0f / 255.0f )
     {
@@ -1176,7 +1200,7 @@ static void RT_TryDrawCustomChapterIntro()
             .vertexCount          = sizeof( verts ) / sizeof( verts[ 0 ] ),
             .pIndices             = indices,
             .indexCount           = sizeof( indices ) / sizeof( indices[ 0 ] ),
-            .pTextureName         = tex,
+            .pTextureName         = texname,
             .textureFrame         = 0,
             .color                = rgUtilPackColorFloat4D( 1.0f, 1.0f, 1.0f, alpha ),
             .emissive             = 0,
