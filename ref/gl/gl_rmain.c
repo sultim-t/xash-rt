@@ -1686,7 +1686,7 @@ void R_EndFrame( void )
         .indexOfRefractionWater                = RT_CVAR_TO_FLOAT( rt_refr_water ),
         .waterWaveSpeed                        = METRIC_TO_QUAKEUNIT( 0.4f ),
         .waterWaveNormalStrength               = 1.0f,
-        .waterColor                            = { 171 / 255.0f, 193 / 255.0f, 210 / 255.0f },
+        .waterColor                            = { 187 / 255.0f, 190 / 255.0f, 196 / 255.0f },
         .acidColor                             = { 0 / 255.0f, 169 / 255.0f, 145 / 255.0f },
         .acidDensity                           = 25,
         .waterWaveTextureDerivativesMultiplier = 5,

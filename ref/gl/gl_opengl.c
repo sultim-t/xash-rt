@@ -943,8 +943,8 @@ void GL_InitCommands( void )
 	CVAR_DEF_T( rt_flsh_u,					"-0.3",	"flashlight position offset - up")
 	CVAR_DEF_T( _rt_flsh_key,				"-1",	"internal variable; d-light key of the player's flashlight")
 
-	CVAR_DEF_T( rt_light_d,					"100",	"dlight intensity (explosions, other dynamic lights)")
-	CVAR_DEF_T( rt_light_s,					"100",	"map lights intensity (lights defined by a map)")
+	CVAR_DEF_T( rt_light_d,					"1000",	"dlight intensity (explosions, other dynamic lights)")
+	CVAR_DEF_T( rt_light_s,					"1000",	"map lights intensity (lights defined by a map)")
 	CVAR_DEF_T( rt_light_radius,			"0.02",	"default radius for original lights (in meters)")
 
 	CVAR_DEF_T( rt_reflrefr_depth,			"2",	"") 
