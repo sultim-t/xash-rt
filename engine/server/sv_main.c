@@ -90,7 +90,11 @@ CVAR_DEFINE_AUTO( sv_zmax, "4096", FCVAR_MOVEVARS|FCVAR_SPONLY, "maximum viewabl
 CVAR_DEFINE_AUTO( sv_wateramp, "0", FCVAR_MOVEVARS|FCVAR_UNLOGGED, "world waveheight factor" );
 CVAR_DEFINE( sv_footsteps, "mp_footsteps", "1", FCVAR_MOVEVARS, "world gravity value" );
 CVAR_DEFINE_AUTO( sv_skyname, "desert", FCVAR_MOVEVARS|FCVAR_UNLOGGED, "skybox name (can be dynamically changed in-game)" );
+#if !XASH_RAYTRACING
 CVAR_DEFINE_AUTO( sv_rollangle, "0", FCVAR_MOVEVARS|FCVAR_UNLOGGED|FCVAR_ARCHIVE, "how much to tilt the view when strafing" );
+#else
+CVAR_DEFINE_AUTO( sv_rollangle, "0.7", FCVAR_MOVEVARS|FCVAR_UNLOGGED|FCVAR_ARCHIVE, "how much to tilt the view when strafing" );
+#endif
 CVAR_DEFINE_AUTO( sv_rollspeed, "200", FCVAR_MOVEVARS|FCVAR_UNLOGGED, "how much strafing is necessary to tilt the view" );
 CVAR_DEFINE_AUTO( sv_skycolor_r, "0", FCVAR_MOVEVARS|FCVAR_UNLOGGED, "skylight red component value" );
 CVAR_DEFINE_AUTO( sv_skycolor_g, "0", FCVAR_MOVEVARS|FCVAR_UNLOGGED, "skylight green component value" );
