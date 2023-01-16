@@ -1067,14 +1067,22 @@ static float RT_LerpAlpha( float a, float b, float lerp )
 
 static const char* RT_TryUploadChapterIntroTexture()
 {
+    static char tex[ 256 ]                      = "";
+    static char tex_prev[ RT_ARRAYSIZE( tex ) ] = "";
+
     const char* chaptername = CVAR_TO_STR( rt_cvars._rt_chapter );
     if( !chaptername )
     {
+        if( Q_strlen( tex_prev ) > 0 )
+        {
+            RgResult r = rgMarkOriginalTextureAsDeleted( rg_instance, tex_prev );
+            RG_CHECK( r );
+
+            tex_prev[ 0 ] = '\0';
+        }
+
         return NULL;
     }
-
-    static char tex[ 256 ]                      = "";
-    static char tex_prev[ RT_ARRAYSIZE( tex ) ] = "";
 
 	Q_strncpy( tex, "resource/ch/", RT_ARRAYSIZE( tex ) );
     Q_strncat( tex, chaptername, RT_ARRAYSIZE( tex ) - RT_ARRAYSIZE( "resource/ch/" ) - 1 );
