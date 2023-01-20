@@ -2367,7 +2367,7 @@ static void R_StudioDrawPoints( void )
 #if !XASH_RAYTRACING
 		R_StudioGenerateNormals();
 #else
-        if( !RT_CVAR_TO_BOOL( rt_studio_norms ) )
+        if( !RT_CVAR_TO_BOOL( rt_norms_studio ) )
         {
             R_StudioGenerateNormals();
         }
@@ -2375,7 +2375,7 @@ static void R_StudioDrawPoints( void )
 	}
 
 #if XASH_RAYTRACING
-    if( RT_CVAR_TO_BOOL( rt_studio_norms ) )
+    if( RT_CVAR_TO_BOOL( rt_norms_studio ) )
     {
         R_StudioGenerateNormals();
     }

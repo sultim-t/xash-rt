@@ -863,7 +863,8 @@ typedef struct rt_cvars_t
 		rt_mzlflash_size,
 		rt_mzlflash_decay,
 
-		rt_studio_norms,
+		rt_norms_studio,
+		rt_norms_brush,
 
 		rt_texture_nearest,
 		rt_particles_notex,

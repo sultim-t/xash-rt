@@ -1201,6 +1201,12 @@ void R_RenderBrushPoly( msurface_t *fa, int cull_type )
     rt_state.curBrushSurface   = ( int )( fa - surfbase );
     rt_state.curBrushSurfaceIsWater = false;
     RT_BindLightmapTexture( tr.lightmapTextures[ fa->lightmaptexturenum ] );
+    {
+        vec3_t faceNormal = RT_VEC3( fa->plane->normal );
+		VectorScale( faceNormal, FBitSet( fa->flags, SURF_PLANEBACK ) ? -1 : 1, faceNormal );
+
+        pglNormal3fv( faceNormal );
+    }
 #endif
 	DrawGLPoly( fa->polys, 0.0f, 0.0f );
 #if XASH_RAYTRACING

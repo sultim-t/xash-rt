@@ -822,6 +822,12 @@ void EmitWaterPolys( msurface_t *warp, qboolean reverse )
     const msurface_t* surfbase = RI.currentmodel->surfaces + RI.currentmodel->firstmodelsurface;
     rt_state.curBrushSurface   = ( int )( warp - surfbase );
     rt_state.curBrushSurfaceIsWater = true;
+    {
+        vec3_t faceNormal = RT_VEC3( warp->plane->normal );
+        VectorScale( faceNormal, FBitSet( warp->flags, SURF_PLANEBACK ) ? -1 : 1, faceNormal );
+
+        pglNormal3fv( faceNormal );
+    }
 #endif
 
 	if( useQuads )
