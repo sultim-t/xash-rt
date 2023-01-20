@@ -1105,9 +1105,10 @@ qboolean R_Init( void )
             .rayCullBackFacingTriangles          = true,
             .allowGeometryWithSkyFlag            = true,
 
-            .allowTexCoordLayer1        = false,
-            .allowTexCoordLayer2        = true,
-            .allowTexCoordLayerLightmap = true,
+            .allowTexCoordLayer1        = true,
+            .allowTexCoordLayer2        = false,
+            .allowTexCoordLayer3        = false,
+            .lightmapTexCoordLayerIndex = 1,
 
             .rasterizedMaxVertexCount   = 1 << 20,
             .rasterizedMaxIndexCount    = 1 << 21,
@@ -2259,14 +2260,16 @@ static qboolean AreAdditionalsSame( const RgEditorInfo* a, const RgEditorInfo* b
 
     if( a && b )
     {
-        if( !a->layerLightmapExists && !b->layerLightmapExists )
+		// layer1 is lightmap
+
+        if( !a->layer1Exists && !b->layer1Exists )
         {
             return true;
         }
 
-        if( a->layerLightmapExists && b->layerLightmapExists )
+        if( a->layer1Exists && b->layer1Exists )
         {
-            if( a->layerLightmap.pTextureName == b->layerLightmap.pTextureName )
+            if( a->layer1.pTextureName == b->layer1.pTextureName )
             {
                 return true;
             }
@@ -2495,11 +2498,11 @@ static void TryBeginBatch( RgUtilImScratchTopology glbegin_topology )
         };
 
         RgEditorInfo additional = {
-            .layerLightmapExists = rt_state.curLightmapTextureName != NULL,
-            .layerLightmap       = { .pTexCoord    = NULL,
-                                     .pTextureName = rt_state.curLightmapTextureName,
-                                     .blend        = RG_TEXTURE_LAYER_BLEND_TYPE_SHADE,
-                                     .color = rgUtilPackColorByte4D( 255, 255, 255, 255 ) },
+            .layer1Exists = rt_state.curLightmapTextureName != NULL,
+            .layer1       = { .pTexCoord    = NULL,
+                              .pTextureName = rt_state.curLightmapTextureName,
+                              .blend        = RG_TEXTURE_LAYER_BLEND_TYPE_SHADE,
+                              .color        = rgUtilPackColorByte4D( 255, 255, 255, 255 ) },
         };
 
         RgMeshPrimitiveInfo prim = {
