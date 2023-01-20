@@ -1281,7 +1281,7 @@ void R_BeginFrame( qboolean clearScene )
     #define TO_BOOL( x ) ( ( ( x )->value != 0.0f ) ? true : false )
 
         // if classic present, use slower pipeline
-        if( RT_CVAR_TO_FLOAT( rt_classic ) > 0 )
+        if( RT_CVAR_TO_FLOAT( rt_classic ) > 0.01f )
         {
             if( CVAR_TO_BOOL( r_fullbright ) )
             {
@@ -1343,7 +1343,12 @@ void R_BeginFrame( qboolean clearScene )
             }
         }
 
-        RgResult r = rgStartFrame( rg_instance, mapname );
+		RgStartFrameInfo info = {
+            .pMapName               = mapname,
+            .ignoreExternalGeometry = RT_CVAR_TO_FLOAT( rt_classic ) > 0.5f,
+        };
+
+        RgResult r = rgStartFrame( rg_instance, &info );
         RG_CHECK( r );
     }
 #endif
