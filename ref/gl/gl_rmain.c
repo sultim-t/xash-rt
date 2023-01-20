@@ -1651,6 +1651,16 @@ void R_EndFrame( void )
     ResolutionToRtgl( &resolution_params, winsize, &pixstorage );
     UpscaleCvarsToRtgl( &resolution_params );
 
+    {
+        static float prevvalue = 0;
+
+        if( fabsf( RT_CVAR_TO_FLOAT( rt_classic ) - prevvalue ) > 0.9f )
+        {
+            resolution_params.resetUpscalerHistory = true;
+        }
+        prevvalue = RT_CVAR_TO_FLOAT( rt_classic );
+    }
+
 	float lightstyles[ RT_ARRAYSIZE( tr.lightstylevalue ) ];
     for( uint32_t i = 0; i < RT_ARRAYSIZE( tr.lightstylevalue ); i++ )
     {
@@ -1672,15 +1682,16 @@ void R_EndFrame( void )
     };
 
     RgDrawFrameTonemappingParams tnmp_params = {
-        .ev100Min            = RT_CVAR_TO_FLOAT( rt_tnmp_ev100_min ),
-        .ev100Max            = RT_CVAR_TO_FLOAT( rt_tnmp_ev100_max ),
-        .luminanceWhitePoint = 10.0f,
-        .saturation          = { RT_CVAR_TO_FLOAT( rt_tnmp_saturation_r ),
-                                 RT_CVAR_TO_FLOAT( rt_tnmp_saturation_g ),
-                                 RT_CVAR_TO_FLOAT( rt_tnmp_saturation_b ) },
-        .crosstalk           = { RT_CVAR_TO_FLOAT( rt_tnmp_crosstalk_r ),
-                                 RT_CVAR_TO_FLOAT( rt_tnmp_crosstalk_g ),
-                                 RT_CVAR_TO_FLOAT( rt_tnmp_crosstalk_b ) },
+        .disableEyeAdaptation = false,
+        .ev100Min             = RT_CVAR_TO_FLOAT( rt_tnmp_ev100_min ),
+        .ev100Max             = RT_CVAR_TO_FLOAT( rt_tnmp_ev100_max ),
+        .luminanceWhitePoint  = 10.0f,
+        .saturation           = { RT_CVAR_TO_FLOAT( rt_tnmp_saturation_r ),
+                                  RT_CVAR_TO_FLOAT( rt_tnmp_saturation_g ),
+                                  RT_CVAR_TO_FLOAT( rt_tnmp_saturation_b ) },
+        .crosstalk            = { RT_CVAR_TO_FLOAT( rt_tnmp_crosstalk_r ),
+                                  RT_CVAR_TO_FLOAT( rt_tnmp_crosstalk_g ),
+                                  RT_CVAR_TO_FLOAT( rt_tnmp_crosstalk_b ) },
     };
 
     RgDrawFrameBloomParams bloom_params = {
@@ -1788,8 +1799,6 @@ void R_EndFrame( void )
         .rayCullMaskWorld = RG_DRAW_FRAME_RAY_CULL_WORLD_0_BIT |
                             RG_DRAW_FRAME_RAY_CULL_WORLD_1_BIT | RG_DRAW_FRAME_RAY_CULL_SKY_BIT,
         .currentTime             = gpGlobals->realtime,
-		.disableEyeAdaptation = false,
-		.forceAntiFirefly = RT_CVAR_TO_BOOL( rt_antifirefly ),
 		.pRenderResolutionParams = &resolution_params,
 		.pIlluminationParams = &illum_params,
 		.pVolumetricParams = &volumetric_params,

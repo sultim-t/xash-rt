@@ -817,7 +817,6 @@ typedef struct rt_cvars_t
 		rt_upscale_fsr2,
 		rt_sharpen,
 
-		rt_antifirefly,
 		rt_shadowrays,
 		rt_indir2bounces,
 		
