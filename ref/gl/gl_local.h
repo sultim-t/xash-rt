@@ -790,8 +790,6 @@ typedef struct rt_state_s
     int      curBrushSurface;
     qboolean curBrushSurfaceIsWater;
 
-    uint32_t curTempEntityIndex;
-
 	uint64_t flashlight_uniqueid;
 
 } rt_state_t;
