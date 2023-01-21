@@ -1704,9 +1704,8 @@ void R_EndFrame( void )
     };
 	
     RgDrawFrameVolumetricParams volumetric_params = {
-        .enable = RT_CVAR_TO_UINT32( rt_volume_type ) != 0,
-        .useSimpleDepthBased =
-            RT_CVAR_TO_UINT32( rt_volume_type ) == 1 /* || RT_CVAR_TO_BOOL( rt_classic_render ) */,
+        .enable = RT_CVAR_TO_UINT32( rt_volume_type ) != 0 && RT_CVAR_TO_FLOAT( rt_classic ) < 0.5f,
+        .useSimpleDepthBased     = RT_CVAR_TO_UINT32( rt_volume_type ) == 1,
         .volumetricFar           = RT_CVAR_TO_FLOAT( rt_volume_far ),
         .ambientColor            = { RT_CVAR_TO_FLOAT( rt_volume_ambient ),
                                      RT_CVAR_TO_FLOAT( rt_volume_ambient ),
