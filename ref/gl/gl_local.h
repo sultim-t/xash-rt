@@ -791,6 +791,7 @@ typedef struct rt_state_s
     qboolean curBrushSurfaceIsWater;
 
 	uint64_t flashlight_uniqueid;
+	uint64_t sun_uniqueid;
 
 } rt_state_t;
 extern rt_state_t rt_state;
@@ -872,6 +873,7 @@ typedef struct rt_cvars_t
 		rt_volume_ambient,
 		rt_volume_lintensity,
 		rt_volume_lassymetry,
+		rt_volume_illumgrid,
 		
 		rt_bloom_intensity,
 		rt_bloom_threshold,

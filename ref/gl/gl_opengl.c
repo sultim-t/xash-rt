@@ -935,7 +935,7 @@ void GL_InitCommands( void )
 	CVAR_DEF_T( rt_sun,						"7000",	"sun intensity")
 	CVAR_DEF_T( rt_sun_diameter,			"0.5",	"sun angular diameter in degrees")
 
-	CVAR_DEF_T( rt_flsh,					"100",	"flashlight intensity")
+	CVAR_DEF_T( rt_flsh,					"800",	"flashlight intensity")
 	CVAR_DEF_T( rt_flsh_radius,				"0.02",	"flashlight source disk radius in meters")
 	CVAR_DEF_T( rt_flsh_angle,				"20",	"flashlight width in degrees")
 	CVAR_DEF_T( rt_flsh_r,					"-0.2",	"flashlight position offset - right")
@@ -964,11 +964,12 @@ void GL_InitCommands( void )
 	CVAR_DEF_T( rt_particles_notex,			"0",	"don't use texture for particles" )
 
 	CVAR_DEF_T( rt_volume_type,				"2",	"0 - none, 1 - distance based, 2 - volumetric" )
-	CVAR_DEF_T( rt_volume_far,				"3000",	"" )
-	CVAR_DEF_T( rt_volume_scatter,			"1",	"" )
-	CVAR_DEF_T( rt_volume_ambient,			"0.5",	"" )
-	CVAR_DEF_T( rt_volume_lintensity,		"1",	"" )
-	CVAR_DEF_T( rt_volume_lassymetry,		"0.75",	"" )
+	CVAR_DEF_T( rt_volume_far,				"3000",	"max distance of scattering volume" )
+	CVAR_DEF_T( rt_volume_scatter,			"1",	"density of media" )
+	CVAR_DEF_T( rt_volume_ambient,			"0.5",	"ambient term" )
+	CVAR_DEF_T( rt_volume_lintensity,		"1",	"intensity of lights for scattering" )
+	CVAR_DEF_T( rt_volume_lassymetry,		"0.75",	"scaterring phase function assymetry" )
+	CVAR_DEF_T( rt_volume_illumgrid,		"0",	"enable illumination grid, instead of only one light source for scaterring" )
 
 	CVAR_DEF_T( rt_bloom_intensity,			"1",	"bloom intensity" )
 	CVAR_DEF_T( rt_bloom_threshold,			"4",	"bloom threshold" )
@@ -1154,6 +1155,7 @@ qboolean R_Init( void )
                 .curBrushSurfaceIsWater = false,
 
                 .flashlight_uniqueid = 0,
+                .sun_uniqueid = 0,
             };
             memcpy( &rt_state, &nullstate, sizeof( rt_state ) );
         }
