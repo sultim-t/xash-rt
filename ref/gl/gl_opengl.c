@@ -951,7 +951,7 @@ void GL_InitCommands( void )
 	CVAR_DEF_T( rt_refr_water,				"1.33",	"") 
 
 	CVAR_DEF_T( rt_mzlflash,				"1",	"enable muzzle flash light source" )
-	CVAR_DEF_T( rt_mzlflash_life,			"0.1",	"how long muzzle flash light should exist" )
+	CVAR_DEF_T( rt_mzlflash_life,			"0.2",	"how long muzzle flash light should exist" )
 	CVAR_DEF_T( rt_mzlflash_f,				"1.7",	"muzzle flash light offset - forward" )
 	CVAR_DEF_T( rt_mzlflash_u,				"0.0",	"muzzle flash light offset - up" )
 	CVAR_DEF_T( rt_mzlflash_size,			"1",	"additional muzzle flash light size" )
