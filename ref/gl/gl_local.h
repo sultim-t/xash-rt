@@ -808,6 +808,7 @@ typedef struct rt_cvars_t
 {
 	cvar_ptr_t
 		rt_classic,
+		rt_classic_white,
 
 		rt_vsync,
 		

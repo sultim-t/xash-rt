@@ -1649,7 +1649,7 @@ void R_EndFrame( void )
         .disableEyeAdaptation = false,
         .ev100Min             = RT_CVAR_TO_FLOAT( rt_tnmp_ev100_min ),
         .ev100Max             = RT_CVAR_TO_FLOAT( rt_tnmp_ev100_max ),
-        .luminanceWhitePoint  = 10.0f,
+        .luminanceWhitePoint  = RT_CVAR_TO_FLOAT( rt_classic_white ),
         .saturation           = { RT_CVAR_TO_FLOAT( rt_tnmp_saturation_r ),
                                   RT_CVAR_TO_FLOAT( rt_tnmp_saturation_g ),
                                   RT_CVAR_TO_FLOAT( rt_tnmp_saturation_b ) },

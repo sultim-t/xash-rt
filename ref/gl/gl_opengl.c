@@ -904,6 +904,7 @@ void GL_InitCommands( void )
                                             ( description ) );
     // clang-format off
 	CVAR_DEF_T( rt_classic,					"0",	"enable classic lightmapped renderer" )
+	CVAR_DEF_T( rt_classic_white,			"3.0",	"white point for classic renderer" )
 
 	CVAR_DEF_T( rt_vsync,					"1",	"vertical synchronization to prevent tearing" )
 	
