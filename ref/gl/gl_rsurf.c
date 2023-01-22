@@ -1214,10 +1214,9 @@ void R_RenderBrushPoly( msurface_t *fa, int cull_type )
     rt_state.curBrushSurface   = ( int )( fa - surfbase );
     rt_state.curBrushSurfaceIsWater = false;
     {
-        texture_t* base = fa->texinfo->texture;
+        // ignore random tiling: if texture starts with '-', and texture->alternate_anims
         rt_state.curBrushSurfaceIsAnimated =
-            ( base->anim_total > 0 ) ||
-            ( base->alternate_anims && base->alternate_anims->anim_total > 0 );
+            fa->texinfo->texture->anim_total > 0 && fa->texinfo->texture->name[ 0 ] != '-';
     }
     RT_BindLightmapTexture( tr.lightmapTextures[ fa->lightmaptexturenum ] );
     {
