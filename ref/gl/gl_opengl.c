@@ -2504,14 +2504,22 @@ static void TryBeginBatch( RgUtilImScratchTopology glbegin_topology )
     }
     else if( curtype == RT_BATCH_TYPE_BRUSH )
     {
+        qboolean immovable = ( RI.currentmodel == WORLDMODEL ) ||
+                             ( RI.currententity->curstate.movetype == MOVETYPE_NONE );
+
+        if( RI.currententity->curstate.movetype == MOVETYPE_NONE )
+        {
+            // assuming that never changes
+            assert( RI.currententity->prevstate.movetype == MOVETYPE_NONE );
+        }
+
         RgMeshInfo mesh = {
             .uniqueObjectID = RI.currententity->index,
             .pMeshName      = RI.currentmodel->name,
             .transform      = MATRIX4_TO_RGTRANSFORM( RI.objectMatrix ),
-            .isExportable =
-                ( RI.currentmodel == WORLDMODEL ) && !rt_state.curBrushSurfaceIsAnimated,
-            .animationName = NULL,
-            .animationTime = 0.0f,
+            .isExportable   = immovable && !rt_state.curBrushSurfaceIsAnimated,
+            .animationName  = NULL,
+            .animationTime  = 0.0f,
         };
 
         RgEditorInfo additional = {
