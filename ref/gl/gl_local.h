@@ -876,6 +876,7 @@ typedef struct rt_cvars_t
 		rt_volume_lintensity,
 		rt_volume_lassymetry,
 		rt_volume_illumgrid,
+		rt_volume_history,
 		
 		rt_bloom_intensity,
 		rt_bloom_threshold,

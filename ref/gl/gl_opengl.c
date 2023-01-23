@@ -971,6 +971,7 @@ void GL_InitCommands( void )
 	CVAR_DEF_T( rt_volume_lintensity,		"1",	"intensity of lights for scattering" )
 	CVAR_DEF_T( rt_volume_lassymetry,		"0.75",	"scaterring phase function assymetry" )
 	CVAR_DEF_T( rt_volume_illumgrid,		"0",	"enable illumination grid, instead of only one light source for scaterring" )
+	CVAR_DEF_T( rt_volume_history,			"8",	"max history length for scaterring accumulation (in frames)" )
 
 	CVAR_DEF_T( rt_bloom_intensity,			"1",	"bloom intensity" )
 	CVAR_DEF_T( rt_bloom_threshold,			"4",	"bloom threshold" )
