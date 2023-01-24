@@ -2456,6 +2456,9 @@ static void TryBeginBatch( RgUtilImScratchTopology glbegin_topology )
                                     !ENGINE_GET_PARM( PARM_THIRDPERSON ) );
         qboolean ishologram     = ( RI.currententity->curstate.renderfx == kRenderFxHologram );
 
+		// look HL1RT_HACKS in hlsdk
+        qboolean hasinvis = ( RI.currententity->curstate.renderfx == 63 );
+
 		uint8_t alpha = ( uint8_t )bound( 0.0f, 255.0f * tr.blend, 255.0f );
 
         RgMeshInfo mesh = {
@@ -2490,6 +2493,8 @@ static void TryBeginBatch( RgUtilImScratchTopology glbegin_topology )
                                                          rt_state.curStudioWeaponModel,
                                                          rt_state.curStudioGlend ),
             .flags =
+                ( hasinvis ? RG_MESH_PRIMITIVE_GLASS | RG_MESH_PRIMITIVE_IGNORE_REFRACT_AFTER
+                           : 0 ) |
                 ( rt_alphatest ? RG_MESH_PRIMITIVE_ALPHA_TESTED : 0 ) |
                 ( isviewmodel ? RG_MESH_PRIMITIVE_FIRST_PERSON
                               : ( isplayerviewer ? RG_MESH_PRIMITIVE_FIRST_PERSON_VIEWER : 0 ) ),
