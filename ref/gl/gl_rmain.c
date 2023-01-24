@@ -1659,7 +1659,8 @@ void R_EndFrame( void )
     };
 
     RgDrawFrameBloomParams bloom_params = {
-        .bloomIntensity          = RT_CVAR_TO_FLOAT( rt_bloom_intensity ),
+        .bloomIntensity =
+            RT_CVAR_TO_FLOAT( rt_classic ) < 0.5f ? RT_CVAR_TO_FLOAT( rt_bloom_intensity ) : 0.0f,
         .inputThreshold          = RT_CVAR_TO_FLOAT( rt_bloom_threshold ),
         .bloomEmissionMultiplier = RT_CVAR_TO_FLOAT( rt_bloom_emis_mult ),
     };
