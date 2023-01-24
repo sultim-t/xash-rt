@@ -976,7 +976,7 @@ void GL_InitCommands( void )
 
 	CVAR_DEF_T( rt_bloom_intensity,			"1",	"bloom intensity" )
 	CVAR_DEF_T( rt_bloom_threshold,			"4",	"bloom threshold" )
-	CVAR_DEF_T( rt_bloom_emis_mult,			"32",	"bloom multiplier for emissive" )
+	CVAR_DEF_T( rt_bloom_emis_mult,			"12",	"bloom multiplier for emissive" )
 	
 	CVAR_DEF_T( rt_ef_crt,					"0",	"CRT-monitor filter" )
 	CVAR_DEF_T( rt_ef_chraber,				"0.3",	"chromatic aberration intensity" )
