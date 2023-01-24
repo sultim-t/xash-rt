@@ -237,6 +237,15 @@ static void RT_CalculateDecalTransform(
     VectorCopy( b1, basis[ 0 ] );
     VectorCopy( b2, basis[ 1 ] );
 
+	if( DotProduct( basis[ 0 ], surf->texinfo->vecs[ 0 ] ) < 0 )
+    {
+        VectorScale( basis[ 0 ], -1, basis[ 0 ] );
+    }
+
+    if( DotProduct( basis[ 1 ], surf->texinfo->vecs[ 1 ] ) < 0 )
+    {
+        VectorScale( basis[ 1 ], -1, basis[ 1 ] );
+    }
 
     int width, height;
     R_GetDecalDimensions( texture, &width, &height );
