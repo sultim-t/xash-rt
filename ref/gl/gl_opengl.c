@@ -916,10 +916,11 @@ void GL_InitCommands( void )
 	CVAR_DEF_T( rt_shadowrays,				"2",	"max depth of shadow ray casts" )
 	CVAR_DEF_T( rt_indir2bounces,			"1",	"2 bounces for indirect" )
 
-	CVAR_DEF_T( rt_normalmap_stren,			"1",	"" )
+	CVAR_DEF_T( rt_normalmap_stren,			"1",	"normal map influence" )
 	CVAR_DEF_T( rt_emis_mapboost,			"30",	"" )
 	CVAR_DEF_T( rt_emis_maxscrcolor,		"32",	"" )
 	CVAR_DEF_T( rt_emis_additive_dflt,		"0.01",	"" )
+	CVAR_DEF_T( rt_emis_hologram,			"0.2",	"" )
 
 	CVAR_DEF_T( rt_tnmp_ev100_min,			"0.0",	"min brightness for auto-exposure" )
 	CVAR_DEF_T( rt_tnmp_ev100_max,			"7.7",	"max brightness for auto-exposure" )
@@ -2453,6 +2454,9 @@ static void TryBeginBatch( RgUtilImScratchTopology glbegin_topology )
         qboolean isviewmodel    = ( RI.currententity == gEngfuncs.GetViewModel() );
         qboolean isplayerviewer = ( RI.currententity == gEngfuncs.GetLocalPlayer() &&
                                     !ENGINE_GET_PARM( PARM_THIRDPERSON ) );
+        qboolean ishologram     = ( RI.currententity->curstate.renderfx == kRenderFxHologram );
+
+		uint8_t alpha = ( uint8_t )bound( 0.0f, 255.0f * tr.blend, 255.0f );
 
         RgMeshInfo mesh = {
             .uniqueObjectID = RI.currententity->index,
@@ -2491,8 +2495,8 @@ static void TryBeginBatch( RgUtilImScratchTopology glbegin_topology )
                               : ( isplayerviewer ? RG_MESH_PRIMITIVE_FIRST_PERSON_VIEWER : 0 ) ),
             .pTextureName = rt_state.curTexture2DName,
             .textureFrame = 0,
-            .color        = rgUtilPackColorByte4D( 255, 255, 255, 255 ),
-            .emissive     = 0.0f,
+            .color        = rgUtilPackColorByte4D( 255, 255, 255, ishologram ? alpha : 255 ),
+            .emissive     = ishologram ? RT_CVAR_TO_FLOAT( rt_emis_hologram ) : 0.0f,
             .pEditorInfo  = NULL,
         };
 
