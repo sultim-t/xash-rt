@@ -915,6 +915,8 @@ static void CalculateFlaslightPosition( vec3_t out_position )
     VectorAdd( out_position, r, out_position );
 }
 
+extern cl_entity_t* rt_trament;
+
     #define VectorPow( in, pw, out )                  \
         ( ( out )[ 0 ] = powf( ( in )[ 0 ], ( pw ) ), \
           ( out )[ 1 ] = powf( ( in )[ 1 ], ( pw ) ), \
@@ -924,6 +926,7 @@ static void CalculateFlaslightPosition( vec3_t out_position )
     #define RT_ID_LIGHTNONE       0
     #define RT_IDBASE_SUN         1
     #define RT_IDBASE_FLASHLIGHT  256
+    #define RT_IDBASE_TRAMLIGHT   384
     #define RT_IDBASE_DLIGHT      512
     #define RT_IDBASE_ELIGHT      768
     #define RT_IDBASE_STATICLIGHT 1024
@@ -1057,6 +1060,32 @@ void RT_UploadAllLights()
                 RgResult r = rgUploadSphericalLight( rg_instance, &info );
                 RG_CHECK( r );
             }
+        }
+    }
+
+    if( rt_trament )
+    {
+        const vec3_t offsets[] = {
+            { 0, 0, 110 },
+        };
+
+        for( int i = 0; i < ( int )RT_ARRAYSIZE( offsets ); i++ )
+        {
+            vec3_t pos = RT_VEC3( rt_trament->curstate.origin );
+            VectorAdd( pos, offsets[ i ], pos );
+
+            RgSphericalLightUploadInfo info = {
+                .uniqueID     = RT_IDBASE_TRAMLIGHT + i,
+                .isExportable = true,
+                .extra        = { .exists = false },
+                .color        = rgUtilPackColorByte4D( 255, 255, 255, 255 ),
+                .intensity    = RT_CVAR_TO_FLOAT( rt_light_tram ),
+                .position     = RT_VEC3( pos ),
+                .radius       = METRIC_TO_QUAKEUNIT( RT_CVAR_TO_FLOAT( rt_light_radius ) ),
+            };
+
+            RgResult r = rgUploadSphericalLight( rg_instance, &info );
+            RG_CHECK( r );
         }
     }
 }

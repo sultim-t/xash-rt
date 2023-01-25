@@ -802,6 +802,7 @@ void RT_ParseStaticLightEntities( void );
 void RT_UploadAllLights( void );
 void RT_BindLightmapTexture( int texnum );
 void RT_ResetChapterLogo( void );
+void RT_TryFindTramLights( void );
 
 // clang-format off
 typedef cvar_t* cvar_ptr_t;
@@ -851,6 +852,7 @@ typedef struct rt_cvars_t
 
 		rt_light_d,
 		rt_light_s,
+		rt_light_tram,
 		rt_light_radius,
 
 		rt_reflrefr_depth,
