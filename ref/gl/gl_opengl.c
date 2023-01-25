@@ -931,7 +931,7 @@ void GL_InitCommands( void )
 	CVAR_DEF_T( rt_tnmp_crosstalk_g,		"1",	"set one channel to 1.0, others to <= 1.0" )
 	CVAR_DEF_T( rt_tnmp_crosstalk_b,		"1",	"set one channel to 1.0, others to <= 1.0" )
 
-	CVAR_DEF_T( rt_sky,						"200",	"sky intensity")
+	CVAR_DEF_T( rt_sky,						"100",	"sky intensity")
 	CVAR_DEF_T( rt_sky_saturation,			"1",	"sky saturation")
 
 	CVAR_DEF_T( rt_sun,						"7000",	"sun intensity")
@@ -946,7 +946,7 @@ void GL_InitCommands( void )
 
 	CVAR_DEF_T( rt_light_d,					"1000",	"dlight intensity (explosions, other dynamic lights)")
 	CVAR_DEF_T( rt_light_s,					"1000",	"map lights intensity (lights defined by a map)")
-	CVAR_DEF_T( rt_light_tram,				"100",	"light intensity for a intro tram")
+	CVAR_DEF_T( rt_light_tram,				"20",	"light intensity for a intro tram")
 	CVAR_DEF_T( rt_light_radius,			"0.02",	"default radius for original lights (in meters)")
 
 	CVAR_DEF_T( rt_reflrefr_depth,			"4",	"") 

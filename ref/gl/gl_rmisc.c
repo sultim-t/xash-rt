@@ -118,7 +118,8 @@ static void RT_ResetTramLights()
         const char* mapname;
         const char* modelname;
     } traments[] = {
-        { "maps/c0a0.bsp", "*12" },
+        { "maps/c0a0.bsp", "*12" },  { "maps/c0a0a.bsp", "*24" }, { "maps/c0a0b.bsp", "*15" },
+        { "maps/c0a0c.bsp", "*74" }, { "maps/c0a0d.bsp", "*10" }, { "maps/c0a0e.bsp", "*1" },
     };
 
     for( int m = 0; m < ( int )RT_ARRAYSIZE( traments ); m++ )

@@ -1066,7 +1066,7 @@ void RT_UploadAllLights()
     if( rt_trament )
     {
         const vec3_t offsets[] = {
-            { 0, 0, 110 },
+            { 0, 0, 100 },
         };
 
         for( int i = 0; i < ( int )RT_ARRAYSIZE( offsets ); i++ )
