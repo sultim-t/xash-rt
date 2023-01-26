@@ -289,6 +289,22 @@ qboolean V_PreRender( void )
 	if( host.status == HOST_SLEEP )
 		return false;
 
+#if XASH_RAYTRACING
+    static convar_t* rt_skipframe = NULL;
+    if( !rt_skipframe )
+    {
+        rt_skipframe = Cvar_Get( "_rt_skipframe", "0", 0, "skip frame for level change" );
+    }
+
+    if( rt_skipframe )
+    {
+        if( cls.draw_changelevel || cls.disable_screen || cl.intermission )
+        {
+            Cvar_Set( rt_skipframe->name, "1" );
+        }
+    }
+#endif
+
 	// if the screen is disabled (loading plaque is up)
 	if( cls.disable_screen )
 	{

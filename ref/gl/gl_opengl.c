@@ -994,6 +994,8 @@ void GL_InitCommands( void )
 	CVAR_DEF_T( _rt_chapter,				"",		"chapter logo name; checking folder: rt/mat/resource/ch/" )
 	CVAR_DEF_T( _rt_chaptershow,			"0",	"show chapter logo" )
 
+	CVAR_DEF_T( _rt_skipframe,				"0",	"skip frame for level change" )
+
 	CVAR_DEF_T( _rt_dlss_available,			"0",	"internal variable; for menu" )
     // clang-format on
 

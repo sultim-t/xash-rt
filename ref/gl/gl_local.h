@@ -899,6 +899,8 @@ typedef struct rt_cvars_t
 
 		_rt_chapter,
 		_rt_chaptershow,
+
+		_rt_skipframe,
 		
 		_rt_dlss_available;
 } rt_cvars_t;
