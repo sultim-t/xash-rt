@@ -1258,7 +1258,10 @@ void R_StudioSetupChrome( float *pchrome, int bone, vec3_t normal )
 
 	if( g_studio.chromeage[bone] != g_studio.framecount )
 	{
-#if !XASH_RAYTRACING
+#if XASH_RAYTRACING
+        if( RT_CVAR_TO_BOOL( rt_classic ) )
+        {
+#endif
 		// calculate vectors from the viewer to the bone. This roughly adjusts for position
 		vec3_t	chromeupvec;	// g_studio.chrome t vector in world reference frame
 		vec3_t	chromerightvec;	// g_studio.chrome s vector in world reference frame
@@ -1278,9 +1281,13 @@ void R_StudioSetupChrome( float *pchrome, int bone, vec3_t normal )
 		Matrix3x4_VectorIRotate( g_studio.bonestransform[bone], chromeupvec, g_studio.chromeup[bone] );
 		Matrix3x4_VectorIRotate( g_studio.bonestransform[bone], chromerightvec, g_studio.chromeright[bone] );
 
-#else
-        VectorSet( g_studio.chromeup[ bone ], 0, 0, 1 );
-        VectorSet( g_studio.chromeright[ bone ], 0, 1, 0 );
+#if XASH_RAYTRACING
+        }
+        else
+        {
+        VectorSet( g_studio.chromeup[ bone ], 0, 0, -1 );
+        VectorSet( g_studio.chromeright[ bone ], 0, -1, 0 );
+        }
 #endif
 
 		g_studio.chromeage[bone] = g_studio.framecount;
