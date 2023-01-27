@@ -1611,7 +1611,10 @@ void R_EndFrame( void )
     RgExtent2D       pixstorage = { 0 };
     const RgExtent2D winsize    = { .width = gpGlobals->width, .height = gpGlobals->height };
 
-    RgDrawFrameRenderResolutionParams resolution_params = { 0 };
+    RgDrawFrameRenderResolutionParams resolution_params = {
+        .sType = RG_STRUCTURE_TYPE_RENDER_RESOLUTION,
+        .pNext = NULL,
+    };
     ResolutionToRtgl( &resolution_params, winsize, &pixstorage );
     UpscaleCvarsToRtgl( &resolution_params );
 
@@ -1632,6 +1635,8 @@ void R_EndFrame( void )
     }
 
     RgDrawFrameIlluminationParams illum_params = {
+        .sType                              = RG_STRUCTURE_TYPE_ILLUMINATION,
+        .pNext                              = &resolution_params,
         .maxBounceShadows                   = RT_CVAR_TO_UINT32( rt_shadowrays ),
         .enableSecondBounceForIndirect      = RT_CVAR_TO_BOOL( rt_indir2bounces ),
         .cellWorldSize                      = METRIC_TO_QUAKEUNIT( 2.0f ),
@@ -1646,6 +1651,8 @@ void R_EndFrame( void )
     };
 
     RgDrawFrameTonemappingParams tnmp_params = {
+        .sType                = RG_STRUCTURE_TYPE_TONEMAPPING,
+        .pNext                = &illum_params,
         .disableEyeAdaptation = false,
         .ev100Min             = RT_CVAR_TO_FLOAT( rt_tnmp_ev100_min ),
         .ev100Max             = RT_CVAR_TO_FLOAT( rt_tnmp_ev100_max ),
@@ -1659,6 +1666,8 @@ void R_EndFrame( void )
     };
 
     RgDrawFrameBloomParams bloom_params = {
+        .sType = RG_STRUCTURE_TYPE_BLOOM,
+        .pNext = &tnmp_params,
         .bloomIntensity =
             RT_CVAR_TO_FLOAT( rt_classic ) < 0.5f ? RT_CVAR_TO_FLOAT( rt_bloom_intensity ) : 0.0f,
         .inputThreshold          = RT_CVAR_TO_FLOAT( rt_bloom_threshold ),
@@ -1670,6 +1679,8 @@ void R_EndFrame( void )
         ENGINE_GET_PARM( PARM_WATER_LEVEL ) > 2 ? RG_MEDIA_TYPE_WATER : RG_MEDIA_TYPE_VACUUM;
 
     RgDrawFrameReflectRefractParams refl_refr_params = {
+        .sType                                 = RG_STRUCTURE_TYPE_REFLECTREFRACT,
+        .pNext                                 = &bloom_params,
         .maxReflectRefractDepth                = RT_CVAR_TO_UINT32( rt_reflrefr_depth ),
         .typeOfMediaAroundCamera               = cameramedia,
         .indexOfRefractionGlass                = RT_CVAR_TO_FLOAT( rt_refr_glass ),
@@ -1698,6 +1709,8 @@ void R_EndFrame( void )
         powf( refl_refr_params.acidColor.data[ 2 ], 1.0f / METRIC_TO_QUAKEUNIT( 1.0f ) );
 
     RgDrawFrameSkyParams sky_params = {
+        .sType              = RG_STRUCTURE_TYPE_SKY,
+        .pNext              = &refl_refr_params,
         .skyType            = RI.isSkyVisible ? RG_SKY_TYPE_RASTERIZED_GEOMETRY : RG_SKY_TYPE_COLOR,
         .skyColorDefault    = { 0, 0, 0 },
         .skyColorMultiplier = RT_CVAR_TO_FLOAT( rt_sky ),
@@ -1706,6 +1719,8 @@ void R_EndFrame( void )
     };
 	
     RgDrawFrameVolumetricParams volumetric_params = {
+        .sType  = RG_STRUCTURE_TYPE_VOLUMETRIC,
+        .pNext  = &sky_params,
         .enable = RT_CVAR_TO_UINT32( rt_volume_type ) != 0 && RT_CVAR_TO_FLOAT( rt_classic ) < 0.5f,
         .maxHistoryLength =
             RT_CVAR_TO_UINT32( rt_volume_type ) == 1 ? RT_CVAR_TO_FLOAT( rt_volume_history ) : 0,
@@ -1727,6 +1742,8 @@ void R_EndFrame( void )
     };
 
     RgDrawFrameTexturesParams texture_params = {
+        .sType                  = RG_STRUCTURE_TYPE_TEXTURES,
+        .pNext                  = &volumetric_params,
         .dynamicSamplerFilter   = RT_CVAR_TO_BOOL( rt_texture_nearest ) ? RG_SAMPLER_FILTER_NEAREST
                                                                         : RG_SAMPLER_FILTER_LINEAR,
         .normalMapStrength      = RT_CVAR_TO_FLOAT( rt_normalmap_stren ),
@@ -1735,6 +1752,8 @@ void R_EndFrame( void )
     };
 
     RgDrawFrameLightmapParams lightmap_params = {
+        .sType                  = RG_STRUCTURE_TYPE_LIGHTMAP,
+        .pNext                  = &texture_params,
         .lightmapScreenCoverage = RT_CVAR_TO_FLOAT( rt_classic ),
     };
 
@@ -1766,6 +1785,14 @@ void R_EndFrame( void )
         .xMultiplier           = 0.5f,
     };
 
+    RgDrawFramePostEffectsParams posteffect_params = {
+        .sType                = RG_STRUCTURE_TYPE_POSTEFFECTS,
+        .pNext                = &lightmap_params,
+        .pChromaticAberration = &chromatic_aberration_effect,
+        .pWaves = ENGINE_GET_PARM( PARM_CONNSTATE ) == ca_active ? &waves_effect : NULL,
+        .pCRT   = &crt_effect,
+    };
+
     RgDrawFrameInfo info = {
         .fovYRadians      = DEG2RAD( RI.fov_y ),
         .cameraNear       = R_GetNearClip(),
@@ -1773,23 +1800,9 @@ void R_EndFrame( void )
         .rayLength        = R_GetFarClip(),
         .rayCullMaskWorld = RG_DRAW_FRAME_RAY_CULL_WORLD_0_BIT |
                             RG_DRAW_FRAME_RAY_CULL_WORLD_1_BIT | RG_DRAW_FRAME_RAY_CULL_SKY_BIT,
-		.presentPrevFrame = skipframe,
-        .currentTime             = gpGlobals->realtime,
-		.pRenderResolutionParams = &resolution_params,
-		.pIlluminationParams = &illum_params,
-		.pVolumetricParams = &volumetric_params,
-		.pTonemappingParams = &tnmp_params,
-		.pBloomParams = &bloom_params,
-		.pReflectRefractParams = &refl_refr_params,
-		.pSkyParams = &sky_params,
-		.pTexturesParams = &texture_params,
-		.pLightmapParams = &lightmap_params,
-		.postEffectParams =
-			{
-				.pChromaticAberration = &chromatic_aberration_effect,
-				.pWaves = ENGINE_GET_PARM( PARM_CONNSTATE ) == ca_active ? &waves_effect : NULL,
-				.pCRT = &crt_effect,
-			},
+        .presentPrevFrame = skipframe,
+        .currentTime      = gpGlobals->realtime,
+        .pParams          = &posteffect_params,
     };
 
     // reinterpret cast to make matrices column-major
