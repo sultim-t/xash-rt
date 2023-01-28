@@ -844,7 +844,7 @@ void GL_ClearExtensions( void )
 //=======================================================================
 
 #if XASH_RAYTRACING
-static void RT_ClassicToggle()
+static void RT_ClassicToggle( void )
 {
     float newval = RT_CVAR_TO_FLOAT( rt_classic ) > 0.01f ? 0 : 1;
     gEngfuncs.Cvar_SetValue( rt_cvars.rt_classic->name, newval );
