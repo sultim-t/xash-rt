@@ -1149,19 +1149,6 @@ void R_RenderBrushPoly( msurface_t *fa, int cull_type )
 	if( fa->flags & SURF_DRAWSKY )
 		return; // already handled
 
-#if XASH_RAYTRACING
-    if( FBitSet( fa->flags, SURF_TRANSPARENT ) )
-    {
-        vec3_t faceNormal = RT_VEC3( fa->plane->normal );
-        VectorScale( faceNormal, FBitSet( fa->flags, SURF_PLANEBACK ) ? -1 : 1, faceNormal );
-
-		if( DotProduct( RI.vforward, faceNormal ) > 0 )
-        {
-            return;
-        }
-    }
-#endif
-
 	t = R_TextureAnimation( fa );
 
 	GL_Bind( XASH_TEXTURE0, t->gl_texturenum );

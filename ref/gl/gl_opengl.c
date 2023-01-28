@@ -1112,7 +1112,7 @@ qboolean R_Init( void )
 
             .primaryRaysMaxAlbedoLayers          = 4,
             .indirectIlluminationMaxAlbedoLayers = 1,
-            .rayCullBackFacingTriangles          = false,
+            .rayCullBackFacingTriangles          = true,
             .allowGeometryWithSkyFlag            = true,
 
             .allowTexCoordLayer1        = true,
