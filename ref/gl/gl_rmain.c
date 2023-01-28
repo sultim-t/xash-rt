@@ -1694,19 +1694,15 @@ void R_EndFrame( void )
         .waterTextureAreaScale                 = METRIC_TO_QUAKEUNIT( 1.0f ),
         .portalNormalTwirl                     = 0,
     };
+
+    #define VectorPow( v, a ) \
+        ( ( v )[ 0 ] = powf( ( v )[ 0 ], ( a ) ), \
+          ( v )[ 1 ] = powf( ( v )[ 1 ], ( a ) ), \
+          ( v )[ 2 ] = powf( ( v )[ 2 ], ( a ) ) )
+
     // because 1 quake unit is not 1 meter
-    refl_refr_params.waterColor.data[ 0 ] =
-        powf( refl_refr_params.waterColor.data[ 0 ], 1.0f / METRIC_TO_QUAKEUNIT( 1.0f ) );
-    refl_refr_params.waterColor.data[ 1 ] =
-        powf( refl_refr_params.waterColor.data[ 1 ], 1.0f / METRIC_TO_QUAKEUNIT( 1.0f ) );
-    refl_refr_params.waterColor.data[ 2 ] =
-        powf( refl_refr_params.waterColor.data[ 2 ], 1.0f / METRIC_TO_QUAKEUNIT( 1.0f ) );
-    refl_refr_params.acidColor.data[ 0 ] =
-        powf( refl_refr_params.acidColor.data[ 0 ], 1.0f / METRIC_TO_QUAKEUNIT( 1.0f ) );
-    refl_refr_params.acidColor.data[ 1 ] =
-        powf( refl_refr_params.acidColor.data[ 1 ], 1.0f / METRIC_TO_QUAKEUNIT( 1.0f ) );
-    refl_refr_params.acidColor.data[ 2 ] =
-        powf( refl_refr_params.acidColor.data[ 2 ], 1.0f / METRIC_TO_QUAKEUNIT( 1.0f ) );
+    VectorPow( refl_refr_params.waterColor.data, 1.0f / METRIC_TO_QUAKEUNIT( 1.0f ) );
+    VectorPow( refl_refr_params.acidColor.data, 1.0f / METRIC_TO_QUAKEUNIT( 1.0f ) );
 
     RgDrawFrameSkyParams sky_params = {
         .sType              = RG_STRUCTURE_TYPE_SKY,
