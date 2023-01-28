@@ -869,6 +869,8 @@ typedef struct rt_cvars_t
 		rt_norms_studio,
 		rt_norms_brush,
 
+		rt_tent_life,
+
 		rt_texture_nearest,
 		rt_particles_notex,
 

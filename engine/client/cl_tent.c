@@ -998,6 +998,25 @@ void GAME_EXPORT R_BloodSprite( const vec3_t org, int colorIndex, int modelIndex
 	}
 }
 
+#if XASH_RAYTRACING
+static convar_t* rt_tent_life = NULL;
+
+static float RT_GetLifetimeMultiplier()
+{
+    if( !rt_tent_life )
+    {
+        rt_tent_life = Cvar_FindVar( "rt_tent_life" );
+    }
+
+    if( !rt_tent_life )
+    {
+        return 1.0f;
+    }
+
+    return Q_max( 0.0f, rt_tent_life->value );
+}
+#endif
+
 /*
 ==============
 R_BreakModel
@@ -1007,6 +1026,10 @@ Create a shards
 */
 void GAME_EXPORT R_BreakModel( const vec3_t pos, const vec3_t size, const vec3_t dir, float random, float life, int count, int modelIndex, char flags )
 {
+#if XASH_RAYTRACING
+    life *= RT_GetLifetimeMultiplier();
+#endif
+
 	TEMPENTITY	*pTemp;
 	model_t		*pmodel;
 	char		type;
@@ -1095,6 +1118,10 @@ Create a temp model with gravity, sounds and fadeout
 */
 TEMPENTITY *R_TempModel( const vec3_t pos, const vec3_t dir, const vec3_t angles, float life, int modelIndex, int soundtype )
 {
+#if XASH_RAYTRACING
+    life *= RT_GetLifetimeMultiplier();
+#endif
+
 	// alloc a new tempent
 	TEMPENTITY	*pTemp;
 	model_t		*pmodel;
