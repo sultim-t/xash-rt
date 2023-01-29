@@ -844,10 +844,31 @@ void GL_ClearExtensions( void )
 //=======================================================================
 
 #if XASH_RAYTRACING
-static void RT_ClassicToggle( void )
+void RT_ClassicToggle( void )
 {
     float newval = RT_CVAR_TO_FLOAT( rt_classic ) > 0.01f ? 0 : 1;
     gEngfuncs.Cvar_SetValue( rt_cvars.rt_classic->name, newval );
+}
+
+void RT_WaterColor( void )
+{
+    if( gEngfuncs.Cmd_Argc() != 4 )
+    {
+        gEngfuncs.Con_Printf( "%d %d %d\nTo set, use: rt_me_water <R> <G> <B>, "
+                              "where R, G, B are in 0..255\n",
+                              ( int )rt_cvars.rt_me_water_r->value,
+                              ( int )rt_cvars.rt_me_water_g->value,
+                              ( int )rt_cvars.rt_me_water_b->value );
+        return;
+    }
+
+	int r = Q_atoi( gEngfuncs.Cmd_Argv( 1 ) );
+	int g = Q_atoi( gEngfuncs.Cmd_Argv( 2 ) );
+	int b = Q_atoi( gEngfuncs.Cmd_Argv( 3 ) );
+
+    gEngfuncs.Cvar_SetValue( rt_cvars.rt_me_water_r->name, ( float )bound( 0, r, 255 ) );
+    gEngfuncs.Cvar_SetValue( rt_cvars.rt_me_water_g->name, ( float )bound( 0, g, 255 ) );
+    gEngfuncs.Cvar_SetValue( rt_cvars.rt_me_water_b->name, ( float )bound( 0, b, 255 ) );
 }
 #endif
 
@@ -918,7 +939,7 @@ void GL_InitCommands( void )
 
 	CVAR_DEF_T( rt_normalmap_stren,			"1",	"normal map influence" )
 	CVAR_DEF_T( rt_emis_mapboost,			"100",	"indirect illumination emissiveness" )
-	CVAR_DEF_T( rt_emis_maxscrcolor,		"32",	"burn on-screen emissive colors" )
+	CVAR_DEF_T( rt_emis_maxscrcolor,		"16",	"burn on-screen emissive colors" )
 	CVAR_DEF_T( rt_emis_additive_dflt,		"0.01",	"" )
 	CVAR_DEF_T( rt_emis_hologram,			"0.2",	"" )
 
@@ -977,6 +998,10 @@ void GL_InitCommands( void )
 	CVAR_DEF_T( rt_volume_illumgrid,		"0",	"enable illumination grid, instead of only one light source for scaterring" )
 	CVAR_DEF_T( rt_volume_history,			"8",	"max history length for scaterring accumulation (in frames)" )
 
+	CVAR_DEF_T( rt_me_water_r,				"150",	"water color Red; set by rt_me_water" )
+	CVAR_DEF_T( rt_me_water_g,				"150",	"water color Green; set by rt_me_water" )
+	CVAR_DEF_T( rt_me_water_b,				"155",	"water color Blue; set by rt_me_water" )
+
 	CVAR_DEF_T( rt_bloom_intensity,			"1",	"bloom intensity" )
 	CVAR_DEF_T( rt_bloom_threshold,			"4",	"bloom threshold" )
 	CVAR_DEF_T( rt_bloom_emis_mult,			"32",	"bloom multiplier for emissive" )
@@ -1003,6 +1028,11 @@ void GL_InitCommands( void )
 
     gEngfuncs.Cmd_AddCommand(
         "rt_classic_toggle", &RT_ClassicToggle, "switch between classic and ray traced renderer" );
+
+    gEngfuncs.Cmd_AddCommand( "rt_me_water",
+                              &RT_WaterColor,
+                              "set water color (rt_me_water_*), usage: rt_me_water <R> <G> <B>, "
+                              "where R, G, B are in 0..255" );
 
 #endif
 }

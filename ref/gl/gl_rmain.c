@@ -1687,8 +1687,10 @@ void R_EndFrame( void )
         .indexOfRefractionWater                = RT_CVAR_TO_FLOAT( rt_refr_water ),
         .waterWaveSpeed                        = METRIC_TO_QUAKEUNIT( 0.4f ),
         .waterWaveNormalStrength               = 1.0f,
-        .waterColor                            = { 187 / 255.0f, 190 / 255.0f, 196 / 255.0f },
-        .acidColor                             = { 0 / 255.0f, 169 / 255.0f, 145 / 255.0f },
+        .waterColor                            = { RT_CVAR_TO_FLOAT( rt_me_water_r ) / 255.0f,
+                                                   RT_CVAR_TO_FLOAT( rt_me_water_g ) / 255.0f,
+                                                   RT_CVAR_TO_FLOAT( rt_me_water_b ) / 255.0f },
+        .acidColor                             = { 50 / 255.0f, 255 / 255.0f, 100 / 255.0f },
         .acidDensity                           = 25,
         .waterWaveTextureDerivativesMultiplier = 5,
         .waterTextureAreaScale                 = METRIC_TO_QUAKEUNIT( 1.0f ),
@@ -1701,8 +1703,8 @@ void R_EndFrame( void )
           ( v )[ 2 ] = powf( ( v )[ 2 ], ( a ) ) )
 
     // because 1 quake unit is not 1 meter
-    VectorPow( refl_refr_params.waterColor.data, 1.0f / METRIC_TO_QUAKEUNIT( 1.0f ) );
-    VectorPow( refl_refr_params.acidColor.data, 1.0f / METRIC_TO_QUAKEUNIT( 1.0f ) );
+    VectorPow( refl_refr_params.waterColor.data, QUAKEUNIT_IN_METERS );
+    VectorPow( refl_refr_params.acidColor.data, QUAKEUNIT_IN_METERS );
 
     RgDrawFrameSkyParams sky_params = {
         .sType              = RG_STRUCTURE_TYPE_SKY,

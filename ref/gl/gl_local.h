@@ -882,6 +882,10 @@ typedef struct rt_cvars_t
 		rt_volume_lassymetry,
 		rt_volume_illumgrid,
 		rt_volume_history,
+
+		rt_me_water_r,
+		rt_me_water_g,
+		rt_me_water_b,
 		
 		rt_bloom_intensity,
 		rt_bloom_threshold,
