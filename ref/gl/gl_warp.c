@@ -828,6 +828,8 @@ void EmitWaterPolys( msurface_t *warp, qboolean reverse )
 
         pglNormal3fv( faceNormal );
     }
+	// disable poly height transformation
+    waveHeight = 0.0f;
 #endif
 
 	if( useQuads )
