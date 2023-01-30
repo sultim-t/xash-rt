@@ -235,5 +235,20 @@ void R_NewMap( void )
     RT_ParseStaticLightEntities();
     RT_ResetChapterLogo();
     RT_ResetTramLights();
+
+	// HACKHACK
+    if( Q_strcmp( WORLDMODEL->name, "maps/c2a5.bsp" ) == 0 )
+    {
+        gEngfuncs.Cvar_Set( rt_cvars.rt_me_water_r->name, "150" );
+        gEngfuncs.Cvar_Set( rt_cvars.rt_me_water_g->name, "150" );
+        gEngfuncs.Cvar_Set( rt_cvars.rt_me_water_b->name, "155" );
+    }
+    else
+    {
+		// to default
+        gEngfuncs.Cvar_Set( rt_cvars.rt_me_water_r->name, NULL );
+        gEngfuncs.Cvar_Set( rt_cvars.rt_me_water_g->name, NULL );
+        gEngfuncs.Cvar_Set( rt_cvars.rt_me_water_b->name, NULL );
+    }
 #endif
 }
