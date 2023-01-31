@@ -1002,6 +1002,7 @@ void GL_InitCommands( void )
 	CVAR_DEF_T( rt_me_water_g,				"205",	"water color Green; set by rt_me_water" )
 	CVAR_DEF_T( rt_me_water_b,				"210",	"water color Blue; set by rt_me_water" )
 
+	CVAR_DEF_T( rt_bloom,					"1",	"enable bloom" )
 	CVAR_DEF_T( rt_bloom_intensity,			"0.05",	"bloom intensity" )
 	CVAR_DEF_T( rt_bloom_threshold,			"1",	"bloom threshold" )
 	CVAR_DEF_T( rt_bloom_emis_mult,			"9",	"bloom multiplier for emissive" )
