@@ -990,7 +990,7 @@ void GL_InitCommands( void )
 	CVAR_DEF_T( rt_particles_notex,			"0",	"don't use texture for particles" )
 
 	CVAR_DEF_T( rt_volume_type,				"1",	"0 - none, 1 - volumetric, 2 - distance based" )
-	CVAR_DEF_T( rt_volume_far,				"3000",	"max distance of scattering volume" )
+	CVAR_DEF_T( rt_volume_far,				"1000",	"max distance of scattering volume" )
 	CVAR_DEF_T( rt_volume_scatter,			"1",	"density of media" )
 	CVAR_DEF_T( rt_volume_ambient,			"0.5",	"ambient term" )
 	CVAR_DEF_T( rt_volume_lintensity,		"1",	"intensity of lights for scattering" )
