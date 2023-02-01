@@ -1092,6 +1092,11 @@ void GL_RemoveCommands( void )
 
 static void PrintMessage( const char* pMessage, RgMessageSeverityFlags severity, void* pUserData )
 {
+    if( severity & RG_MESSAGE_SEVERITY_VERBOSE )
+    {
+        return;
+    }
+
     if( severity & RG_MESSAGE_SEVERITY_ERROR )
     {
         gEngfuncs.Host_Error( "%s\n", pMessage );
