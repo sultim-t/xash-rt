@@ -971,8 +971,9 @@ void GL_InitCommands( void )
 	CVAR_DEF_T( rt_light_radius,			"0.02",	"default radius for original lights (in meters)")
 
 	CVAR_DEF_T( rt_reflrefr_depth,			"4",	"") 
-	CVAR_DEF_T( rt_refr_glass,				"1.52",	"") 
-	CVAR_DEF_T( rt_refr_water,				"1.33",	"") 
+	CVAR_DEF_T( rt_refr_glass,				"1.52",	"glass index of refraction") 
+	CVAR_DEF_T( rt_refr_water,				"1.33",	"water index of refraction") 
+	CVAR_DEF_T( rt_refr_thinwidth,			"0.0",	"approx. width of thin media, e.g. thin glass (in meters)") 
 
 	CVAR_DEF_T( rt_mzlflash,				"1",	"enable muzzle flash light source" )
 	CVAR_DEF_T( rt_mzlflash_life,			"0.2",	"how long muzzle flash light should exist" )

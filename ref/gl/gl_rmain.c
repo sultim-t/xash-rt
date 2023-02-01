@@ -1686,6 +1686,7 @@ void R_EndFrame( void )
         .typeOfMediaAroundCamera               = cameramedia,
         .indexOfRefractionGlass                = RT_CVAR_TO_FLOAT( rt_refr_glass ),
         .indexOfRefractionWater                = RT_CVAR_TO_FLOAT( rt_refr_water ),
+        .thinMediaWidth                        = METRIC_TO_QUAKEUNIT( RT_CVAR_TO_FLOAT( rt_refr_thinwidth ) ),
         .waterWaveSpeed                        = METRIC_TO_QUAKEUNIT( 0.4f ),
         .waterWaveNormalStrength               = 1.0f,
         .waterColor                            = { RT_CVAR_TO_FLOAT( rt_me_water_r ) / 255.0f,
