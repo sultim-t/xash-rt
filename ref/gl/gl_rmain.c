@@ -1692,8 +1692,8 @@ void R_EndFrame( void )
         .waterColor                            = { RT_CVAR_TO_FLOAT( rt_me_water_r ) / 255.0f,
                                                    RT_CVAR_TO_FLOAT( rt_me_water_g ) / 255.0f,
                                                    RT_CVAR_TO_FLOAT( rt_me_water_b ) / 255.0f },
-        .acidColor                             = { 50 / 255.0f, 255 / 255.0f, 100 / 255.0f },
-        .acidDensity                           = 25,
+        .acidColor                             = { 0.1f, 1.0f, 0.01f },
+        .acidDensity                           = 100,
         .waterWaveTextureDerivativesMultiplier = 5,
         .waterTextureAreaScale                 = METRIC_TO_QUAKEUNIT( 1.0f ),
         .portalNormalTwirl                     = 0,
@@ -1706,7 +1706,6 @@ void R_EndFrame( void )
 
     // because 1 quake unit is not 1 meter
     VectorPow( refl_refr_params.waterColor.data, QUAKEUNIT_IN_METERS );
-    VectorPow( refl_refr_params.acidColor.data, QUAKEUNIT_IN_METERS );
 
     RgDrawFrameSkyParams sky_params = {
         .sType              = RG_STRUCTURE_TYPE_SKY,
