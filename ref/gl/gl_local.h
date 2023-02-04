@@ -792,7 +792,6 @@ typedef struct rt_state_s
     qboolean curBrushSurfaceIsAnimated;
 
 	uint64_t flashlight_uniqueid;
-	uint64_t sun_uniqueid;
 
 } rt_state_t;
 extern rt_state_t rt_state;

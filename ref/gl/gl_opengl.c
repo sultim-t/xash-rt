@@ -1202,7 +1202,6 @@ qboolean R_Init( void )
                 .curBrushSurfaceIsAnimated = false,
 
                 .flashlight_uniqueid = 0,
-                .sun_uniqueid = 0,
             };
             memcpy( &rt_state, &nullstate, sizeof( rt_state ) );
         }

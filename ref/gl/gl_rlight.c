@@ -935,7 +935,6 @@ extern cl_entity_t* rt_trament;
 void RT_UploadAllLights()
 {
     rt_state.flashlight_uniqueid = RT_ID_LIGHTNONE;
-    rt_state.sun_uniqueid        = RT_ID_LIGHTNONE;
 
     if( g_lights.sun_exists && RI.isSkyVisible )
     {
@@ -956,8 +955,6 @@ void RT_UploadAllLights()
 
         RgResult r = rgUploadDirectionalLight( rg_instance, &info );
         RG_CHECK( r );
-
-        rt_state.sun_uniqueid = info.uniqueID;
     }
 
     for( int i = 0; i < g_lights.static_lights_count; i++ )

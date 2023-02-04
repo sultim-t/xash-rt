@@ -1745,10 +1745,6 @@ void R_EndFrame( void )
         .scaterring              = RT_CVAR_TO_FLOAT( rt_volume_scatter ),
         .assymetry               = RT_CVAR_TO_FLOAT( rt_volume_lassymetry ),
         .useIlluminationVolume   = RT_CVAR_TO_BOOL( rt_volume_illumgrid ),
-        .lightUniqueId           = rt_state.sun_uniqueid
-                                       ? &rt_state.sun_uniqueid
-                             // : rt_state.flashlight_uniqueid ? &rt_state.flashlight_uniqueid
-                                       : NULL,
         .fallbackSourceColor     = { 0, 0, 0 },
         .fallbackSourceDirection = { 0, -1, 0 },
         .lightMultiplier         = RT_CVAR_TO_FLOAT( rt_volume_lintensity ),
