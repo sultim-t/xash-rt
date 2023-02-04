@@ -1020,6 +1020,20 @@ void R_CheckGamma( void )
 }
 
 #if XASH_RAYTRACING
+extern const float* rt_portal_posteffect_position;
+
+static qboolean RT_IsPortalPosteffectActive()
+{
+    if( rt_portal_posteffect_position != NULL )
+    {
+        const float threshold = METRIC_TO_QUAKEUNIT( 2.0f );
+
+        return VectorDistance2( rt_portal_posteffect_position, RI.vieworg ) < threshold * threshold;
+    }
+
+    return false;
+}
+
 static float RT_LerpAlpha( float a, float b, float lerp )
 {
     float r = a + bound( 0.0f, lerp, 1.0f ) * ( b - a );
@@ -1783,11 +1797,18 @@ void R_EndFrame( void )
         .speed                 = 1.0f,
         .xMultiplier           = 0.5f,
     };
+	
+	RgPostEffectTeleport teleport_effect = {
+        .isActive              = true,
+        .transitionDurationIn  = 1.5f,
+        .transitionDurationOut = 0.1f,
+    };
 
     RgDrawFramePostEffectsParams posteffect_params = {
         .sType                = RG_STRUCTURE_TYPE_POSTEFFECTS,
         .pNext                = &lightmap_params,
         .pChromaticAberration = &chromatic_aberration_effect,
+        .pTeleport            = RT_IsPortalPosteffectActive() ? &teleport_effect : NULL,
         .pWaves = ENGINE_GET_PARM( PARM_CONNSTATE ) == ca_active ? &waves_effect : NULL,
         .pCRT   = &crt_effect,
     };

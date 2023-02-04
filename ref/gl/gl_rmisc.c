@@ -105,6 +105,8 @@ static void R_ParseDetailTextures( const char *filename )
 }
 
 #if XASH_RAYTRACING
+const float* rt_portal_posteffect_position = NULL;
+
 static const char* rt_trament_modelname = NULL;
 cl_entity_t*       rt_trament           = NULL;
 
@@ -249,6 +251,17 @@ void R_NewMap( void )
         gEngfuncs.Cvar_Set( rt_cvars.rt_me_water_r->name, NULL );
         gEngfuncs.Cvar_Set( rt_cvars.rt_me_water_g->name, NULL );
         gEngfuncs.Cvar_Set( rt_cvars.rt_me_water_b->name, NULL );
+    }
+
+    // HACKHACK
+    if( Q_strcmp( WORLDMODEL->name, "maps/c3a2d.bsp" ) == 0 )
+    {
+        static const vec3_t campos    = { 1160.00000f, 268.921875f, -191.937500f };
+        rt_portal_posteffect_position = campos;
+    }
+    else
+    {
+        rt_portal_posteffect_position = NULL;
     }
 #endif
 }
