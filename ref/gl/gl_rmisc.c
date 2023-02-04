@@ -245,6 +245,12 @@ void R_NewMap( void )
         gEngfuncs.Cvar_Set( rt_cvars.rt_me_water_g->name, "150" );
         gEngfuncs.Cvar_Set( rt_cvars.rt_me_water_b->name, "155" );
     }
+    else if( Q_strcmp( WORLDMODEL->name, "maps/c4a1.bsp" ) == 0 )
+    {
+        gEngfuncs.Cvar_Set( rt_cvars.rt_me_water_r->name, "2" );
+        gEngfuncs.Cvar_Set( rt_cvars.rt_me_water_g->name, "1" );
+        gEngfuncs.Cvar_Set( rt_cvars.rt_me_water_b->name, "2" );
+    }
     else
     {
 		// to default
