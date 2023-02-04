@@ -265,6 +265,11 @@ void R_NewMap( void )
         static const vec3_t campos    = { 1160.00000f, 268.921875f, -191.937500f };
         rt_portal_posteffect_position = campos;
     }
+    else if( Q_strcmp( WORLDMODEL->name, "maps/c5a1.bsp" ) == 0 )
+    {
+        static const vec3_t campos    = { -1265.96875f, 427.031250f, -2674.29688f };
+        rt_portal_posteffect_position = campos;
+    }
     else
     {
         rt_portal_posteffect_position = NULL;
