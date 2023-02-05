@@ -1642,6 +1642,8 @@ void R_EndFrame( void )
         prevvalue = RT_CVAR_TO_FLOAT( rt_classic );
     }
 
+	assert( tr.lightstylevalue[ 0 ] == 0 || tr.lightstylevalue[ 0 ] == 158 );
+
 	float lightstyles[ RT_ARRAYSIZE( tr.lightstylevalue ) ];
     for( uint32_t i = 0; i < RT_ARRAYSIZE( tr.lightstylevalue ); i++ )
     {
