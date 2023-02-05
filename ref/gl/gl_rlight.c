@@ -1114,7 +1114,7 @@ void RT_UploadAllLights()
                 .uniqueID     = RT_IDBASE_TRAMLIGHT + RT_ARRAYSIZE( lamps ) + i,
                 .isExportable = false,
                 .color        = rgUtilPackColorByte4D( 255, 255, 255, 255 ),
-                .intensity    = RT_CVAR_TO_FLOAT( rt_light_tramh ),
+                .intensity    = RT_CVAR_TO_FLOAT( rt_light_tram_h ),
                 .position     = RT_VEC3( pos ),
                 .direction    = RT_VEC3( dir ),
                 .radius       = METRIC_TO_QUAKEUNIT( RT_CVAR_TO_FLOAT( rt_light_radius ) ),
