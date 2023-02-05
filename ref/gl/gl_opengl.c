@@ -2578,7 +2578,9 @@ static void TryBeginBatch( RgUtilImScratchTopology glbegin_topology )
         };
 
         RgEditorInfo additional = {
-            .layer1Exists = rt_state.curLightmapTextureName != NULL,
+            .layer1Exists = RT_CVAR_TO_FLOAT( rt_classic ) > 0.01f
+                                ? rt_state.curLightmapTextureName != NULL
+                                : false,
             .layer1       = { .pTexCoord    = NULL,
                               .pTextureName = rt_state.curLightmapTextureName,
                               .blend        = RG_TEXTURE_LAYER_BLEND_TYPE_SHADE,
