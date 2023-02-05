@@ -43,7 +43,6 @@ jobs:
     - name: Prepare folder
       run: |
         mkdir -p final/rt_bin
-        mkdir -p final/rt/shaders
         mkdir -p final/rt/valve/cl_dlls
         mkdir -p final/rt/valve/dlls
         mkdir -p final/valve
@@ -52,7 +51,7 @@ jobs:
         copy SDL2_VC/lib/x64/SDL2.dll final/rt_bin
         copy HLSDK/cl_dlls/*.dll final/rt/valve/cl_dlls
         copy HLSDK/dlls/*.dll final/rt/valve/dlls
-        copy RTGL/ovrd/* final/rt
+        copy RTGL1/ovrd/* final/rt
         copy scripts/rt/* final/valve
 
     - name: Upload
