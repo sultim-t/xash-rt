@@ -1,11 +1,6 @@
 name: Build & Deploy Engine
 on: [push, pull_request]
 jobs:
-#  cleanup:
-#    runs-on: self-hosted
-#    steps:
-#    - name: Cleanup
-#      run: rm -rf .* || true
   build:
     runs-on: ${{ matrix.os }}
     continue-on-error: true
@@ -13,33 +8,9 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: ubuntu-18.04
-            targetos: linux
-            targetarch: amd64
-          - os: ubuntu-18.04
-            targetos: linux
-            targetarch: i386
-#          - os: ubuntu-aarch64-20.04
-#            targetos: linux
-#            targetarch: aarch64
-
-          - os: ubuntu-18.04
-            targetos: android
-            targetarch: 32
-          - os: ubuntu-18.04
-            targetos: android
-            targetarch: 64
-
-          - os: ubuntu-18.04
-            targetos: motomagx
-            targetarch: armv6
-
           - os: windows-latest
             targetos: win32
             targetarch: amd64
-          - os: windows-latest
-            targetos: win32
-            targetarch: i386
     env:
       SDL_VERSION: 2.0.14
       GH_CPU_ARCH: ${{ matrix.targetarch }}
@@ -61,7 +32,11 @@ jobs:
       run: bash scripts/gha/deps_${{ matrix.targetos }}.sh
 
     - name: Build engine
-      run: bash scripts/gha/build_${{ matrix.targetos }}.sh
+      run: |
+        $vswhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
+        $msbuild = & "$vswhere" -latest -requires Microsoft.Component.MSBuild -find MSBuild\**\Bin\MSBuild.exe | select-object -first 1
+        & $msbuild xash3d-fwgs.sln -property:Configuration=Release -property:Platform=x64
+        if (-not $?) { throw "Failed" }
 
     - name: Upload engine (prereleases)
       run: bash scripts/continious_upload.sh artifacts/*
