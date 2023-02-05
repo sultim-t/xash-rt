@@ -852,6 +852,9 @@ typedef struct rt_cvars_t
 		rt_light_d,
 		rt_light_s,
 		rt_light_tram,
+		rt_light_tramh,
+		rt_light_tram_ao,
+		rt_light_tram_ai,
 		rt_light_radius,
 
 		rt_reflrefr_depth,

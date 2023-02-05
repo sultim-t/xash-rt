@@ -1062,19 +1062,31 @@ void RT_UploadAllLights()
 
     if( rt_trament )
     {
-        const vec3_t offsets[] = {
+        vec3_t vf = { 1, 0, 0 };
+        vec3_t vr = { 0, 1, 0 };
+        vec3_t vu = { 0, 0, 1 };
+        AngleVectors( rt_trament->curstate.angles, vf, vr, vu );
+
+    #define ToGlobal( dst, offset )                            \
+        {                                                      \
+            VectorCopy( rt_trament->curstate.origin, dst );    \
+            VectorMA( ( dst ), ( offset )[ 0 ], vf, ( dst ) ); \
+            VectorMA( ( dst ), ( offset )[ 1 ], vr, ( dst ) ); \
+            VectorMA( ( dst ), ( offset )[ 2 ], vu, ( dst ) ); \
+        }
+
+        const vec3_t lamps[] = {
             { 0, 0, 100 },
         };
 
-        for( int i = 0; i < ( int )RT_ARRAYSIZE( offsets ); i++ )
+        for( int i = 0; i < ( int )RT_ARRAYSIZE( lamps ); i++ )
         {
-            vec3_t pos = RT_VEC3( rt_trament->curstate.origin );
-            VectorAdd( pos, offsets[ i ], pos );
+            vec3_t pos;
+            ToGlobal( pos, lamps[ i ] );
 
             RgSphericalLightUploadInfo info = {
                 .uniqueID     = RT_IDBASE_TRAMLIGHT + i,
                 .isExportable = true,
-                .extra        = { .exists = false },
                 .color        = rgUtilPackColorByte4D( 255, 255, 255, 255 ),
                 .intensity    = RT_CVAR_TO_FLOAT( rt_light_tram ),
                 .position     = RT_VEC3( pos ),
@@ -1082,6 +1094,35 @@ void RT_UploadAllLights()
             };
 
             RgResult r = rgUploadSphericalLight( rg_instance, &info );
+            RG_CHECK( r );
+        }
+
+        const vec3_t headlights[] = {
+            { -150, 50, 0 },
+            { -150, -50, 0 },
+        };
+
+        for( int i = 0; i < ( int )RT_ARRAYSIZE( headlights ); i++ )
+        {
+            vec3_t pos;
+            ToGlobal( pos, headlights[ i ] );
+
+            vec3_t dir;
+            VectorNegate( vf, dir );
+
+            RgSpotLightUploadInfo info = {
+                .uniqueID     = RT_IDBASE_TRAMLIGHT + RT_ARRAYSIZE( lamps ) + i,
+                .isExportable = false,
+                .color        = rgUtilPackColorByte4D( 255, 255, 255, 255 ),
+                .intensity    = RT_CVAR_TO_FLOAT( rt_light_tramh ),
+                .position     = RT_VEC3( pos ),
+                .direction    = RT_VEC3( dir ),
+                .radius       = METRIC_TO_QUAKEUNIT( RT_CVAR_TO_FLOAT( rt_light_radius ) ),
+                .angleOuter   = DEG2RAD( bound( 0, RT_CVAR_TO_FLOAT( rt_light_tram_ao ), 150 ) ),
+                .angleInner   = DEG2RAD( bound( 0, RT_CVAR_TO_FLOAT( rt_light_tram_ai ), 150 ) ),
+            };
+
+            RgResult r = rgUploadSpotLight( rg_instance, &info );
             RG_CHECK( r );
         }
     }
