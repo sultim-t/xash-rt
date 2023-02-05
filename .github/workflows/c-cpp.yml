@@ -49,6 +49,7 @@ jobs:
         mkdir -p final/valve
         copy x64/Release/*.dll final/rt_bin
         copy x64/Release/*.exe final/rt_bin
+        copy SDL2_VC/lib/x64/SDL2.dll final/rt_bin
         copy HLSDK/cl_dlls/*.dll final/rt/valve/cl_dlls
         copy HLSDK/dlls/*.dll final/rt/valve/dlls
         copy RTGL/ovrd/* final/rt

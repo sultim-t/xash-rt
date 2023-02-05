@@ -50,13 +50,13 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
-      <AdditionalIncludeDirectories>server;client;client\vgui;..\bin\engine;.;..\bin\engine\common;common;..\bin\engine\common\imagelib;common\imagelib;..\bin\filesystem;..\filesystem;..\bin\public;..\public;..\bin\common;..\common;..\bin\pm_shared;..\pm_shared;..\bin\engine;.;..\bin\3rdparty\opus\opus\include;..\3rdparty\opus\opus\include;..\..\SDL2\include;C:\Dev\SDL2\include;..\..\SDL2\include\SDL2;C:\Dev\SDL2\include\SDL2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>server;client;client\vgui;..\bin\engine;.;..\bin\engine\common;common;..\bin\engine\common\imagelib;common\imagelib;..\bin\filesystem;..\filesystem;..\bin\public;..\public;..\bin\common;..\common;..\bin\pm_shared;..\pm_shared;..\bin\3rdparty\opus\opus\include;..\3rdparty\opus\opus\include;..\SDL2_VC\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Disabled</Optimization>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <AdditionalDependencies>user32.lib;shell32.lib;gdi32.lib;advapi32.lib;dbghelp.lib;psapi.lib;ws2_32.lib;SDL2.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>..\bin\engine\msdev;..\bin\public\msdev;..\..\SDL2\lib\x64;C:\Dev\SDL2\lib\x64;..\bin\3rdparty\opus\msdev;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\bin\engine\msdev;..\bin\public\msdev;..\SDL2_VC\lib\x64;..\bin\3rdparty\opus\msdev;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -65,14 +65,14 @@
       <PrecompiledHeader>
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
-      <AdditionalIncludeDirectories>server;client;client\vgui;..\bin\engine;.;..\bin\engine\common;common;..\bin\engine\common\imagelib;common\imagelib;..\bin\filesystem;..\filesystem;..\bin\public;..\public;..\bin\common;..\common;..\bin\pm_shared;..\pm_shared;..\bin\engine;.;..\bin\3rdparty\opus\opus\include;..\3rdparty\opus\opus\include;..\..\SDL2\include;C:\Dev\SDL2\include;..\..\SDL2\include\SDL2;C:\Dev\SDL2\include\SDL2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>server;client;client\vgui;..\bin\engine;.;..\bin\engine\common;common;..\bin\engine\common\imagelib;common\imagelib;..\bin\filesystem;..\filesystem;..\bin\public;..\public;..\bin\common;..\common;..\bin\pm_shared;..\pm_shared;..\bin\3rdparty\opus\opus\include;..\3rdparty\opus\opus\include;..\SDL2_VC\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <WholeProgramOptimization>true</WholeProgramOptimization>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <AdditionalDependencies>user32.lib;shell32.lib;gdi32.lib;advapi32.lib;dbghelp.lib;psapi.lib;ws2_32.lib;SDL2.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>..\bin\engine\msdev;..\bin\public\msdev;..\..\SDL2\lib\x64;C:\Dev\SDL2\lib\x64;..\bin\3rdparty\opus\msdev;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\bin\engine\msdev;..\bin\public\msdev;..\SDL2_VC\lib\x64;..\bin\3rdparty\opus\msdev;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
