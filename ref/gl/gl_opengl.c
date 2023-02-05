@@ -985,7 +985,7 @@ void GL_InitCommands( void )
 	CVAR_DEF_T( rt_norms_studio,			"1",	"use original normals for studio models" )
 	CVAR_DEF_T( rt_norms_brush,				"1",	"use original normals for brushes" )
 
-	CVAR_DEF_T( rt_tent_life,				"10",	"lifetime multiplier for tempentities" )
+	CVAR_DEF_T( rt_tent_life,				"1",	"lifetime multiplier for tempentities" )
 
 	CVAR_DEF_T( rt_texture_nearest,			"1",	"nearest texture filter for the world" )
 	CVAR_DEF_T( rt_particles_notex,			"0",	"don't use texture for particles" )
