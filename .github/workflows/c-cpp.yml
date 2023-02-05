@@ -28,10 +28,10 @@ jobs:
         repository: FWGS/xash-extras
         path: xash-extras
 
-    - name: Install dependencies
+    - name: Dependencies
       run: bash scripts/gha/deps_${{ matrix.targetos }}.sh
 
-    - name: Build engine
+    - name: Build
       run: |
         $vswhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
         $msbuild = & "$vswhere" -latest -requires Microsoft.Component.MSBuild -find MSBuild\**\Bin\MSBuild.exe | select-object -first 1
@@ -40,10 +40,22 @@ jobs:
       env:
           RTGL1_SDK_PATH: ${{ github.workspace }}\RTGL1
 
-    - name: Upload engine (prereleases)
-      run: bash scripts/continious_upload.sh artifacts/*
-    - name: Upload engine (artifacts)
-      uses: actions/upload-artifact@v2
+    - name: Prepare folder
+      run: |
+        mkdir -p final/rt_bin
+        mkdir -p final/rt/shaders
+        mkdir -p final/rt/valve/cl_dlls
+        mkdir -p final/rt/valve/dlls
+        mkdir -p final/valve
+        copy x64/Release/*.dll final/rt_bin
+        copy x64/Release/*.exe final/rt_bin
+        copy HLSDK/cl_dlls/*.dll final/rt/valve/cl_dlls
+        copy HLSDK/dlls/*.dll final/rt/valve/dlls
+        copy RTGL/ovrd/* final/rt
+        copy scripts/rt/* final/valve
+
+    - name: Upload
+      uses: actions/upload-artifact@v3
       with:
-        name: artifact-${{ matrix.targetos }}-${{ matrix.targetarch }}
-        path: artifacts/*
+        name: hl1-rt
+        path: final/*
