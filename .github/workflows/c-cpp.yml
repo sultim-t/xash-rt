@@ -37,6 +37,8 @@ jobs:
         $msbuild = & "$vswhere" -latest -requires Microsoft.Component.MSBuild -find MSBuild\**\Bin\MSBuild.exe | select-object -first 1
         & $msbuild xash3d-fwgs.sln -property:Configuration=Release -property:Platform=x64
         if (-not $?) { throw "Failed" }
+      env:
+          RTGL1_SDK_PATH: ${{ github.workspace }}\RTGL1
 
     - name: Upload engine (prereleases)
       run: bash scripts/continious_upload.sh artifacts/*
