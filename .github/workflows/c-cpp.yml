@@ -51,8 +51,8 @@ jobs:
         copy SDL2_VC/lib/x64/SDL2.dll final/rt_bin
         copy HLSDK/cl_dlls/*.dll final/rt/valve/cl_dlls
         copy HLSDK/dlls/*.dll final/rt/valve/dlls
-        copy RTGL1/ovrd/* final/rt
-        copy scripts/rt/* final/valve
+        copy -r RTGL1/ovrd/* final/rt
+        copy -r scripts/rt/* final/valve
 
     - name: Upload
       uses: actions/upload-artifact@v3
