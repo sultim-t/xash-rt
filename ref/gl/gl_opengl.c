@@ -938,6 +938,7 @@ void GL_InitCommands( void )
 	CVAR_DEF_T( rt_indir2bounces,			"1",	"2 bounces for indirect" )
 
 	CVAR_DEF_T( rt_normalmap_stren,			"1",	"normal map influence" )
+	CVAR_DEF_T( rt_normalmap_stren_water,	"1",	"normal map influence for water" )
 	CVAR_DEF_T( rt_emis_mapboost,			"100",	"indirect illumination emissiveness" )
 	CVAR_DEF_T( rt_emis_maxscrcolor,		"16",	"burn on-screen emissive colors" )
 	CVAR_DEF_T( rt_emis_additive_dflt,		"0.01",	"" )

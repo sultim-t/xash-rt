@@ -822,6 +822,7 @@ typedef struct rt_cvars_t
 		rt_indir2bounces,
 		
 		rt_normalmap_stren,
+		rt_normalmap_stren_water,
 		rt_emis_mapboost,
 		rt_emis_maxscrcolor,
 		rt_emis_additive_dflt,
