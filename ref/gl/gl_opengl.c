@@ -1022,7 +1022,7 @@ void GL_InitCommands( void )
 	CVAR_DEF_T( rt_labcoat_force,			"0",	"1 - force labcoat player model, 2 - force HEV, 0 - auto" )
 	CVAR_DEF_T( rt_labcoat_model,			"rt/valve/models_rt/gordon_scientist.mdl", "path to Gordon's model without the HEV suit" )
 	
-	CVAR_DEF_T( rt_forcecvars,				"1",	"force original cvars to be set to be compatible with RT" )
+	CVAR_DEF_T( rt_forcecvars,				"1",	"force original cvars to be set to be compatible with RT mode: disable culling, no lightmaps" )
 
 	CVAR_DEF_T( _rt_chapter,				"",		"chapter logo name; checking folder: rt/mat/resource/ch/" )
 	CVAR_DEF_T( _rt_chaptershow,			"0",	"show chapter logo" )
