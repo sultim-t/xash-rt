@@ -802,6 +802,7 @@ void RT_UploadAllLights( void );
 void RT_BindLightmapTexture( int texnum );
 void RT_ResetChapterLogo( void );
 void RT_TryFindTramLights( void );
+qboolean RT_IsBrushIgnored( void );
 
 // clang-format off
 typedef cvar_t* cvar_ptr_t;

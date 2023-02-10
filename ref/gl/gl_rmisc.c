@@ -110,36 +110,60 @@ const float* rt_portal_posteffect_position = NULL;
 static const char* rt_trament_modelname = NULL;
 cl_entity_t*       rt_trament           = NULL;
 
+static const char* rt_rocketblastdoor_modelname = NULL;
+cl_entity_t*       rt_rocketblastdoor           = NULL;
+
 static void RT_ResetTramLights()
 {
-    rt_trament_modelname = NULL;
-    rt_trament           = NULL;
-
-    struct
+    typedef struct edef_t
     {
         const char* mapname;
         const char* modelname;
-    } traments[] = {
-        { "maps/c0a0.bsp", "*12" },  { "maps/c0a0a.bsp", "*24" }, { "maps/c0a0b.bsp", "*15" },
-        { "maps/c0a0c.bsp", "*74" }, { "maps/c0a0d.bsp", "*10" }, { "maps/c0a0e.bsp", "*1" },
-    };
+    } edef_t;
 
-    for( int m = 0; m < ( int )RT_ARRAYSIZE( traments ); m++ )
     {
-        if( Q_strcmp( WORLDMODEL->name, traments[ m ].mapname ) == 0 )
+        rt_trament_modelname = NULL;
+        rt_trament           = NULL;
+
+        edef_t traments[] = {
+            { "maps/c0a0.bsp", "*12" },  { "maps/c0a0a.bsp", "*24" }, { "maps/c0a0b.bsp", "*15" },
+            { "maps/c0a0c.bsp", "*74" }, { "maps/c0a0d.bsp", "*10" }, { "maps/c0a0e.bsp", "*1" },
+        };
+
+        for( int m = 0; m < ( int )RT_ARRAYSIZE( traments ); m++ )
         {
-            rt_trament_modelname = traments[ m ].modelname;
-            break;
+            if( Q_strcmp( WORLDMODEL->name, traments[ m ].mapname ) == 0 )
+            {
+                rt_trament_modelname = traments[ m ].modelname;
+                break;
+            }
+        }
+    }
+    {
+        rt_rocketblastdoor_modelname = NULL;
+        rt_rocketblastdoor           = NULL;
+
+        edef_t blastdoors[] = {
+            { "maps/c2a2h.bsp", "*2" },
+        };
+
+        for( int m = 0; m < ( int )RT_ARRAYSIZE( blastdoors ); m++ )
+        {
+            if( Q_strcmp( WORLDMODEL->name, blastdoors[ m ].mapname ) == 0 )
+            {
+                rt_rocketblastdoor_modelname = blastdoors[ m ].modelname;
+                break;
+            }
         }
     }
 }
 
 void RT_TryFindTramLights()
 {
-	// if not found yet
+    // if not found yet
     if( rt_trament == NULL )
     {
-		// if tram may exist
+        // if tram may exist
         if( rt_trament_modelname )
         {
             if( RI.currententity && RI.currentmodel )
@@ -151,6 +175,25 @@ void RT_TryFindTramLights()
             }
         }
     }
+}
+
+qboolean RT_IsBrushIgnored()
+{
+    if( rt_rocketblastdoor == NULL )
+    {
+        if( rt_rocketblastdoor_modelname )
+        {
+            if( RI.currententity && RI.currentmodel )
+            {
+                if( Q_strcmp( RI.currentmodel->name, rt_rocketblastdoor_modelname ) == 0 )
+                {
+                    rt_rocketblastdoor = RI.currententity;
+                }
+            }
+        }
+    }
+
+    return RI.currententity == rt_rocketblastdoor;
 }
 #endif
 

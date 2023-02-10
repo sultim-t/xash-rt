@@ -1588,6 +1588,13 @@ void R_DrawBrushModel( cl_entity_t *e )
 	if( R_CullBox( mins, maxs ))
 		return;
 
+#if XASH_RAYTRACING
+    if( RT_IsBrushIgnored() )
+    {
+        return;
+    }
+#endif
+
 	memset( gl_lms.lightmap_surfaces, 0, sizeof( gl_lms.lightmap_surfaces ));
 	old_rendermode = e->curstate.rendermode;
 	gl_lms.dynamic_surfaces = NULL;
