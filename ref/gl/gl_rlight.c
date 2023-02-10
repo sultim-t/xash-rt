@@ -1060,7 +1060,7 @@ void RT_UploadAllLights()
         }
     }
 
-    if( rt_trament )
+    if( rt_trament && WORLDMODEL )
     {
         vec3_t vf = { 1, 0, 0 };
         vec3_t vr = { 0, 1, 0 };
