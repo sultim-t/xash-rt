@@ -1086,7 +1086,7 @@ void RT_UploadAllLights()
 
             RgSphericalLightUploadInfo info = {
                 .uniqueID     = RT_IDBASE_TRAMLIGHT + i,
-                .isExportable = true,
+                .isExportable = false,
                 .color        = rgUtilPackColorByte4D( 255, 255, 255, 255 ),
                 .intensity    = RT_CVAR_TO_FLOAT( rt_light_tram ),
                 .position     = RT_VEC3( pos ),
