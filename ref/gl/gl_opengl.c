@@ -1150,6 +1150,12 @@ qboolean R_Init( void )
             .pOverrideFolderPath = "rt/",
 
             .pfnPrint = PrintMessage,
+    #ifdef NDEBUG
+            .allowedMessages = RG_MESSAGE_SEVERITY_WARNING | RG_MESSAGE_SEVERITY_ERROR,
+    #else
+            .allowedMessages = RG_MESSAGE_SEVERITY_VERBOSE | RG_MESSAGE_SEVERITY_INFO |
+                               RG_MESSAGE_SEVERITY_WARNING | RG_MESSAGE_SEVERITY_ERROR,
+    #endif
 
             .primaryRaysMaxAlbedoLayers          = 4,
             .indirectIlluminationMaxAlbedoLayers = 1,
