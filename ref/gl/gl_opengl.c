@@ -944,7 +944,7 @@ void GL_InitCommands( void )
 	CVAR_DEF_T( rt_emis_additive_dflt,		"0.01",	"" )
 	CVAR_DEF_T( rt_emis_hologram,			"0.2",	"" )
 
-	CVAR_DEF_T( rt_tnmp_ev100_min,			"0.0",	"min brightness for auto-exposure" )
+	CVAR_DEF_T( rt_tnmp_ev100_min,			"2.0",	"min brightness for auto-exposure" )
 	CVAR_DEF_T( rt_tnmp_ev100_max,			"7.7",	"max brightness for auto-exposure" )
 	CVAR_DEF_T( rt_tnmp_saturation_r,		"0",	"-1 desaturate, +1 over saturate" )
 	CVAR_DEF_T( rt_tnmp_saturation_g,		"0",	"-1 desaturate, +1 over saturate" )
