@@ -217,6 +217,37 @@ static void R_DrawSegs( vec3_t source, vec3_t delta, float width, float scale, f
 	length *= 0.01f;
 	vStep = length * div;	// Texture length texels per space pixel
 
+#if XASH_RAYTRACING
+    if( FBitSet( flags, FBEAM_SINENOISE ) && scale != 0.0f && length > 0.1f )
+    {
+        freq *= 5;
+
+        {
+            vec3_t endpos;
+            VectorMA( source, 0.9f, delta, endpos );
+
+            RT_TryAddBeamLight( endpos, 0, 0, 255 );
+        }
+
+        {
+            float lightfraction = fmodf( freq * speed * 0.005f, 1.0f );
+
+            vec3_t lightpos;
+            VectorMA( source, lightfraction, delta, lightpos );
+
+            float lightfactor = scale;
+
+            float s, c;
+            SinCos( lightfraction * M_PI_F * length + freq, &s, &c );
+
+            VectorMA( lightpos, ( lightfactor * s ), RI.vup, lightpos );
+            VectorMA( lightpos, ( lightfactor * c ), RI.vright, lightpos );
+
+            RT_TryAddBeamLight( lightpos, 5, 0, 40 );
+        }
+    }
+#endif
+
 	// Scroll speed 3.5 -- initial texture position, scrolls 3.5/sec (1.0 is entire texture)
 	vLast = fmod( freq * speed, 1 );
 

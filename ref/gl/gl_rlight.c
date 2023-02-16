@@ -923,7 +923,7 @@ typedef struct rt_particlelight_t
     uint32_t          id;
 } rt_particlelight_t;
 
-static rt_particlelight_t rt_particlelights[ 256 ];
+static rt_particlelight_t rt_particlelights[ 1024 ];
 static uint32_t           rt_particlelights_count = 0;
 
 void RT_TryAddParticleLight( const cl_entity_t* e )
@@ -937,20 +937,35 @@ void RT_TryAddParticleLight( const cl_entity_t* e )
     {
         return;
     }
-
-    qboolean isgauss = true;
-
+	
 	rt_particlelight_t* dst = &rt_particlelights[ rt_particlelights_count++ ];
     {
-		VectorCopy( e->curstate.origin, dst->position.data );
-		// prevent being close to a floor
+        VectorCopy( e->curstate.origin, dst->position.data );
+        // prevent being close to a floor
         dst->position.data[ 2 ] += 8;
 
-        dst->color = isgauss ? rgUtilPackColorByte4D( 255, 72, 0, 255 )
-                             : rgUtilPackColorByte4D( 86, 3, 252, 255 );
-
-		dst->id = e->curstate.iuser1;
+        dst->color = rgUtilPackColorByte4D( 255, 72, 0, 255 );
+        dst->id    = e->curstate.iuser1;
     }
+}
+
+static rt_particlelight_t rt_beamlights[ 64 ];
+static uint32_t           rt_beamlights_count = 0;
+
+void RT_TryAddBeamLight( vec3_t pos, uint8_t r, uint8_t g, uint8_t b )
+{
+    if( rt_beamlights_count >= RT_ARRAYSIZE( rt_beamlights ) )
+    {
+        return;
+    }
+
+    rt_particlelight_t* dst = &rt_beamlights[ rt_beamlights_count ];
+    {
+        VectorCopy( pos, dst->position.data );
+        dst->color     = rgUtilPackColorByte4D( r, g, b, 255 );
+        dst->id        = rt_beamlights_count;
+    }
+    rt_beamlights_count++;
 }
 
 
@@ -969,7 +984,8 @@ extern cl_entity_t* rt_trament;
     #define RT_IDBASE_DLIGHT		512
     #define RT_IDBASE_ELIGHT		768
     #define RT_IDBASE_PARTICLELIGHT	1024
-    #define RT_IDBASE_STATICLIGHT	2048
+    #define RT_IDBASE_BEAMLIGHT     2048
+    #define RT_IDBASE_STATICLIGHT   2176
 
 
 void RT_UploadAllLights()
@@ -1185,6 +1201,25 @@ void RT_UploadAllLights()
         RG_CHECK( r );
     }
 
+	for( uint32_t i = 0; i < rt_beamlights_count; i++ )
+    {
+        rt_particlelight_t* src = &rt_beamlights[ i ];
+        assert( src->id < 64 );
+
+        RgSphericalLightUploadInfo info = {
+            .uniqueID     = RT_IDBASE_BEAMLIGHT + src->id,
+            .isExportable = false,
+            .color        = src->color,
+            .intensity    = RT_CVAR_TO_FLOAT( rt_light_b ),
+            .position     = src->position,
+            .radius       = METRIC_TO_QUAKEUNIT( RT_CVAR_TO_FLOAT( rt_light_radius ) ),
+        };
+
+        RgResult r = rgUploadSphericalLight( rg_instance, &info );
+        RG_CHECK( r );
+    }
+
 	rt_particlelights_count = 0;
+    rt_beamlights_count     = 0;
 }
 #endif // XASH_RAYTRACING
