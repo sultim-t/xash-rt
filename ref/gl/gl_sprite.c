@@ -1041,6 +1041,8 @@ void R_DrawSpriteModel( cl_entity_t *e )
     {
         rt_lensflare_enable = true;
         rt_lensflare_color = rgUtilPackColorFloat4D( color[ 0 ], color[ 1 ], color[ 2 ], tr.blend );
+
+        RT_TryAddParticleLight( e );
     }
     else
     {

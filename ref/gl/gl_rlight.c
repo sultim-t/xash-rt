@@ -915,6 +915,45 @@ static void CalculateFlaslightPosition( vec3_t out_position )
     VectorAdd( out_position, r, out_position );
 }
 
+
+typedef struct rt_particlelight_t
+{
+    RgFloat3D         position;
+    RgColor4DPacked32 color;
+    uint32_t          id;
+} rt_particlelight_t;
+
+static rt_particlelight_t rt_particlelights[ 256 ];
+static uint32_t           rt_particlelights_count = 0;
+
+void RT_TryAddParticleLight( const cl_entity_t* e )
+{
+    if( !e || e->curstate.iuser1 <= 0 )
+    {
+        return;
+    }
+
+	if( rt_particlelights_count >= RT_ARRAYSIZE( rt_particlelights ) )
+    {
+        return;
+    }
+
+    qboolean isgauss = true;
+
+	rt_particlelight_t* dst = &rt_particlelights[ rt_particlelights_count++ ];
+    {
+		VectorCopy( e->curstate.origin, dst->position.data );
+		// prevent being close to a floor
+        dst->position.data[ 2 ] += 8;
+
+        dst->color = isgauss ? rgUtilPackColorByte4D( 255, 72, 0, 255 )
+                             : rgUtilPackColorByte4D( 86, 3, 252, 255 );
+
+		dst->id = e->curstate.iuser1;
+    }
+}
+
+
 extern cl_entity_t* rt_trament;
 
     #define VectorPow( in, pw, out )                  \
@@ -923,13 +962,14 @@ extern cl_entity_t* rt_trament;
           ( out )[ 2 ] = powf( ( in )[ 2 ], ( pw ) ) )
 
 
-    #define RT_ID_LIGHTNONE       0
-    #define RT_IDBASE_SUN         1
-    #define RT_IDBASE_FLASHLIGHT  256
-    #define RT_IDBASE_TRAMLIGHT   384
-    #define RT_IDBASE_DLIGHT      512
-    #define RT_IDBASE_ELIGHT      768
-    #define RT_IDBASE_STATICLIGHT 1024
+    #define RT_ID_LIGHTNONE			0
+    #define RT_IDBASE_SUN			1
+    #define RT_IDBASE_FLASHLIGHT	256
+    #define RT_IDBASE_TRAMLIGHT		384
+    #define RT_IDBASE_DLIGHT		512
+    #define RT_IDBASE_ELIGHT		768
+    #define RT_IDBASE_PARTICLELIGHT	1024
+    #define RT_IDBASE_STATICLIGHT	2048
 
 
 void RT_UploadAllLights()
@@ -1126,5 +1166,25 @@ void RT_UploadAllLights()
             RG_CHECK( r );
         }
     }
+
+    for( uint32_t i = 0; i < rt_particlelights_count; i++ )
+    {
+        rt_particlelight_t* src = &rt_particlelights[ i ];
+        assert( src->id < 1024 );
+
+        RgSphericalLightUploadInfo info = {
+            .uniqueID     = RT_IDBASE_PARTICLELIGHT + src->id,
+            .isExportable = false,
+            .color        = src->color,
+            .intensity    = RT_CVAR_TO_FLOAT( rt_light_p ),
+            .position     = src->position,
+            .radius       = METRIC_TO_QUAKEUNIT( RT_CVAR_TO_FLOAT( rt_light_radius ) ),
+        };
+
+        RgResult r = rgUploadSphericalLight( rg_instance, &info );
+        RG_CHECK( r );
+    }
+
+	rt_particlelights_count = 0;
 }
 #endif // XASH_RAYTRACING

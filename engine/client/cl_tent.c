@@ -287,6 +287,11 @@ void CL_PrepareTEnt( TEMPENTITY *pTemp, model_t *pmodel )
 	pTemp->clientIndex = 0;
 	pTemp->bounceFactor = 1;
 	pTemp->entity.curstate.scale = 1.0f;
+
+#if XASH_RAYTRACING
+	// used for gauss particles
+    pTemp->entity.curstate.iuser1 = 0;
+#endif
 }
 
 /*
@@ -1454,6 +1459,17 @@ void GAME_EXPORT R_Sprite_Trail( int type, vec3_t start, vec3_t end, int modelIn
 		pTemp->entity.curstate.rendermode = kRenderGlow;
 		pTemp->entity.curstate.renderfx = kRenderFxNoDissipation;
 		pTemp->entity.curstate.renderamt = pTemp->entity.baseline.renderamt = renderamt;
+
+#if XASH_RAYTRACING
+		// add light to this sprite model
+        {
+            uint64_t id = ( ( uint64_t )pTemp - ( uint64_t )cl_tempents ) / sizeof( TEMPENTITY );
+            if( id < 1023 )
+            {
+                pTemp->entity.curstate.iuser1 = 1 + ( int )id;
+            }
+        }
+#endif
 
 		pTemp->entity.curstate.frame = COM_RandomLong( 0, pTemp->frameMax );
 		pTemp->die = cl.time + life + COM_RandomFloat( 0.0f, 4.0f );

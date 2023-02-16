@@ -968,6 +968,7 @@ void GL_InitCommands( void )
 
 	CVAR_DEF_T( rt_light_d,					"1000",	"dlight intensity (explosions, other dynamic lights)")
 	CVAR_DEF_T( rt_light_s,					"1000",	"map lights intensity (lights defined by a map)")
+	CVAR_DEF_T( rt_light_p,					"10",	"particle lights intensity (gauss)")
 	CVAR_DEF_T( rt_light_tram,				"20",	"intro tram interior light intensity")
 	CVAR_DEF_T( rt_light_tram_h,			"400",	"intro tram headlights intensity")
 	CVAR_DEF_T( rt_light_tram_ao,			"45",	"intro tram headlights outer angle")
