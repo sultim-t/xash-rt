@@ -303,6 +303,17 @@ void R_NewMap( void )
     }
 
     // HACKHACK
+    if( Q_strcmp( WORLDMODEL->name, "maps/c1a4k.bsp" ) == 0 )
+    {
+        gEngfuncs.Cvar_Set( rt_cvars.rt_normalmap_stren_water->name, "20" );
+    }
+    else
+    {
+        // to default
+        gEngfuncs.Cvar_Set( rt_cvars.rt_normalmap_stren_water->name, NULL );
+    }
+
+    // HACKHACK
     if( Q_strcmp( WORLDMODEL->name, "maps/c3a2d.bsp" ) == 0 )
     {
         static const vec3_t campos    = { 1160.00000f, 268.921875f, -191.937500f };
