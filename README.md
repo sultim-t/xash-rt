@@ -1,7 +1,7 @@
 # Xash3D: Ray Traced
 [![GitHub Actions Status](https://github.com/FWGS/xash3d-fwgs/actions/workflows/c-cpp.yml/badge.svg)](https://github.com/FWGS/xash3d-fwgs/actions/workflows/c-cpp.yml) 
 
-Xash3D: Ray Traced is a variation of the Xash3D FWGS engine, with a [custom path traced renderer](https://github.com/sultim-t/RayTracedGL1).
+Xash3D: Ray Traced is a fork of the [Xash3D FWGS](https://github.com/FWGS/xash3d-fwgs) engine with the added [custom path-traced renderer](https://github.com/sultim-t/RayTracedGL1).
 
 ## Install
 Latest compiled build for Half-Life 1 can be found at https://github.com/sultim-t/xash-rt/releases
