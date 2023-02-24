@@ -1821,6 +1821,7 @@ void R_EndFrame( void )
                             RG_DRAW_FRAME_RAY_CULL_WORLD_1_BIT | RG_DRAW_FRAME_RAY_CULL_SKY_BIT,
         .presentPrevFrame = skipframe,
         .currentTime      = gpGlobals->realtime,
+        .vsync            = RT_CVAR_TO_BOOL( rt_vsync ),
         .pParams          = &posteffect_params,
     };
 
