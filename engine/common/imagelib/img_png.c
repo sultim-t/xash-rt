@@ -20,6 +20,9 @@ GNU General Public License for more details.
 
 #if defined(XASH_NO_NETWORK)
 	#include "platform/stub/net_stub.h"
+#elif XASH_NSWITCH
+	// our ntohl is here
+	#include <arpa/inet.h>
 #elif !XASH_WIN32
 	#include <netinet/in.h>
 #endif
@@ -41,10 +44,10 @@ qboolean Image_LoadPNG( const char *name, const byte *buffer, fs_offset_t filesi
 {
 	int		ret;
 	short		p, a, b, c, pa, pb, pc;
-	byte		*buf_p, *pixbuf, *raw, *prior, *idat_buf = NULL, *uncompressed_buffer = NULL, *rowend;
+	byte		*buf_p, *pixbuf, *raw, *prior, *idat_buf = NULL, *uncompressed_buffer = NULL;
 	byte		*pallete = NULL, *trns = NULL;
-	uint	 	chunk_len, trns_len, crc32, crc32_check, oldsize = 0, newsize = 0, rowsize;
-	uint	 	uncompressed_size, pixel_size, i, y, filter_type, chunk_sign, r_alpha, g_alpha, b_alpha;
+	uint	 	chunk_len, trns_len, plte_len, crc32, crc32_check, oldsize = 0, newsize = 0, rowsize;
+	uint		uncompressed_size, pixel_size, pixel_count, i, y, filter_type, chunk_sign, r_alpha, g_alpha, b_alpha;
 	qboolean 	has_iend_chunk = false;
 	z_stream 	stream = {0};
 	png_t		png_hdr;
@@ -82,14 +85,17 @@ qboolean Image_LoadPNG( const char *name, const byte *buffer, fs_offset_t filesi
 	}
 
 	// convert image width and height to little endian
-	png_hdr.ihdr_chunk.height = ntohl( png_hdr.ihdr_chunk.height );
-	png_hdr.ihdr_chunk.width = ntohl( png_hdr.ihdr_chunk.width );
+	image.height = png_hdr.ihdr_chunk.height = ntohl( png_hdr.ihdr_chunk.height );
+	image.width  = png_hdr.ihdr_chunk.width  = ntohl( png_hdr.ihdr_chunk.width );
 
 	if( png_hdr.ihdr_chunk.height == 0 || png_hdr.ihdr_chunk.width == 0 )
 	{
 		Con_DPrintf( S_ERROR "Image_LoadPNG: Invalid image size %ux%u (%s)\n", png_hdr.ihdr_chunk.width, png_hdr.ihdr_chunk.height, name );
 		return false;
 	}
+
+	if( !Image_ValidSize( name ))
+		return false;
 
 	if( png_hdr.ihdr_chunk.bitdepth != 8 )
 	{
@@ -158,12 +164,19 @@ qboolean Image_LoadPNG( const char *name, const byte *buffer, fs_offset_t filesi
 		if( chunk_len > INT_MAX )
 		{
 			Con_DPrintf( S_ERROR "Image_LoadPNG: Found chunk with wrong size (%s)\n", name );
-			Mem_Free( idat_buf );
+			if( idat_buf ) Mem_Free( idat_buf );
+			return false;
+		}
+
+		if( chunk_len > filesize - ( buf_p - buffer ))
+		{
+			Con_DPrintf( S_ERROR "Image_LoadPNG: Found chunk with size past file size (%s)\n", name );
+			if( idat_buf ) Mem_Free( idat_buf );
 			return false;
 		}
 
 		// move pointer
-		buf_p += sizeof( chunk_sign );
+		buf_p += sizeof( chunk_len );
 
 		// find transparency
 		if( !memcmp( buf_p, trns_sign, sizeof( trns_sign ) ) )
@@ -175,6 +188,7 @@ qboolean Image_LoadPNG( const char *name, const byte *buffer, fs_offset_t filesi
 		else if( !memcmp( buf_p, plte_sign, sizeof( plte_sign ) ) )
 		{
 			pallete = buf_p + sizeof( plte_sign );
+			plte_len = chunk_len / 3;
 		}
 		// get all IDAT chunks data
 		else if( !memcmp( buf_p, idat_sign, sizeof( idat_sign ) ) )
@@ -203,12 +217,18 @@ qboolean Image_LoadPNG( const char *name, const byte *buffer, fs_offset_t filesi
 		if( ntohl( crc32 ) != crc32_check )
 		{
 			Con_DPrintf( S_ERROR "Image_LoadPNG: Found chunk with wrong CRC32 sum (%s)\n", name );
-			Mem_Free( idat_buf );
+			if( idat_buf ) Mem_Free( idat_buf );
 			return false;
 		}
 
 		// move pointer
 		buf_p += sizeof( crc32 );
+	}
+
+	if( oldsize == 0 )
+	{
+		Con_DPrintf( S_ERROR "Image_LoadPNG: Couldn't find IDAT chunks (%s)\n", name );
+		return false;
 	}
 
 	if( png_hdr.ihdr_chunk.colortype == PNG_CT_PALLETE && !pallete )
@@ -229,12 +249,6 @@ qboolean Image_LoadPNG( const char *name, const byte *buffer, fs_offset_t filesi
 	{
 		Con_DPrintf( S_ERROR "Image_LoadPNG: IEND chunk has wrong size %u (%s)\n", chunk_len, name );
 		Mem_Free( idat_buf );
-		return false;
-	}
-
-	if( oldsize == 0 )
-	{
-		Con_DPrintf( S_ERROR "Image_LoadPNG: Couldn't find IDAT chunks (%s)\n", name );
 		return false;
 	}
 
@@ -260,9 +274,8 @@ qboolean Image_LoadPNG( const char *name, const byte *buffer, fs_offset_t filesi
 	}
 
 	image.type = PF_RGBA_32; // always exctracted to 32-bit buffer
-	image.width = png_hdr.ihdr_chunk.width;
-	image.height = png_hdr.ihdr_chunk.height;
-	image.size = image.height * image.width * 4;
+	pixel_count = image.height * image.width;
+	image.size = pixel_count * 4;
 
 	if( png_hdr.ihdr_chunk.colortype & PNG_CT_RGB )
 		image.flags |= IMAGE_HAS_COLOR;
@@ -424,71 +437,65 @@ qboolean Image_LoadPNG( const char *name, const byte *buffer, fs_offset_t filesi
 			b_alpha = trns[4] << 8 | trns[5];
 		}
 
-		for( y = 0; y < image.height; y++ )
+		for( y = 0; y < pixel_count; y++, raw += pixel_size )
 		{
-			rowend = raw + rowsize;
-			for( ; raw < rowend; raw += pixel_size )
-			{
-				*pixbuf++ = raw[0];
-				*pixbuf++ = raw[1];
-				*pixbuf++ = raw[2];
+			*pixbuf++ = raw[0];
+			*pixbuf++ = raw[1];
+			*pixbuf++ = raw[2];
 
-				if( trns && r_alpha == raw[0]
-				    && g_alpha == raw[1]
-				    && b_alpha == raw[2] )
-					*pixbuf++ = 0;
-				else
-					*pixbuf++ = 0xFF;
-			}
+			if( trns && r_alpha == raw[0]
+			    && g_alpha == raw[1]
+			    && b_alpha == raw[2] )
+				*pixbuf++ = 0;
+			else
+				*pixbuf++ = 0xFF;
 		}
 		break;
 	case PNG_CT_GREY:
 		if( trns )
 			r_alpha = trns[0] << 8 | trns[1];
 
-		for( y = 0; y < image.height; y++ )
+		for( y = 0; y < pixel_count; y++, raw += pixel_size )
 		{
-			rowend = raw + rowsize;
-			for( ; raw < rowend; raw += pixel_size )
-			{
-				*pixbuf++ = raw[0];
-				*pixbuf++ = raw[0];
-				*pixbuf++ = raw[0];
+			*pixbuf++ = raw[0];
+			*pixbuf++ = raw[0];
+			*pixbuf++ = raw[0];
 
-				if( trns && r_alpha == raw[0] )
-					*pixbuf++ = 0;
-				else
-					*pixbuf++ = 0xFF;
-			}
+			if( trns && r_alpha == raw[0] )
+				*pixbuf++ = 0;
+			else
+				*pixbuf++ = 0xFF;
 		}
 		break;
 	case PNG_CT_ALPHA:
-		for( y = 0; y < image.height; y++ )
+		for( y = 0; y < pixel_count; y++, raw += pixel_size )
 		{
-			rowend = raw + rowsize;
-			for( ; raw < rowend; raw += pixel_size )
-			{
-				*pixbuf++ = raw[0];
-				*pixbuf++ = raw[0];
-				*pixbuf++ = raw[0];
-				*pixbuf++ = raw[1];
-			}
+			*pixbuf++ = raw[0];
+			*pixbuf++ = raw[0];
+			*pixbuf++ = raw[0];
+			*pixbuf++ = raw[1];
 		}
 		break;
 	case PNG_CT_PALLETE:
-		for( y = 0; y < image.height; y++ )
+		for( y = 0; y < pixel_count; y++, raw += pixel_size )
 		{
-			rowend = raw + rowsize;
-			for( ; raw < rowend; raw += pixel_size )
+			if( raw[0] < plte_len )
 			{
-				*pixbuf++ = pallete[raw[0] + 2];
-				*pixbuf++ = pallete[raw[0] + 1];
-				*pixbuf++ = pallete[raw[0] + 0];
+				*pixbuf++ = pallete[3 * raw[0] + 0];
+				*pixbuf++ = pallete[3 * raw[0] + 1];
+				*pixbuf++ = pallete[3 * raw[0] + 2];
 
 				if( trns && raw[0] < trns_len )
 					*pixbuf++ = trns[raw[0]];
 				else
 					*pixbuf++ = 0xFF;
+			}
+			else
+			{
+				*pixbuf++ = 0;
+				*pixbuf++ = 0;
+				*pixbuf++ = 0;
+				*pixbuf++ = 0xFF;
 			}
 		}
 		break;

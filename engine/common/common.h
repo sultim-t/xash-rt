@@ -159,13 +159,13 @@ extern convar_t	*scr_download;
 extern convar_t	*cmd_scripting;
 extern convar_t	*sv_maxclients;
 extern convar_t	*cl_allow_levelshots;
-extern convar_t	*vid_displayfrequency;
 extern convar_t	host_developer;
 extern convar_t	*host_limitlocal;
 extern convar_t	*host_framerate;
 extern convar_t	*host_maxfps;
 extern convar_t	sys_timescale;
 extern convar_t	cl_filterstuffcmd;
+extern convar_t	rcon_password;
 
 /*
 ==============================================================
@@ -365,7 +365,6 @@ typedef struct host_parm_s
 	qboolean		apply_game_config;	// when true apply only to game cvars and ignore all other commands
 	qboolean		apply_opengl_config;// when true apply only to opengl cvars and ignore all other commands
 	qboolean		config_executed;	// a bit who indicated was config.cfg already executed e.g. from valve.rc
-	int		sv_cvars_restored;	// count of restored server cvars
 	qboolean		crashed;		// set to true if crashed
 	qboolean		daemonized;
 	qboolean		enabledll;
@@ -394,6 +393,11 @@ typedef struct host_parm_s
 	// bug compatibility level, for very "special" games
 	bugcomp_t bugcomp;
 
+	// measure time to first frame
+	double starttime;
+
+	// count of sleeps can be inserted between frames
+	double pureframetime;
 } host_parm_t;
 
 extern host_parm_t	host;
@@ -739,7 +743,6 @@ char *CL_Userinfo( void );
 void CL_LegacyUpdateInfo( void );
 void CL_CharEvent( int key );
 qboolean CL_DisableVisibility( void );
-int CL_PointContents( const vec3_t point );
 byte *COM_LoadFile( const char *filename, int usehunk, int *pLength );
 int CL_GetDemoComment( const char *demoname, char *comment );
 void COM_AddAppDirectoryToSearchPath( const char *pszBaseDir, const char *appName );
@@ -748,7 +751,6 @@ struct cmd_s *Cmd_GetFirstFunctionHandle( void );
 struct cmd_s *Cmd_GetNextFunctionHandle( struct cmd_s *cmd );
 struct cmdalias_s *Cmd_AliasGetList( void );
 const char *Cmd_GetName( struct cmd_s *cmd );
-struct pmtrace_s *PM_TraceLine( float *start, float *end, int flags, int usehull, int ignore_pe );
 void SV_StartSound( edict_t *ent, int chan, const char *sample, float vol, float attn, int flags, int pitch );
 void SV_StartMusic( const char *curtrack, const char *looptrack, int position );
 void SV_CreateDecal( sizebuf_t *msg, const float *origin, int decalIndex, int entityIndex, int modelIndex, int flags, float scale );

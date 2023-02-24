@@ -851,8 +851,8 @@ void R_StudioCalcRotations( cl_entity_t *e, float pos[][3], vec4_t *q, mstudiose
 
 	for( i = 0; i < m_pStudioHeader->numbones; i++, pbone++, panim++ )
 	{
-		gEngfuncs.R_StudioCalcBoneQuaternion( frame, s, pbone, panim, adj, q[i] );
-		gEngfuncs.R_StudioCalcBonePosition( frame, s, pbone, panim, adj, pos[i] );
+		R_StudioCalcBoneQuaternion( frame, s, pbone, panim, adj, q[i] );
+		R_StudioCalcBonePosition( frame, s, pbone, panim, adj, pos[i] );
 	}
 
 	if( pseqdesc->motiontype & STUDIO_X ) pos[pseqdesc->motionbone][0] = 0.0f;
@@ -964,7 +964,7 @@ void R_StudioSetupBones( cl_entity_t *e )
 		dadt = R_StudioEstimateInterpolant( e );
 		s = (e->curstate.blending[0] * dadt + e->latched.prevblending[0] * (1.0f - dadt)) / 255.0f;
 
-		gEngfuncs.R_StudioSlerpBones( m_pStudioHeader->numbones, q, pos, q2, pos2, s );
+		R_StudioSlerpBones( m_pStudioHeader->numbones, q, pos, q2, pos2, s );
 
 		if( pseqdesc->numblends == 4 )
 		{
@@ -975,10 +975,10 @@ void R_StudioSetupBones( cl_entity_t *e )
 			R_StudioCalcRotations( e, pos4, q4, pseqdesc, panim, f );
 
 			s = (e->curstate.blending[0] * dadt + e->latched.prevblending[0] * (1.0f - dadt)) / 255.0f;
-			gEngfuncs.R_StudioSlerpBones( m_pStudioHeader->numbones, q3, pos3, q4, pos4, s );
+			R_StudioSlerpBones( m_pStudioHeader->numbones, q3, pos3, q4, pos4, s );
 
 			s = (e->curstate.blending[1] * dadt + e->latched.prevblending[1] * (1.0f - dadt)) / 255.0f;
-			gEngfuncs.R_StudioSlerpBones( m_pStudioHeader->numbones, q, pos, q3, pos3, s );
+			R_StudioSlerpBones( m_pStudioHeader->numbones, q, pos, q3, pos3, s );
 		}
 	}
 
@@ -1001,7 +1001,7 @@ void R_StudioSetupBones( cl_entity_t *e )
 			R_StudioCalcRotations( e, pos2, q2, pseqdesc, panim, e->latched.prevframe );
 
 			s = (e->latched.prevseqblending[0]) / 255.0f;
-			gEngfuncs.R_StudioSlerpBones( m_pStudioHeader->numbones, q1b, pos1b, q2, pos2, s );
+			R_StudioSlerpBones( m_pStudioHeader->numbones, q1b, pos1b, q2, pos2, s );
 
 			if( pseqdesc->numblends == 4 )
 			{
@@ -1012,15 +1012,15 @@ void R_StudioSetupBones( cl_entity_t *e )
 				R_StudioCalcRotations( e, pos4, q4, pseqdesc, panim, e->latched.prevframe );
 
 				s = (e->latched.prevseqblending[0]) / 255.0f;
-				gEngfuncs.R_StudioSlerpBones( m_pStudioHeader->numbones, q3, pos3, q4, pos4, s );
+				R_StudioSlerpBones( m_pStudioHeader->numbones, q3, pos3, q4, pos4, s );
 
 				s = (e->latched.prevseqblending[1]) / 255.0f;
-				gEngfuncs.R_StudioSlerpBones( m_pStudioHeader->numbones, q1b, pos1b, q3, pos3, s );
+				R_StudioSlerpBones( m_pStudioHeader->numbones, q1b, pos1b, q3, pos3, s );
 			}
 		}
 
 		s = 1.0f - ( g_studio.time - e->latched.sequencetime ) / 0.2f;
-		gEngfuncs.R_StudioSlerpBones( m_pStudioHeader->numbones, q, pos, q1b, pos1b, s );
+		R_StudioSlerpBones( m_pStudioHeader->numbones, q, pos, q1b, pos1b, s );
 	}
 	else
 	{
@@ -1268,18 +1268,18 @@ void R_StudioSetupChrome( float *pchrome, int bone, vec3_t normal )
 		vec3_t	tmp;		// vector pointing at bone in world reference frame
 
 		VectorNegate( g_studio.chrome_origin, tmp );
-		tmp[0] += g_studio.bonestransform[bone][0][3];
-		tmp[1] += g_studio.bonestransform[bone][1][3];
-		tmp[2] += g_studio.bonestransform[bone][2][3];
+		tmp[0] += g_studio.lighttransform[bone][0][3];
+		tmp[1] += g_studio.lighttransform[bone][1][3];
+		tmp[2] += g_studio.lighttransform[bone][2][3];
 
 		VectorNormalize( tmp );
 		CrossProduct( tmp, RI.vright, chromeupvec );
 		VectorNormalize( chromeupvec );
-		CrossProduct( tmp, chromeupvec, chromerightvec );
+		CrossProduct( chromeupvec, tmp, chromerightvec );
 		VectorNormalize( chromerightvec );
 
-		Matrix3x4_VectorIRotate( g_studio.bonestransform[bone], chromeupvec, g_studio.chromeup[bone] );
-		Matrix3x4_VectorIRotate( g_studio.bonestransform[bone], chromerightvec, g_studio.chromeright[bone] );
+		Matrix3x4_VectorIRotate( g_studio.lighttransform[bone], chromeupvec, g_studio.chromeup[bone] );
+		Matrix3x4_VectorIRotate( g_studio.lighttransform[bone], chromerightvec, g_studio.chromeright[bone] );
 
 #if XASH_RAYTRACING
         }
@@ -1761,48 +1761,20 @@ void R_LightLambert( vec4_t light[MAX_LOCALLIGHTS], vec3_t normal, vec3_t color,
 	out[2] = finalLight[2] * 255;
 }
 
-static void R_StudioSetColorBegin(short *ptricmds, vec3_t *pstudionorms )
-{
-	float	*lv = (float *)g_studio.lightvalues[ptricmds[1]];
-	rgba_t color;
-
-	if( g_studio.numlocallights )
-	{
-		color[3] = tr.blend * 255;
-		R_LightLambert( g_studio.lightpos[ptricmds[0]], pstudionorms[ptricmds[1]], lv, color );
-		pglColor4ubv( color );
-	}
-	else
-	{
-		if( RI.currententity->curstate.rendermode == kRenderTransColor )
-		{
-			color[3] = tr.blend * 255;
-			VectorCopy( (byte*)&RI.currententity->curstate.rendercolor, color );
-			pglColor4ubv( color );
-		}
-		else pglColor4f( lv[0], lv[1], lv[2], tr.blend );
-	}
-}
-
 static void R_StudioSetColorArray(short *ptricmds, vec3_t *pstudionorms, byte *color )
 {
 	float	*lv = (float *)g_studio.lightvalues[ptricmds[1]];
 
 	color[3] = tr.blend * 255;
+	R_LightLambert( g_studio.lightpos[ptricmds[0]], pstudionorms[ptricmds[1]], lv, color );
+}
 
-	if( g_studio.numlocallights )
-		R_LightLambert( g_studio.lightpos[ptricmds[0]], pstudionorms[ptricmds[1]], lv, color );
-	else
-	{
-		if( RI.currententity->curstate.rendermode == kRenderTransColor )
-			VectorCopy(  (byte*)&RI.currententity->curstate.rendercolor, color );
-		else
-		{
-			color[0] = lv[0] * 255;
-			color[1] = lv[1] * 255;
-			color[2] = lv[2] * 255;
-		}
-	}
+static void R_StudioSetColorBegin( short *ptricmds, vec3_t *pstudionorms )
+{
+	rgba_t color;
+
+	R_StudioSetColorArray( ptricmds, pstudionorms, color );
+	pglColor4ubv( color );
 }
 
 /*

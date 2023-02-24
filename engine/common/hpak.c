@@ -17,8 +17,8 @@ GNU General Public License for more details.
 #include "hpak.h"
 
 #define HPAK_MAX_ENTRIES	0x8000
-#define HPAK_MIN_SIZE	(1 * 1024)
-#define HPAK_MAX_SIZE	(128 * 1024)
+#define HPAK_ENTRY_MIN_SIZE	(512)
+#define HPAK_ENTRY_MAX_SIZE	(128 * 1024)
 
 typedef struct hash_pack_queue_s
 {
@@ -114,7 +114,7 @@ void HPAK_CreatePak( const char *filename, resource_t *pResource, byte *pData, f
 
 	Con_Printf( "creating HPAK %s.\n", pakname );
 
-	fout = FS_Open( pakname, "wb", false );
+	fout = FS_Open( pakname, "wb", true );
 	if( !fout )
 	{
 		Con_DPrintf( S_ERROR "HPAK_CreatePak: can't write %s.\n", pakname );
@@ -216,7 +216,7 @@ void HPAK_AddLump( qboolean bUseQueue, const char *name, resource_t *pResource, 
 	if( pData == NULL && pFile == NULL )
 		return;
 
-	if( pResource->nDownloadSize < HPAK_MIN_SIZE || pResource->nDownloadSize > HPAK_MAX_SIZE )
+	if( pResource->nDownloadSize < HPAK_ENTRY_MIN_SIZE || pResource->nDownloadSize > HPAK_ENTRY_MAX_SIZE )
 	{
 		Con_Printf( S_ERROR "%s: invalid size %s\n", name, Q_pretifymem( pResource->nDownloadSize, 2 ));
 		return;
@@ -226,7 +226,7 @@ void HPAK_AddLump( qboolean bUseQueue, const char *name, resource_t *pResource, 
 	memset( &ctx, 0, sizeof( MD5Context_t ));
 	MD5Init( &ctx );
 
-	if( pData == NULL )
+	if( !pData )
 	{
 		byte		*temp;
 
@@ -260,7 +260,7 @@ void HPAK_AddLump( qboolean bUseQueue, const char *name, resource_t *pResource, 
 	Q_strncpy( srcname, name, sizeof( srcname ));
 	COM_ReplaceExtension( srcname, ".hpk" );
 
-	file_src = FS_Open( srcname, "rb", false );
+	file_src = FS_Open( srcname, "rb", true );
 
 	if( !file_src )
 	{
@@ -272,7 +272,7 @@ void HPAK_AddLump( qboolean bUseQueue, const char *name, resource_t *pResource, 
 	Q_strncpy( dstname, srcname, sizeof( dstname ));
 	COM_ReplaceExtension( dstname, ".hp2" );
 
-	file_dst = FS_Open( dstname, "wb", false );
+	file_dst = FS_Open( dstname, "wb", true );
 
 	if( !file_dst )
 	{
@@ -325,11 +325,12 @@ void HPAK_AddLump( qboolean bUseQueue, const char *name, resource_t *pResource, 
 	// make a new container
 	dstpak.count = srcpak.count + 1;
 	dstpak.entries = Z_Malloc( sizeof( hpak_lump_t ) * dstpak.count );
-	memcpy( dstpak.entries, srcpak.entries, srcpak.count );
+	memcpy( dstpak.entries, srcpak.entries, sizeof( hpak_lump_t ) * srcpak.count );
 
+	// check is there are entry with same hash
 	for( i = 0; i < srcpak.count; i++ )
 	{
-		if( memcmp( md5, srcpak.entries[i].resource.rgucMD5_hash, 16 ))
+		if( memcmp( md5, srcpak.entries[i].resource.rgucMD5_hash, 16 ) == 0 )
 		{
 			pCurrentEntry = &dstpak.entries[i];
 
@@ -347,8 +348,10 @@ void HPAK_AddLump( qboolean bUseQueue, const char *name, resource_t *pResource, 
 	pCurrentEntry->filepos = FS_Tell( file_dst );
 	pCurrentEntry->disksize = pResource->nDownloadSize;
 
-	if( !pData ) FS_FileCopy( file_dst, file_src, pCurrentEntry->disksize );
-	else FS_Write( file_dst, pData, pCurrentEntry->disksize );
+	if( !pData )
+		FS_FileCopy( file_dst, pFile, pCurrentEntry->disksize );
+	else
+		FS_Write( file_dst, pData, pCurrentEntry->disksize );
 
 	hash_pack_header.infotableofs = FS_Tell( file_dst );
 	FS_Write( file_dst, &dstpak.count, sizeof( dstpak.count ));
@@ -395,7 +398,7 @@ static qboolean HPAK_Validate( const char *filename, qboolean quiet )
 	Q_strncpy( pakname, filename, sizeof( pakname ));
 	COM_ReplaceExtension( pakname, ".hpk" );
 
-	f = FS_Open( pakname, "rb", false );
+	f = FS_Open( pakname, "rb", true );
 	if( !f )
 	{
 		Con_DPrintf( S_ERROR "Couldn't find %s.\n", pakname );
@@ -431,7 +434,7 @@ static qboolean HPAK_Validate( const char *filename, qboolean quiet )
 
 	for( i = 0; i < num_lumps; i++ )
 	{
-		if( dataDir[i].disksize < 1 || dataDir[i].disksize > 131071 )
+		if( dataDir[i].disksize < HPAK_ENTRY_MIN_SIZE || dataDir[i].disksize > HPAK_ENTRY_MAX_SIZE )
 		{
 			// odd max size
 			Con_DPrintf( S_ERROR "HPAK_ValidatePak: lump %i has invalid size %s\n", i, Q_pretifymem( dataDir[i].disksize, 2 ));
@@ -512,7 +515,7 @@ void HPAK_CheckSize( const char *filename )
 	Q_strncpy( pakname, filename, sizeof( pakname ));
 	COM_ReplaceExtension( pakname, ".hpk" );
 
-	if( FS_FileSize( pakname, false ) > ( maxsize * 1000000 ))
+	if( FS_FileSize( pakname, false ) > ( maxsize * 1048576 ))
 	{
 		Con_Printf( "Server: Size of %s > %f MB, deleting.\n", filename, hpk_maxsize->value );
 		Log_Printf( "Server: Size of %s > %f MB, deleting.\n", filename, hpk_maxsize->value );
@@ -545,7 +548,7 @@ qboolean HPAK_ResourceForHash( const char *filename, byte *hash, resource_t *pRe
 	Q_strncpy( pakname, filename, sizeof( pakname ));
 	COM_ReplaceExtension( pakname, ".hpk" );
 
-	f = FS_Open( pakname, "rb", false );
+	f = FS_Open( pakname, "rb", true );
 	if( !f ) return false;
 
 	FS_Read( f, &header, sizeof( header ));
@@ -593,7 +596,7 @@ static qboolean HPAK_ResourceForIndex( const char *filename, int index, resource
 	Q_strncpy( pakname, filename, sizeof( pakname ));
 	COM_ReplaceExtension( pakname, ".hpk" );
 
-	f = FS_Open( pakname, "rb", false );
+	f = FS_Open( pakname, "rb", true );
 	if( !f )
 	{
 		Con_DPrintf( S_ERROR "couldn't open %s.\n", pakname );
@@ -679,7 +682,7 @@ qboolean HPAK_GetDataPointer( const char *filename, resource_t *pResource, byte 
 	Q_strncpy( pakname, filename, sizeof( pakname ));
 	COM_ReplaceExtension( pakname, ".hpk" );
 
-	f = FS_Open( pakname, "rb", false );
+	f = FS_Open( pakname, "rb", true );
 	if( !f ) return false;
 
 	FS_Read( f, &header, sizeof( header ));
@@ -762,7 +765,7 @@ void HPAK_RemoveLump( const char *name, resource_t *pResource )
 	Q_strncpy( read_path, name, sizeof( read_path ));
 	COM_ReplaceExtension( read_path, ".hpk" );
 
-	file_src = FS_Open( read_path, "rb", false );
+	file_src = FS_Open( read_path, "rb", true );
 	if( !file_src )
 	{
 		Con_DPrintf( S_ERROR "%s couldn't open.\n", read_path );
@@ -771,7 +774,7 @@ void HPAK_RemoveLump( const char *name, resource_t *pResource )
 
 	Q_strncpy( save_path, read_path, sizeof( save_path ));
 	COM_ReplaceExtension( save_path, ".hp2" );
-	file_dst = FS_Open( save_path, "wb", false );
+	file_dst = FS_Open( save_path, "wb", true );
 
 	if( !file_dst )
 	{
@@ -892,7 +895,7 @@ void HPAK_List_f( void )
 	COM_ReplaceExtension( pakname, ".hpk" );
 	Con_Printf( "Contents for %s.\n", pakname );
 
-	f = FS_Open( pakname, "rb", false );
+	f = FS_Open( pakname, "rb", true );
 	if( !f )
 	{
 		Con_DPrintf( S_ERROR "couldn't open %s.\n", pakname );
@@ -983,7 +986,7 @@ void HPAK_Extract_f( void )
 	COM_ReplaceExtension( pakname, ".hpk" );
 	Con_Printf( "Contents for %s.\n", pakname );
 
-	f = FS_Open( pakname, "rb", false );
+	f = FS_Open( pakname, "rb", true );
 	if( !f )
 	{
 		Con_DPrintf( S_ERROR "couldn't open %s.\n", pakname );
@@ -1035,7 +1038,7 @@ void HPAK_Extract_f( void )
 
 		Con_Printf( "Extracting %i: %10s %s %s\n", nCurrent + 1, type, size, lumpname );
 
-		if( entry->disksize <= 0 || entry->disksize >= HPAK_MAX_SIZE )
+		if( entry->disksize < HPAK_ENTRY_MIN_SIZE || entry->disksize > HPAK_ENTRY_MAX_SIZE )
 		{
 			Con_DPrintf( S_WARN "Unable to extract data, size invalid:  %s\n", Q_memprint( entry->disksize ));
 			continue;

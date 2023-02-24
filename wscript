@@ -123,10 +123,7 @@ def options(opt):
 
 		opt.add_subproject(i.name)
 
-	opt.load('xshlib xcompile compiler_cxx compiler_c sdl2 clang_compilation_database strip_on_install waf_unit_test msdev msvs')
-	if sys.platform == 'win32':
-		opt.load('msvc')
-	opt.load('reconfigure')
+	opt.load('xshlib xcompile compiler_cxx compiler_c sdl2 clang_compilation_database strip_on_install waf_unit_test msdev msvs msvc reconfigure')
 
 def configure(conf):
 	conf.load('fwgslib reconfigure compiler_optimizations')
@@ -134,6 +131,9 @@ def configure(conf):
 
 	# Load compilers early
 	conf.load('xshlib xcompile compiler_c compiler_cxx')
+
+	if conf.options.NSWITCH:
+		conf.load('nswitch')
 
 	# HACKHACK: override msvc DEST_CPU value by something that we understand
 	if conf.env.DEST_CPU == 'amd64':
@@ -173,6 +173,12 @@ def configure(conf):
 		enforce_pic = False
 	elif conf.env.DEST_OS == 'dos':
 		conf.options.SINGLE_BINARY = True
+	elif conf.env.DEST_OS == 'nswitch':
+		conf.options.NO_VGUI          = True
+		conf.options.GL               = True
+		conf.options.SINGLE_BINARY    = True
+		conf.options.NO_ASYNC_RESOLVE = True
+		conf.options.USE_STBTT        = True
 
 	if conf.env.STATIC_LINKING:
 		enforce_pic = False # PIC may break full static builds
@@ -200,7 +206,6 @@ def configure(conf):
 		'-Werror=duplicated-cond',
 		'-Werror=bool-compare',
 		'-Werror=bool-operation',
-		'-Wcast-align',
 		'-Werror=cast-align=strict', # =strict is for GCC >=8
 		'-Werror=packed',
 		'-Werror=packed-not-aligned',
@@ -210,6 +215,12 @@ def configure(conf):
 		'-Werror=implicit-fallthrough=2', # clang incompatible without "=2"
 		'-Werror=logical-op',
 		'-Werror=write-strings',
+		'-Werror=sizeof-pointer-memaccess',
+		'-Werror=sizeof-array-div',
+		'-Werror=sizeof-pointer-div',
+		'-Werror=string-compare',
+		'-Werror=use-after-free=3',
+		'-Werror=sequence-point',
 #		'-Werror=format=2',
 #		'-Wdouble-promotion', # disable warning flood
 		'-Wstrict-aliasing',
@@ -234,6 +245,14 @@ def configure(conf):
 
 	cflags, linkflags = conf.get_optimization_flags()
 
+	# on the Switch, allow undefined symbols by default, which is needed for libsolder to work
+	# we'll specifically disallow them for the engine executable
+	# additionally, shared libs are linked without standard libs, we'll add those back in the engine wscript
+	if conf.env.DEST_OS == 'nswitch':
+		linkflags.remove('-Wl,--no-undefined')
+		conf.env.append_unique('LINKFLAGS_cshlib', ['-nostdlib', '-nostartfiles'])
+		conf.env.append_unique('LINKFLAGS_cxxshlib', ['-nostdlib', '-nostartfiles'])
+
 	# And here C++ flags starts to be treated separately
 	cxxflags = list(cflags)
 	if conf.env.COMPILER_CC != 'msvc' and not conf.options.DISABLE_WERROR:
@@ -247,17 +266,17 @@ def configure(conf):
 		cxxflags += conf.filter_cxxflags(compiler_optional_flags, cflags)
 		cflags += conf.filter_cflags(compiler_optional_flags + c_compiler_optional_flags, cflags)
 
+		# check if we need to use irix linkflags
+		if conf.env.DEST_OS == 'irix' and conf.env.COMPILER_CC == 'gcc':
+			linkflags.remove('-Wl,--no-undefined')
+			linkflags.append('-Wl,--unresolved-symbols=ignore-all')
+			# check if we're in a sgug environment
+			if 'sgug' in os.environ['LD_LIBRARYN32_PATH']:
+				linkflags.append('-lc')
+
 	conf.env.append_unique('CFLAGS', cflags)
 	conf.env.append_unique('CXXFLAGS', cxxflags)
 	conf.env.append_unique('LINKFLAGS', linkflags)
-
-	# check if we can use C99 stdint
-	if conf.check_cc(header_name='stdint.h', mandatory=False):
-		# use system
-		conf.define('STDINT_H', 'stdint.h')
-	else:
-		# include portable stdint by Paul Hsich
-		conf.define('STDINT_H', 'pstdint.h')
 
 	conf.env.ENABLE_UTILS  = conf.options.ENABLE_UTILS
 	conf.env.ENABLE_FUZZER = conf.options.ENABLE_FUZZER
@@ -273,26 +292,34 @@ def configure(conf):
 	conf.env.GAMEDIR = conf.options.GAMEDIR
 	conf.define('XASH_GAMEDIR', conf.options.GAMEDIR)
 
+	# check if we can use C99 stdint
+	conf.define('STDINT_H', 'stdint.h' if conf.check_cc(header_name='stdint.h', mandatory=False) else 'pstdint.h')
+
+	# check if we can use alloca.h or malloc.h
+	if conf.check_cc(header_name='alloca.h', mandatory=False):
+		conf.define('ALLOCA_H', 'alloca.h')
+	elif conf.check_cc(header_name='malloc.h', mandatory=False):
+		conf.define('ALLOCA_H', 'malloc.h')
+
 	if conf.env.DEST_OS != 'win32':
-		conf.check_cc(lib='dl', mandatory=False)
+		if conf.env.DEST_OS == 'nswitch':
+			conf.check_cfg(package='solder', args='--cflags --libs', uselib_store='SOLDER', mandatory=True)
+			if conf.env.HAVE_SOLDER and conf.env.LIB_SOLDER and conf.options.BUILD_TYPE == 'debug':
+				conf.env.LIB_SOLDER[0] += 'd' # load libsolderd in debug mode
+		else:
+			conf.check_cc(lib='dl', mandatory=False)
 
 		if not conf.env.LIB_M: # HACK: already added in xcompile!
 			conf.check_cc(lib='m')
+
+		if conf.env.DEST_OS == 'android':
+			conf.check_cc(lib='log')
 	else:
 		# Common Win32 libraries
 		# Don't check them more than once, to save time
 		# Usually, they are always available
 		# but we need them in uselib
-		a = [
-			'user32',
-			'shell32',
-			'gdi32',
-			'advapi32',
-			'dbghelp',
-			'psapi',
-			'ws2_32'
-		]
-
+		a = [ 'user32', 'shell32', 'gdi32', 'advapi32', 'dbghelp', 'psapi', 'ws2_32' ]
 		if conf.env.COMPILER_CC == 'msvc':
 			for i in a:
 				conf.start_msg('Checking for MSVC library')
@@ -335,25 +362,24 @@ int main(void) { return 0; }''',
 	if conf.env.DEST_OS != 'win32':
 		strcasestr_frag = '''#include <string.h>
 int main(int argc, char **argv) { strcasestr(argv[1], argv[2]); return 0; }'''
+		strchrnul_frag  = '''#include <string.h>
+int main(int argc, char **argv) { strchrnul(argv[1], 'x'); return 0; }'''
 
-		if conf.check_cc(msg='Checking for strcasestr', mandatory=False, fragment=strcasestr_frag):
-			conf.define('HAVE_STRCASESTR', 1)
-		elif conf.check_cc(msg='... with _GNU_SOURCE?', mandatory=False, fragment=strcasestr_frag, defines='_GNU_SOURCE=1'):
-			conf.define('_GNU_SOURCE', 1)
-			conf.define('HAVE_STRCASESTR', 1)
-
-	# check if we can use alloca.h or malloc.h
-	if conf.check_cc(header_name='alloca.h', mandatory=False):
-		conf.define('ALLOCA_H', 'alloca.h')
-	elif conf.check_cc(header_name='malloc.h', mandatory=False):
-		conf.define('ALLOCA_H', 'malloc.h')
+		def check_gnu_function(frag, msg, define):
+			if conf.check_cc(msg=msg, mandatory=False, fragment=frag):
+				conf.define(define, 1)
+			elif conf.check_cc(msg='... with _GNU_SOURCE?', mandatory=False, fragment=frag, defines='_GNU_SOURCE=1'):
+				conf.define(define, 1)
+				conf.define('_GNU_SOURCE', 1)
+		check_gnu_function(strcasestr_frag, 'Checking for strcasestr', 'HAVE_STRCASESTR')
+		check_gnu_function(strchrnul_frag, 'Checking for strchrnul', 'HAVE_STRCHRNUL')
 
 	# indicate if we are packaging for Linux/BSD
 	if conf.options.PACKAGING:
 		conf.env.LIBDIR = conf.env.BINDIR = conf.env.LIBDIR + '/xash3d'
 		conf.env.SHAREDIR = '${PREFIX}/share/xash3d'
 	else:
-		if sys.platform != 'win32' and not conf.env.DEST_OS == 'android':
+		if sys.platform != 'win32' and conf.env.DEST_OS != 'android':
 			conf.env.PREFIX = '/'
 
 		conf.env.SHAREDIR = conf.env.LIBDIR = conf.env.BINDIR = conf.env.PREFIX

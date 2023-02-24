@@ -1016,18 +1016,18 @@ void Touch_Init( void )
 	Touch_AddDefaultButton( "jump", "touch_default/jump", "+jump", 0.880000, 0.227228, 1.000000, 0.454457, color, 2, 1, 0 );
 	Touch_AddDefaultButton( "attack", "touch_default/shoot", "+attack", 0.760000, 0.530200, 0.880000, 0.757428, color, 2, 1, 0 );
 	Touch_AddDefaultButton( "attack2", "touch_default/shoot_alt", "+attack2", 0.760000, 0.302971, 0.880000, 0.530200, color, 2, 1, 0 );
-	Touch_AddDefaultButton( "loadquick", "touch_default/load", "loadquick", 0.760000, 0.000000, 0.840000, 0.151486, color, 2, 1, 16 );
-	Touch_AddDefaultButton( "savequick", "touch_default/save", "savequick", 0.840000, 0.000000, 0.920000, 0.151486, color, 2, 1, 16 );
-	Touch_AddDefaultButton( "messagemode", "touch_default/keyboard", "messagemode", 0.840000, 0.000000, 0.920000, 0.151486, color, 2, 1, 8 );
+	Touch_AddDefaultButton( "loadquick", "touch_default/load", "loadquick", 0.680000, 0.000000, 0.760000, 0.151486, color, 2, 1, 16 );
+	Touch_AddDefaultButton( "savequick", "touch_default/save", "savequick", 0.760000, 0.000000, 0.840000, 0.151486, color, 2, 1, 16 );
+	Touch_AddDefaultButton( "messagemode", "touch_default/keyboard", "messagemode", 0.760000, 0.000000, 0.840000, 0.151486, color, 2, 1, 8 );
 	Touch_AddDefaultButton( "reload", "touch_default/reload", "+reload", 0.000000, 0.302971, 0.120000, 0.530200, color, 2, 1, 0 );
 	Touch_AddDefaultButton( "flashlight", "touch_default/flash_light_filled", "impulse 100", 0.920000, 0.000000, 1.000000, 0.151486, color, 2, 1, 0 );
-	Touch_AddDefaultButton( "scores", "touch_default/map", "+showscores", 0.760000, 0.000000, 0.840000, 0.151486, color, 2, 1, 8 );
+	Touch_AddDefaultButton( "scores", "touch_default/map", "+showscores", 0.680000, 0.000000, 0.760000, 0.151486, color, 2, 1, 8 );
 	Touch_AddDefaultButton( "show_numbers", "touch_default/show_weapons", "exec touch_default/numbers.cfg", 0.440000, 0.833171, 0.520000, 0.984656, color, 2, 1, 0 );
 	Touch_AddDefaultButton( "duck", "touch_default/crouch", "+duck", 0.880000, 0.757428, 1.000000, 0.984656, color, 2, 1, 0 );
 	Touch_AddDefaultButton( "tduck", "touch_default/tduck", ";+duck", 0.560000, 0.833171, 0.620000, 0.946785, color, 2, 1, 0 );
 	Touch_AddDefaultButton( "edit", "touch_default/settings", "touch_enableedit", 0.420000, 0.000000, 0.500000, 0.151486, color, 2, 1, 32 );
 	Touch_AddDefaultButton( "menu", "touch_default/menu", "escape", 0.000000, 0.833171, 0.080000, 0.984656, color, 2, 1, 0 );
-
+	Touch_AddDefaultButton( "spray", "touch_default/spray", "impulse 201", 0.840000, 0.000000, 0.920000, 0.151486, color, 2, 1, 0 );
 
 	Cmd_AddCommand( "touch_addbutton", Touch_AddButton_f, "add native touch button" );
 	Cmd_AddCommand( "touch_removebutton", IN_TouchRemoveButton_f, "remove native touch button" );
@@ -1084,8 +1084,13 @@ void Touch_Init( void )
 	Cvar_RegisterVariable( &touch_enable );
 	Cvar_RegisterVariable( &touch_emulate );
 
-	/// TODO: touch sdl platform
-	// SDL_SetHint( SDL_HINT_ANDROID_SEPARATE_MOUSE_AND_TOUCH, "1" );
+	// TODO: touch platform
+#if SDL_VERSION_ATLEAST( 2, 0, 10 )
+	SDL_SetHint( SDL_HINT_MOUSE_TOUCH_EVENTS, "0" );
+	SDL_SetHint( SDL_HINT_TOUCH_MOUSE_EVENTS, "0" );
+#else
+	SDL_SetHint( SDL_HINT_ANDROID_SEPARATE_MOUSE_AND_TOUCH, "1" );
+#endif
 
 	touch.initialized = true;
 }
@@ -1105,8 +1110,14 @@ static void Touch_InitConfig( void )
 	/// TODO: hud font
 	//pfnGetScreenInfo( NULL ); //HACK: update hud screen parameters like iHeight
 	if( FS_FileExists( touch_config_file->string, true ) )
+	{
 		Cbuf_AddText( va( "exec \"%s\"\n", touch_config_file->string ) );
-	else Touch_LoadDefaults_f( );
+		Cbuf_Execute();
+	}
+	else
+	{
+		Touch_LoadDefaults_f();
+	}
 
 	Touch_InitEditor();
 	touch.joytexture = ref.dllFuncs.GL_LoadTexture( touch_joy_texture->string, NULL, 0, TF_NOMIPMAP );
@@ -1945,7 +1956,8 @@ int IN_TouchEvent( touchEventType type, int fingerID, float x, float y, float dx
 		// Hack for keyboard, hope it help
 		if( cls.key_dest == key_console || cls.key_dest == key_message )
 		{
-			Key_EnableTextInput( true, true );
+			if ( type == event_down ) // don't pop it again on event_up
+				Key_EnableTextInput( true, true );
 			if( cls.key_dest == key_console )
 			{
 				static float y1 = 0;

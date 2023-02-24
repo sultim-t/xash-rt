@@ -176,19 +176,7 @@ void IN_ToggleClientMouse( int newstate, int oldstate )
 
 	// since SetCursorType controls cursor visibility
 	// execute it first, and then check mouse grab state
-#if !XASH_RAYTRACING
-	if(( newstate == key_menu || newstate == key_console || newstate == key_message ) &&
-		( !CL_IsBackgroundMap() || CL_IsBackgroundDemo( )))
-#else
-
-	qboolean withcursor =
-        ( newstate == key_menu || newstate == key_console || newstate == key_message ) &&
-        ( !CL_IsBackgroundMap() || CL_IsBackgroundDemo() );
-
-	qboolean background_withcursor = newstate == key_menu && CL_IsBackgroundMap();
-
-	if( withcursor || background_withcursor )
-#endif
+	if( newstate == key_menu || newstate == key_console || newstate == key_message )
 	{
 		Platform_SetCursorType( dc_arrow );
 
