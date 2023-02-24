@@ -161,6 +161,7 @@
     <ClCompile Include="wad.c" />
     <ClCompile Include="watch.c" />
     <ClCompile Include="zip.c" />
+    <ClCompile Include="dir.c" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\public\public.vcxproj">

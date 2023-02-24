@@ -203,6 +203,7 @@
     <ClCompile Include="client\cl_efrag.c" />
     <ClCompile Include="client\cl_efx.c" />
     <ClCompile Include="client\cl_events.c" />
+    <ClCompile Include="client\cl_font.c" />
     <ClCompile Include="client\cl_frame.c" />
     <ClCompile Include="client\cl_game.c" />
     <ClCompile Include="client\cl_gameui.c" />
@@ -262,6 +263,7 @@
     <ClCompile Include="common\imagelib\img_utils.c" />
     <ClCompile Include="common\imagelib\img_wad.c" />
     <ClCompile Include="common\infostring.c" />
+    <ClCompile Include="common\ipv6text.c" />
     <ClCompile Include="common\launcher.c" />
     <ClCompile Include="common\lib_common.c" />
     <ClCompile Include="common\masterlist.c" />
