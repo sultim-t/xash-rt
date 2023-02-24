@@ -53,6 +53,7 @@ jobs:
         copy HLSDK/dlls/*.dll final/rt/valve/dlls
         copy -r RTGL1/ovrd/* final/rt
         copy -r scripts/rt/* final/valve
+        echo "${{ github.sha }}" | Out-File -encoding ASCII final/VERSION
 
     - name: Upload
       uses: actions/upload-artifact@v3
