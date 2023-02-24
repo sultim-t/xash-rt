@@ -1159,7 +1159,7 @@ qboolean R_Init( void )
                                RG_MESSAGE_SEVERITY_WARNING | RG_MESSAGE_SEVERITY_ERROR,
     #endif
 
-            .primaryRaysMaxAlbedoLayers          = 4,
+            .primaryRaysMaxAlbedoLayers          = 2,
             .indirectIlluminationMaxAlbedoLayers = 1,
             .rayCullBackFacingTriangles          = true,
             .allowGeometryWithSkyFlag            = true,
