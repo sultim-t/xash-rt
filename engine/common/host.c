@@ -1043,7 +1043,7 @@ void Host_InitCommon( int argc, char **argv, const char *progname, qboolean bCha
 #else
 	if( len && ( host.rootdir[len - 1] == '/' || host.rootdir[len - 1] == '\\') )
 		host.rootdir[len - 1] = 0;
-	Q_strncat(host.rootdir, PATH_SPLITTER "..", sizeof(host.rootdir));
+	Q_strncat( host.rootdir, "/..", sizeof( host.rootdir ));
 #endif
 
 	// get readonly root. The order is: check for arg, then env.
