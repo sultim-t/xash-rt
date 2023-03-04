@@ -686,9 +686,13 @@ void RT_ParseStaticLightEntities()
                     {
                         AngleVectors( light.allangles, direction, NULL, NULL );
                     }
-                    else if( ( has & LT_HAS_PITCH ) && ( has & LT_HAS_ANGLE ) )
+                    else if( ( has & LT_HAS_PITCH ) || ( has & LT_HAS_ANGLE ) )
                     {
-                        vec3_t angles = { -light.pitch, light.angle, 0 };
+                        vec3_t angles = {
+                            ( has & LT_HAS_PITCH ) ? -light.pitch : 0,
+                            ( has & LT_HAS_ANGLE ) ? light.angle : 0,
+                            0,
+                        };
                         AngleVectors( angles, direction, NULL, NULL );
                     }
                     else
