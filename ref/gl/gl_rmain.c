@@ -1688,7 +1688,7 @@ void R_EndFrame( void )
 
     RgDrawFrameIlluminationParams illum_params = {
         .sType                              = RG_STRUCTURE_TYPE_DRAW_FRAME_ILLUMINATION_PARAMS,
-        .pNext                              = NULL,
+        .pNext                              = &resolution_params,
         .maxBounceShadows                   = RT_CVAR_TO_UINT32( rt_shadowrays ),
         .enableSecondBounceForIndirect      = RT_CVAR_TO_BOOL( rt_indir2bounces ),
         .cellWorldSize                      = METRIC_TO_QUAKEUNIT( 2.0f ),
