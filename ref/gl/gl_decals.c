@@ -987,7 +987,8 @@ void DrawSingleDecal( decal_t *pDecal, msurface_t *fa )
     Matrix4x4_Concat( m, translate, m );
     Matrix4x4_Concat( m, RI.objectMatrix, m );
 
-    RgDecalUploadInfo info = {
+    RgDecalInfo info = {
+		.sType = RG_STRUCTURE_TYPE_DECAL_INFO,
         .transform    = { {
             { m[ 0 ][ 0 ], m[ 0 ][ 1 ], m[ 0 ][ 2 ], m[ 0 ][ 3 ] },
             { m[ 1 ][ 0 ], m[ 1 ][ 1 ], m[ 1 ][ 2 ], m[ 1 ][ 3 ] },

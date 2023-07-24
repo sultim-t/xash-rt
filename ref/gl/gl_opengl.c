@@ -2063,6 +2063,7 @@ void pglTexImage2D( GLenum        target,
             if( level == 0 && format == GL_RGBA && type == GL_UNSIGNED_BYTE && pixels )
             {
                 RgOriginalTextureInfo info = {
+					.sType = RG_STRUCTURE_TYPE_ORIGINAL_TEXTURE_INFO,
                     .pTextureName = rt_state.curTexture2DName,
                     .pPixels      = pixels,
                     .size         = { width, height },
@@ -2259,10 +2260,11 @@ static qboolean     rt_2dstate_changed = false;
 
 static struct
 {
-    rt_batchtype_t           type;
-    RgMeshInfo               mesh;
-    RgMeshPrimitiveInfo      primitive;
-    RgEditorInfo             additional;
+    rt_batchtype_t                  type;
+    RgMeshInfo                      mesh;
+    RgMeshPrimitiveInfo             primitive;
+    RgMeshPrimitiveTextureLayersEXT layers;
+    RgTextureLayer                  layer1;
 } rt_batch = { 0 };
 
 static qboolean AreTransformsAlwaysIdentity( rt_batchtype_t type )
@@ -2324,7 +2326,8 @@ static qboolean AreMeshesSame( rt_batchtype_t    a_type,
     return false;
 }
 
-static qboolean AreAdditionalsSame( const RgEditorInfo* a, const RgEditorInfo* b )
+static qboolean AreAdditionalsSame( const RgMeshPrimitiveTextureLayersEXT* a,
+                                    const RgMeshPrimitiveTextureLayersEXT* b )
 {
     if( !a && !b )
     {
@@ -2333,16 +2336,24 @@ static qboolean AreAdditionalsSame( const RgEditorInfo* a, const RgEditorInfo* b
 
     if( a && b )
     {
+        if( a->sType != RG_STRUCTURE_TYPE_MESH_PRIMITIVE_TEXTURE_LAYERS_EXT ||
+            b->sType != RG_STRUCTURE_TYPE_MESH_PRIMITIVE_TEXTURE_LAYERS_EXT )
+        {
+            ASSERT( 0 && "Expected mesh extensions to be "
+                         "RG_STRUCTURE_TYPE_MESH_PRIMITIVE_TEXTURE_LAYERS_EXT" );
+            return false;
+        }
+
 		// layer1 is lightmap
 
-        if( !a->layer1Exists && !b->layer1Exists )
+        if( !a->pLayer1 && !b->pLayer1 )
         {
             return true;
         }
 
-        if( a->layer1Exists && b->layer1Exists )
+        if( a->pLayer1 && b->pLayer1 )
         {
-            if( a->layer1.pTextureName == b->layer1.pTextureName )
+            if( a->pLayer1->pTextureName == b->pLayer1->pTextureName )
             {
                 return true;
             }
@@ -2373,7 +2384,7 @@ static qboolean ArePrimitivesSame( rt_batchtype_t             a_type,
                 a_primitive->color == b_primitive->color &&
                 a_primitive->pTextureName == b_primitive->pTextureName &&
                 AreFloatsClose( a_primitive->emissive, b_primitive->emissive ) &&
-                AreAdditionalsSame( a_primitive->pEditorInfo, b_primitive->pEditorInfo ) )
+                AreAdditionalsSame( a_primitive->pNext, b_primitive->pNext ) )
             {
                 assert( a_type == b_type );
 
@@ -2406,11 +2417,19 @@ static void FlushBatch()
         }
         else
         {
-            RgResult r = rgUploadNonWorldPrimitive( rg_instance,
-                                                    &rt_batch.primitive,
-                                                    rt_2dstate_onbatch.view_projection,
-                                                    &rt_2dstate_onbatch.viewport );
+            ASSERT( rt_batch.primitive.pNext == NULL );
+
+            RgMeshPrimitiveForceRasterizedEXT raster = {
+                .sType           = RG_STRUCTURE_TYPE_MESH_PRIMITIVE_FORCE_RASTERIZED_EXT,
+                .pNext           = NULL,
+                .pViewport       = &rt_2dstate_onbatch.viewport,
+                .pViewProjection = rt_2dstate_onbatch.view_projection,
+            };
+
+            rt_batch.primitive.pNext = &raster;
+            RgResult r = rgUploadMeshPrimitive( rg_instance, NULL, &rt_batch.primitive );
             RG_CHECK( r );
+            rt_batch.primitive.pNext = NULL;
         }
     }
     rgUtilImScratchClear( rg_instance );
@@ -2420,9 +2439,19 @@ static void TryBeginBatch_Finalize( rt_batchtype_t             newtype,
                                     const RgMeshInfo*          newmesh,
                                     const RgMeshPrimitiveInfo* newprimitive )
 {
-    static const RgMeshInfo          null_mesh = { 0 };
-    static const RgMeshPrimitiveInfo null_prim = { 0 };
-    static const RgEditorInfo        null_addt = { 0 };
+    static const RgMeshInfo null_mesh = {
+        .sType = RG_STRUCTURE_TYPE_MESH_INFO,
+        .pNext = NULL,
+    };
+    static const RgMeshPrimitiveInfo null_prim = {
+        .sType = RG_STRUCTURE_TYPE_MESH_PRIMITIVE_INFO,
+        .pNext = NULL,
+    };
+    static const RgMeshPrimitiveTextureLayersEXT null_layers = {
+        .sType = RG_STRUCTURE_TYPE_MESH_PRIMITIVE_TEXTURE_LAYERS_EXT,
+        .pNext = NULL,
+    };
+    static const RgTextureLayer null_layer1 = { 0 };
     assert( ( newtype != RT_BATCH_TYPE_NONE ) ||
             ( newtype == RT_BATCH_TYPE_NONE && newmesh == NULL && newprimitive == NULL ) );
 
@@ -2437,12 +2466,32 @@ static void TryBeginBatch_Finalize( rt_batchtype_t             newtype,
             rt_batch.type      = newtype;
             rt_batch.mesh      = newmesh ? *newmesh : null_mesh;
             rt_batch.primitive = newprimitive ? *newprimitive : null_prim;
+            if( newprimitive && newprimitive->pNext )
             {
-                const RgEditorInfo* src =
-                    newprimitive && newprimitive->pEditorInfo ? newprimitive->pEditorInfo : NULL;
-				// assign and relink
-                rt_batch.additional            = src ? *src : null_addt;
-                rt_batch.primitive.pEditorInfo = src ? &rt_batch.additional : NULL;
+                const RgMeshPrimitiveTextureLayersEXT* src = newprimitive->pNext;
+                if( src->sType == RG_STRUCTURE_TYPE_MESH_PRIMITIVE_TEXTURE_LAYERS_EXT &&
+                    src->pNext == NULL && src->pLayer1 )
+                {
+                    // copy
+                    rt_batch.layers = *src;
+                    rt_batch.layer1 = *src->pLayer1;
+                    // relink
+                    rt_batch.layers.pLayer1  = &rt_batch.layer1;
+                    rt_batch.primitive.pNext = &rt_batch.layers;
+                }
+                else
+                {
+                    ASSERT( 0 && "Unexpected mesh primitive extension" );
+                    rt_batch.layers          = null_layers;
+                    rt_batch.layer1          = null_layer1;
+                    rt_batch.primitive.pNext = NULL;
+                }
+            }
+            else
+            {
+                rt_batch.layers = null_layers;
+                rt_batch.layer1 = null_layer1;
+                rt_batch.primitive.pNext = NULL;
             }
 
 			if( rt_batch.type == RT_BATCH_TYPE_2D )
@@ -2461,6 +2510,8 @@ static void TryBeginBatch( RgUtilImScratchTopology glbegin_topology )
     if( curtype == RT_BATCH_TYPE_2D )
     {
         RgMeshPrimitiveInfo prim = {
+            .sType                = RG_STRUCTURE_TYPE_MESH_PRIMITIVE_INFO,
+            .pNext                = NULL,
             .pPrimitiveNameInMesh = NULL,
             .primitiveIndexInMesh = 0,
             .flags                = ( rt_raster_blend ? RG_MESH_PRIMITIVE_TRANSLUCENT : 0 ) |
@@ -2471,7 +2522,6 @@ static void TryBeginBatch( RgUtilImScratchTopology glbegin_topology )
             .emissive     = rt_raster_blend && rt_raster_additive
                                 ? RT_CVAR_TO_FLOAT( rt_emis_additive_dflt )
                                 : 0.0f,
-            .pEditorInfo  = NULL,
         };
 
         TryBeginBatch_Finalize( curtype, NULL, &prim );
@@ -2479,6 +2529,8 @@ static void TryBeginBatch( RgUtilImScratchTopology glbegin_topology )
     else if( curtype == RT_BATCH_TYPE_RASTER )
     {
         RgMeshInfo mesh = {
+            .sType          = RG_STRUCTURE_TYPE_MESH_INFO,
+            .pNext          = NULL,
             .uniqueObjectID = UINT32_MAX,
             .pMeshName      = NULL,
             .transform      = RG_TRANSFORM_IDENTITY,
@@ -2488,6 +2540,8 @@ static void TryBeginBatch( RgUtilImScratchTopology glbegin_topology )
         };
 
         RgMeshPrimitiveInfo prim = {
+            .sType                = RG_STRUCTURE_TYPE_MESH_PRIMITIVE_INFO,
+            .pNext                = NULL,
             .pPrimitiveNameInMesh = NULL,
             .primitiveIndexInMesh = 0,
             .flags                = ( rt_raster_blend ? RG_MESH_PRIMITIVE_TRANSLUCENT : 0 ) |
@@ -2499,7 +2553,6 @@ static void TryBeginBatch( RgUtilImScratchTopology glbegin_topology )
             .emissive     = rt_raster_blend && rt_raster_additive
                                 ? RT_CVAR_TO_FLOAT( rt_emis_additive_dflt )
                                 : 0.0f,
-            .pEditorInfo  = NULL,
         };
 
         TryBeginBatch_Finalize( curtype, &mesh, &prim );
@@ -2519,6 +2572,8 @@ static void TryBeginBatch( RgUtilImScratchTopology glbegin_topology )
 		uint8_t alpha = ( uint8_t )bound( 0.0f, 255.0f * tr.blend, 255.0f );
 
         RgMeshInfo mesh = {
+            .sType          = RG_STRUCTURE_TYPE_MESH_INFO,
+            .pNext          = NULL,
             .uniqueObjectID = RI.currententity->index,
             .pMeshName      = RI.currentmodel->name,
             .transform      = RG_TRANSFORM_IDENTITY,
@@ -2543,23 +2598,24 @@ static void TryBeginBatch( RgUtilImScratchTopology glbegin_topology )
         }
 
         RgMeshPrimitiveInfo prim = {
-            .pPrimitiveNameInMesh = NULL,
-            .primitiveIndexInMesh = hashStudioPrimitive( rt_state.curStudioBodyPart,
-                                                         rt_state.curStudioSubmodel,
-                                                         rt_state.curStudioMesh,
-                                                         rt_state.curStudioWeaponModel,
-                                                         rt_state.curStudioGlend ),
+            .sType = RG_STRUCTURE_TYPE_MESH_PRIMITIVE_INFO,
+            .pNext = NULL,
             .flags =
                 ( hasinvis ? RG_MESH_PRIMITIVE_GLASS | RG_MESH_PRIMITIVE_IGNORE_REFRACT_AFTER
                            : 0 ) |
                 ( rt_alphatest ? RG_MESH_PRIMITIVE_ALPHA_TESTED : 0 ) |
                 ( isviewmodel ? RG_MESH_PRIMITIVE_FIRST_PERSON
                               : ( isplayerviewer ? RG_MESH_PRIMITIVE_FIRST_PERSON_VIEWER : 0 ) ),
-            .pTextureName = rt_state.curTexture2DName,
-            .textureFrame = 0,
-            .color        = rgUtilPackColorByte4D( 255, 255, 255, ishologram ? alpha : 255 ),
-            .emissive     = ishologram ? RT_CVAR_TO_FLOAT( rt_emis_hologram ) : 0.0f,
-            .pEditorInfo  = NULL,
+            .pPrimitiveNameInMesh = NULL,
+            .primitiveIndexInMesh = hashStudioPrimitive( rt_state.curStudioBodyPart,
+                                                         rt_state.curStudioSubmodel,
+                                                         rt_state.curStudioMesh,
+                                                         rt_state.curStudioWeaponModel,
+                                                         rt_state.curStudioGlend ),
+            .pTextureName         = rt_state.curTexture2DName,
+            .textureFrame         = 0,
+            .color    = rgUtilPackColorByte4D( 255, 255, 255, ishologram ? alpha : 255 ),
+            .emissive = ishologram ? RT_CVAR_TO_FLOAT( rt_emis_hologram ) : 0.0f,
         };
 
 		if( RT_CVAR_TO_BOOL( rt_norms_studio ) )
@@ -2581,6 +2637,8 @@ static void TryBeginBatch( RgUtilImScratchTopology glbegin_topology )
         }
 
         RgMeshInfo mesh = {
+            .sType          = RG_STRUCTURE_TYPE_MESH_INFO,
+            .pNext          = NULL,
             .uniqueObjectID = RI.currententity->index,
             .pMeshName      = RI.currentmodel->name,
             .transform      = MATRIX4_TO_RGTRANSFORM( RI.objectMatrix ),
@@ -2590,27 +2648,31 @@ static void TryBeginBatch( RgUtilImScratchTopology glbegin_topology )
             .animationTime = 0.0f,
         };
 
-        RgEditorInfo additional = {
-            .layer1Exists = RT_CVAR_TO_FLOAT( rt_classic ) > 0.01f
-                                ? rt_state.curLightmapTextureName != NULL
-                                : false,
-            .layer1       = { .pTexCoord    = NULL,
-                              .pTextureName = rt_state.curLightmapTextureName,
-                              .blend        = RG_TEXTURE_LAYER_BLEND_TYPE_SHADE,
-                              .color        = rgUtilPackColorByte4D( 255, 255, 255, 255 ) },
+		RgTextureLayer layer1 = {
+            .pTexCoord    = NULL,
+            .pTextureName = rt_state.curLightmapTextureName,
+            .blend        = RG_TEXTURE_LAYER_BLEND_TYPE_SHADE,
+            .color        = rgUtilPackColorByte4D( 255, 255, 255, 255 ),
+        };
+
+        RgMeshPrimitiveTextureLayersEXT primlayers = {
+            .sType   = RG_STRUCTURE_TYPE_MESH_PRIMITIVE_TEXTURE_LAYERS_EXT,
+            .pNext   = NULL,
+            .pLayer1 = &layer1,
         };
 
         RgMeshPrimitiveInfo prim = {
-            .pPrimitiveNameInMesh = rt_state.curTexture2DName, // NULL,
-            .primitiveIndexInMesh = rt_state.curBrushSurface,
-            .flags                = ( rt_alphatest ? RG_MESH_PRIMITIVE_ALPHA_TESTED : 0 ) |
+            .sType = RG_STRUCTURE_TYPE_MESH_PRIMITIVE_INFO,
+            .pNext = &primlayers,
+            .flags = ( rt_alphatest ? RG_MESH_PRIMITIVE_ALPHA_TESTED : 0 ) |
                      ( rt_raster_blend ? RG_MESH_PRIMITIVE_TRANSLUCENT : 0 ) |
                      ( rt_state.curBrushSurfaceIsWater ? RG_MESH_PRIMITIVE_WATER : 0 ),
-            .pTextureName = rt_state.curTexture2DName,
-            .textureFrame = 0,
-            .color        = rgUtilPackColorByte4D( 255, 255, 255, 255 ),
-            .emissive     = 0.0f,
-            .pEditorInfo  = &additional,
+            .pPrimitiveNameInMesh = rt_state.curTexture2DName, // NULL,
+            .primitiveIndexInMesh = rt_state.curBrushSurface,
+            .pTextureName         = rt_state.curTexture2DName,
+            .textureFrame         = 0,
+            .color                = rgUtilPackColorByte4D( 255, 255, 255, 255 ),
+            .emissive             = 0.0f,
         };
 
         if( RT_CVAR_TO_BOOL( rt_norms_brush ) )

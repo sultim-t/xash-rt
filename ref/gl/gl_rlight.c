@@ -1004,16 +1004,23 @@ void RT_UploadAllLights()
         vec3_t direction;
         AngleVectors( angles, direction, NULL, NULL );
 
-        RgDirectionalLightUploadInfo info = {
-            .uniqueID               = RT_IDBASE_SUN,
-            .isExportable           = true,
+        RgLightDirectionalEXT info = {
+            .sType                  = RG_STRUCTURE_TYPE_LIGHT_DIRECTIONAL_EXT,
+            .pNext                  = NULL,
             .color                  = sun->pcolor,
             .intensity              = RT_CVAR_TO_FLOAT( rt_sun ) * sun->intensity,
             .direction              = RT_VEC3( direction ),
             .angularDiameterDegrees = RT_CVAR_TO_FLOAT( rt_sun_diameter ),
         };
 
-        RgResult r = rgUploadDirectionalLight( rg_instance, &info );
+		RgLightInfo lt = {
+            .sType        = RG_STRUCTURE_TYPE_LIGHT_INFO,
+            .pNext        = &info,
+            .uniqueID     = RT_IDBASE_SUN,
+            .isExportable = true,
+        };
+
+        RgResult r = rgUploadLight( rg_instance, &lt );
         RG_CHECK( r );
     }
 
@@ -1023,35 +1030,61 @@ void RT_UploadAllLights()
 
         if( src->is_spot )
         {
-            RgSpotLightUploadInfo info = {
-                .uniqueID     = RT_IDBASE_STATICLIGHT + src->index,
-                .isExportable = true,
-                .extra        = { .exists = true, .lightstyle = src->light_style },
-                .color        = src->pcolor,
-                .intensity    = RT_CVAR_TO_FLOAT( rt_light_s ) * src->intensity,
-                .position     = RT_VEC3( src->abs_position ),
-                .direction    = RT_VEC3( src->dir ),
-                .radius       = METRIC_TO_QUAKEUNIT( RT_CVAR_TO_FLOAT( rt_light_radius ) ),
-                .angleOuter   = src->spot_outer_cone_rad,
-                .angleInner   = src->spot_inner_cone_rad,
+            RgLightAdditionalEXT extra = {
+                .sType        = RG_STRUCTURE_TYPE_LIGHT_ADDITIONAL_EXT,
+                .pNext        = NULL,
+                .lightstyle   = src->light_style,
+                .isVolumetric = false,
             };
 
-            RgResult r = rgUploadSpotLight( rg_instance, &info );
+            RgLightSpotEXT info = {
+                .sType      = RG_STRUCTURE_TYPE_LIGHT_SPOT_EXT,
+                .pNext      = &extra,
+                .color      = src->pcolor,
+                .intensity  = RT_CVAR_TO_FLOAT( rt_light_s ) * src->intensity,
+                .position   = RT_VEC3( src->abs_position ),
+                .direction  = RT_VEC3( src->dir ),
+                .radius     = METRIC_TO_QUAKEUNIT( RT_CVAR_TO_FLOAT( rt_light_radius ) ),
+                .angleOuter = src->spot_outer_cone_rad,
+                .angleInner = src->spot_inner_cone_rad,
+            };
+
+            RgLightInfo lt = {
+                .sType        = RG_STRUCTURE_TYPE_LIGHT_INFO,
+                .pNext        = &info,
+                .uniqueID     = RT_IDBASE_STATICLIGHT + src->index,
+                .isExportable = true,
+            };
+
+            RgResult r = rgUploadLight( rg_instance, &lt );
             RG_CHECK( r );
         }
         else
         {
-            RgSphericalLightUploadInfo info = {
-                .uniqueID     = RT_IDBASE_STATICLIGHT + src->index,
-                .isExportable = true,
-                .extra        = { .exists = true, .lightstyle = src->light_style },
-                .color        = src->pcolor,
-                .intensity    = RT_CVAR_TO_FLOAT( rt_light_s ) * src->intensity,
-                .position     = RT_VEC3( src->abs_position ),
-                .radius       = METRIC_TO_QUAKEUNIT( RT_CVAR_TO_FLOAT( rt_light_radius ) ),
+            RgLightAdditionalEXT extra = {
+                .sType        = RG_STRUCTURE_TYPE_LIGHT_ADDITIONAL_EXT,
+                .pNext        = NULL,
+                .lightstyle   = src->light_style,
+                .isVolumetric = false,
             };
 
-            RgResult r = rgUploadSphericalLight( rg_instance, &info );
+            RgLightSphericalEXT info = {
+                .sType     = RG_STRUCTURE_TYPE_LIGHT_SPHERICAL_EXT,
+                .pNext     = &extra,
+                .color     = src->pcolor,
+                .intensity = RT_CVAR_TO_FLOAT( rt_light_s ) * src->intensity,
+                .position  = RT_VEC3( src->abs_position ),
+                .radius    = METRIC_TO_QUAKEUNIT( RT_CVAR_TO_FLOAT( rt_light_radius ) ),
+            };
+
+            RgLightInfo lt = {
+                .sType        = RG_STRUCTURE_TYPE_LIGHT_INFO,
+                .pNext        = &info,
+                .uniqueID     = RT_IDBASE_STATICLIGHT + src->index,
+                .isExportable = true,
+            };
+
+            RgResult r = rgUploadLight( rg_instance, &lt );
             RG_CHECK( r );
         }
     }
@@ -1079,24 +1112,31 @@ void RT_UploadAllLights()
                 vec3_t pos;
                 CalculateFlaslightPosition( pos );
 
-                RgSpotLightUploadInfo info = {
-                    .uniqueID     = RT_IDBASE_FLASHLIGHT + i,
-                    .isExportable = false,
-                    .color        = rgUtilPackColorByte4D( 220, 243, 255, 255 ),
-                    .intensity    = RT_CVAR_TO_FLOAT( rt_flsh ),
-                    .position     = RT_VEC3( pos ),
-                    .direction    = RT_VEC3( RI.vforward ),
-                    .radius       = METRIC_TO_QUAKEUNIT( RT_CVAR_TO_FLOAT( rt_flsh_radius ) ),
-                    .angleOuter   = DEG2RAD( RT_CVAR_TO_FLOAT( rt_flsh_angle ) ),
-                    .angleInner   = 0,
+                RgLightSpotEXT info = {
+                    .sType      = RG_STRUCTURE_TYPE_LIGHT_SPOT_EXT,
+                    .pNext      = NULL,
+                    .color      = rgUtilPackColorByte4D( 220, 243, 255, 255 ),
+                    .intensity  = RT_CVAR_TO_FLOAT( rt_flsh ),
+                    .position   = RT_VEC3( pos ),
+                    .direction  = RT_VEC3( RI.vforward ),
+                    .radius     = METRIC_TO_QUAKEUNIT( RT_CVAR_TO_FLOAT( rt_flsh_radius ) ),
+                    .angleOuter = DEG2RAD( RT_CVAR_TO_FLOAT( rt_flsh_angle ) ),
+                    .angleInner = 0,
                 };
 
-                RgResult r = rgUploadSpotLight( rg_instance, &info );
+                RgLightInfo lt = {
+                    .sType        = RG_STRUCTURE_TYPE_LIGHT_INFO,
+                    .pNext        = &info,
+                    .uniqueID     = RT_IDBASE_FLASHLIGHT + i,
+                    .isExportable = false,
+                };
+
+                RgResult r = rgUploadLight( rg_instance, &lt );
                 RG_CHECK( r );
 
                 // uploaded flashlight, reset the index, for future reuse
                 rt_cvars._rt_flsh_key->value = -1;
-                rt_state.flashlight_uniqueid = info.uniqueID;
+                rt_state.flashlight_uniqueid = lt.uniqueID;
             }
             else
             {
@@ -1105,16 +1145,23 @@ void RT_UploadAllLights()
                 //       GOLDSRCUNIT_TO_METRIC( l->radius ),
                 //       CVAR_TO_FLOAT( rt_cvars.rt_fLightDlightFalloffToIntensity ) );
 
-                RgSphericalLightUploadInfo info = {
-                    .uniqueID     = is_e_light ? RT_IDBASE_ELIGHT + i : RT_IDBASE_DLIGHT + i,
-                    .isExportable = false,
+                RgLightSphericalEXT info = {
+                    .sType     = RG_STRUCTURE_TYPE_LIGHT_SPHERICAL_EXT,
+                    .pNext     = NULL,
                     .color     = rgUtilPackColorByte4D( l->color.r, l->color.g, l->color.b, 255 ),
                     .intensity = RT_CVAR_TO_FLOAT( rt_light_d ) * falloff_mult,
                     .position  = RT_VEC3( l->origin ),
                     .radius    = METRIC_TO_QUAKEUNIT( RT_CVAR_TO_FLOAT( rt_light_radius ) ),
                 };
 
-                RgResult r = rgUploadSphericalLight( rg_instance, &info );
+                RgLightInfo lt = {
+                    .sType        = RG_STRUCTURE_TYPE_LIGHT_INFO,
+                    .pNext        = &info,
+                    .uniqueID     = is_e_light ? RT_IDBASE_ELIGHT + i : RT_IDBASE_DLIGHT + i,
+                    .isExportable = false,
+                };
+
+                RgResult r = rgUploadLight( rg_instance, &lt );
                 RG_CHECK( r );
             }
         }
@@ -1144,16 +1191,23 @@ void RT_UploadAllLights()
             vec3_t pos;
             ToGlobal( pos, lamps[ i ] );
 
-            RgSphericalLightUploadInfo info = {
-                .uniqueID     = RT_IDBASE_TRAMLIGHT + i,
-                .isExportable = false,
-                .color        = rgUtilPackColorByte4D( 255, 255, 255, 255 ),
-                .intensity    = RT_CVAR_TO_FLOAT( rt_light_tram ),
-                .position     = RT_VEC3( pos ),
-                .radius       = METRIC_TO_QUAKEUNIT( RT_CVAR_TO_FLOAT( rt_light_radius ) ),
+            RgLightSphericalEXT info = {
+                .sType     = RG_STRUCTURE_TYPE_LIGHT_SPHERICAL_EXT,
+                .pNext     = NULL,
+                .color     = rgUtilPackColorByte4D( 255, 255, 255, 255 ),
+                .intensity = RT_CVAR_TO_FLOAT( rt_light_tram ),
+                .position  = RT_VEC3( pos ),
+                .radius    = METRIC_TO_QUAKEUNIT( RT_CVAR_TO_FLOAT( rt_light_radius ) ),
             };
 
-            RgResult r = rgUploadSphericalLight( rg_instance, &info );
+            RgLightInfo lt = {
+                .sType        = RG_STRUCTURE_TYPE_LIGHT_INFO,
+                .pNext        = &info,
+                .uniqueID     = RT_IDBASE_TRAMLIGHT + i,
+                .isExportable = false,
+            };
+
+            RgResult r = rgUploadLight( rg_instance, &lt );
             RG_CHECK( r );
         }
 
@@ -1170,19 +1224,26 @@ void RT_UploadAllLights()
             vec3_t dir;
             VectorNegate( vf, dir );
 
-            RgSpotLightUploadInfo info = {
-                .uniqueID     = RT_IDBASE_TRAMLIGHT + RT_ARRAYSIZE( lamps ) + i,
-                .isExportable = false,
-                .color        = rgUtilPackColorByte4D( 255, 255, 255, 255 ),
-                .intensity    = RT_CVAR_TO_FLOAT( rt_light_tram_h ),
-                .position     = RT_VEC3( pos ),
-                .direction    = RT_VEC3( dir ),
-                .radius       = METRIC_TO_QUAKEUNIT( RT_CVAR_TO_FLOAT( rt_light_radius ) ),
-                .angleOuter   = DEG2RAD( bound( 0, RT_CVAR_TO_FLOAT( rt_light_tram_ao ), 150 ) ),
-                .angleInner   = DEG2RAD( bound( 0, RT_CVAR_TO_FLOAT( rt_light_tram_ai ), 150 ) ),
+            RgLightSpotEXT info = {
+                .sType      = RG_STRUCTURE_TYPE_LIGHT_SPOT_EXT,
+                .pNext      = NULL,
+                .color      = rgUtilPackColorByte4D( 255, 255, 255, 255 ),
+                .intensity  = RT_CVAR_TO_FLOAT( rt_light_tram_h ),
+                .position   = RT_VEC3( pos ),
+                .direction  = RT_VEC3( dir ),
+                .radius     = METRIC_TO_QUAKEUNIT( RT_CVAR_TO_FLOAT( rt_light_radius ) ),
+                .angleOuter = DEG2RAD( bound( 0, RT_CVAR_TO_FLOAT( rt_light_tram_ao ), 150 ) ),
+                .angleInner = DEG2RAD( bound( 0, RT_CVAR_TO_FLOAT( rt_light_tram_ai ), 150 ) ),
             };
 
-            RgResult r = rgUploadSpotLight( rg_instance, &info );
+            RgLightInfo lt = {
+                .sType        = RG_STRUCTURE_TYPE_LIGHT_INFO,
+                .pNext        = &info,
+                .uniqueID     = RT_IDBASE_TRAMLIGHT + RT_ARRAYSIZE( lamps ) + i,
+                .isExportable = false,
+            };
+
+            RgResult r = rgUploadLight( rg_instance, &lt );
             RG_CHECK( r );
         }
     }
@@ -1192,34 +1253,48 @@ void RT_UploadAllLights()
         rt_particlelight_t* src = &rt_particlelights[ i ];
         assert( src->id < 1024 );
 
-        RgSphericalLightUploadInfo info = {
-            .uniqueID     = RT_IDBASE_PARTICLELIGHT + src->id,
-            .isExportable = false,
-            .color        = src->color,
-            .intensity    = RT_CVAR_TO_FLOAT( rt_light_p ),
-            .position     = src->position,
-            .radius       = METRIC_TO_QUAKEUNIT( RT_CVAR_TO_FLOAT( rt_light_radius ) ),
+        RgLightSphericalEXT info = {
+            .sType     = RG_STRUCTURE_TYPE_LIGHT_SPHERICAL_EXT,
+            .pNext     = NULL,
+            .color     = src->color,
+            .intensity = RT_CVAR_TO_FLOAT( rt_light_p ),
+            .position  = src->position,
+            .radius    = METRIC_TO_QUAKEUNIT( RT_CVAR_TO_FLOAT( rt_light_radius ) ),
         };
 
-        RgResult r = rgUploadSphericalLight( rg_instance, &info );
+        RgLightInfo lt = {
+            .sType        = RG_STRUCTURE_TYPE_LIGHT_INFO,
+            .pNext        = &info,
+            .uniqueID     = RT_IDBASE_PARTICLELIGHT + src->id,
+            .isExportable = false,
+        };
+
+        RgResult r = rgUploadLight( rg_instance, &lt );
         RG_CHECK( r );
     }
 
-	for( uint32_t i = 0; i < rt_beamlights_count; i++ )
+    for( uint32_t i = 0; i < rt_beamlights_count; i++ )
     {
         rt_particlelight_t* src = &rt_beamlights[ i ];
         assert( src->id < 64 );
 
-        RgSphericalLightUploadInfo info = {
-            .uniqueID     = RT_IDBASE_BEAMLIGHT + src->id,
-            .isExportable = false,
-            .color        = src->color,
-            .intensity    = RT_CVAR_TO_FLOAT( rt_light_b ),
-            .position     = src->position,
-            .radius       = METRIC_TO_QUAKEUNIT( RT_CVAR_TO_FLOAT( rt_light_radius ) ),
+        RgLightSphericalEXT info = {
+            .sType     = RG_STRUCTURE_TYPE_LIGHT_SPHERICAL_EXT,
+            .pNext     = NULL,
+            .color     = src->color,
+            .intensity = RT_CVAR_TO_FLOAT( rt_light_b ),
+            .position  = src->position,
+            .radius    = METRIC_TO_QUAKEUNIT( RT_CVAR_TO_FLOAT( rt_light_radius ) ),
         };
 
-        RgResult r = rgUploadSphericalLight( rg_instance, &info );
+        RgLightInfo lt = {
+            .sType        = RG_STRUCTURE_TYPE_LIGHT_INFO,
+            .pNext        = &info,
+            .uniqueID     = RT_IDBASE_BEAMLIGHT + src->id,
+            .isExportable = false,
+        };
+
+        RgResult r = rgUploadLight( rg_instance, &lt );
         RG_CHECK( r );
     }
 

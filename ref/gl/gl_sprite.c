@@ -778,7 +778,8 @@ static void R_DrawSpriteQuad( mspriteframe_t *frame, vec3_t org, vec3_t v_right,
 
 		uint32_t indices[] = { 0, 1, 2, 2, 3, 0 };
 
-		RgLensFlareUploadInfo info = {
+		RgLensFlareInfo info = {
+            .sType        = RG_STRUCTURE_TYPE_LENS_FLARE_INFO,
             .vertexCount  = sizeof( verts ) / sizeof( verts[ 0 ] ),
             .pVertices    = verts,
             .indexCount   = sizeof( indices ) / sizeof( indices[ 0 ] ),

@@ -978,6 +978,25 @@ void R_RenderScene( void )
 	R_SetupGL( true );
 	R_Clear( ~0 );
 
+#if XASH_RAYTRACING
+    {
+        RgCameraInfo info = {
+            .sType       = RG_STRUCTURE_TYPE_CAMERA_INFO,
+            .pNext       = NULL,
+            .fovYRadians = DEG2RAD( RI.fov_y ),
+            .aspect      = ( float )gpGlobals->width / ( float )gpGlobals->height,
+            .cameraNear  = R_GetNearClip(),
+            .cameraFar   = R_GetFarClip(),
+        };
+        // reinterpret cast to make matrices column-major
+        matrix4x4* v = ( matrix4x4* )&info.view;
+        Matrix4x4_Transpose( *v, RI.worldviewMatrix );
+
+		RgResult r = rgUploadCamera( rg_instance, &info );
+        RG_CHECK( r );
+    }
+#endif
+
 	R_MarkLeaves();
 	R_DrawFog ();
 
@@ -1078,6 +1097,7 @@ static const char* RT_TryUploadChapterIntroTexture()
         const uint32_t pix = 0xFF000000;
 
         RgOriginalTextureInfo info = {
+            .sType        = RG_STRUCTURE_TYPE_ORIGINAL_TEXTURE_INFO,
             .pTextureName = tex,
             .pPixels      = &pix,
             .size         = { 1, 1 },
@@ -1188,7 +1208,15 @@ static void RT_TryDrawCustomChapterIntro()
 
     // background
     {
+        RgMeshPrimitiveForceRasterizedEXT raster = {
+            .sType           = RG_STRUCTURE_TYPE_MESH_PRIMITIVE_FORCE_RASTERIZED_EXT,
+            .pNext           = NULL,
+            .pViewport       = NULL,
+            .pViewProjection = ( const float* )matrix4x4_identity,
+        };
         RgMeshPrimitiveInfo prim = {
+            .sType                = RG_STRUCTURE_TYPE_MESH_PRIMITIVE_INFO,
+            .pNext                = &raster,
             .pPrimitiveNameInMesh = NULL,
             .primitiveIndexInMesh = 0,
             .flags                = RG_MESH_PRIMITIVE_TRANSLUCENT,
@@ -1198,16 +1226,23 @@ static void RT_TryDrawCustomChapterIntro()
             .indexCount           = RT_ARRAYSIZE( indices ),
             .pTextureName         = NULL,
             .textureFrame         = 0,
-            .color       = rgUtilPackColorFloat4D( 0.0f, 0.0f, 0.0f, alpha * background_opacity ),
-            .emissive    = 0,
-            .pEditorInfo = NULL,
+            .color    = rgUtilPackColorFloat4D( 0.0f, 0.0f, 0.0f, alpha * background_opacity ),
+            .emissive = 0,
         };
-        RgResult r = rgUploadNonWorldPrimitive( rg_instance, &prim, matrix4x4_identity, NULL );
+        RgResult r = rgUploadMeshPrimitive( rg_instance, NULL, &prim );
         RG_CHECK( r );
     }
     // text
     {
+        RgMeshPrimitiveForceRasterizedEXT raster = {
+            .sType           = RG_STRUCTURE_TYPE_MESH_PRIMITIVE_FORCE_RASTERIZED_EXT,
+            .pNext           = NULL,
+            .pViewport       = NULL,
+            .pViewProjection = ( const float* )matrix4x4_identity,
+        };
         RgMeshPrimitiveInfo prim = {
+            .sType                = RG_STRUCTURE_TYPE_MESH_PRIMITIVE_INFO,
+            .pNext                = &raster,
             .pPrimitiveNameInMesh = NULL,
             .primitiveIndexInMesh = 0,
             .flags                = RG_MESH_PRIMITIVE_TRANSLUCENT,
@@ -1219,10 +1254,8 @@ static void RT_TryDrawCustomChapterIntro()
             .textureFrame         = 0,
             .color                = rgUtilPackColorFloat4D( 1.0f, 1.0f, 1.0f, alpha ),
             .emissive             = 0,
-            .pEditorInfo          = NULL,
         };
-
-        RgResult r = rgUploadNonWorldPrimitive( rg_instance, &prim, matrix4x4_identity, NULL );
+        RgResult r = rgUploadMeshPrimitive( rg_instance, NULL, &prim );
         RG_CHECK( r );
     }
 }
@@ -1319,12 +1352,15 @@ void R_BeginFrame( qboolean clearScene )
                 *e = '\0';
             }
         }
-
-		RgStartFrameInfo info = {
+		
+        RgStartFrameInfo info = {
+            .sType                  = RG_STRUCTURE_TYPE_START_FRAME_INFO,
+            .pNext                  = NULL,
             .pMapName               = mapname,
             .ignoreExternalGeometry = RT_CVAR_TO_FLOAT( rt_classic ) > 0.5f,
+            .vsync                  = RT_CVAR_TO_BOOL( rt_vsync ),
         };
-
+		
         RgResult r = rgStartFrame( rg_instance, &info );
         RG_CHECK( r );
     }
@@ -1626,7 +1662,7 @@ void R_EndFrame( void )
     const RgExtent2D winsize    = { .width = gpGlobals->width, .height = gpGlobals->height };
 
     RgDrawFrameRenderResolutionParams resolution_params = {
-        .sType = RG_STRUCTURE_TYPE_RENDER_RESOLUTION,
+        .sType = RG_STRUCTURE_TYPE_DRAW_FRAME_RENDER_RESOLUTION_PARAMS,
         .pNext = NULL,
     };
     ResolutionToRtgl( &resolution_params, winsize, &pixstorage );
@@ -1651,8 +1687,8 @@ void R_EndFrame( void )
     }
 
     RgDrawFrameIlluminationParams illum_params = {
-        .sType                              = RG_STRUCTURE_TYPE_ILLUMINATION,
-        .pNext                              = &resolution_params,
+        .sType                              = RG_STRUCTURE_TYPE_DRAW_FRAME_ILLUMINATION_PARAMS,
+        .pNext                              = NULL,
         .maxBounceShadows                   = RT_CVAR_TO_UINT32( rt_shadowrays ),
         .enableSecondBounceForIndirect      = RT_CVAR_TO_BOOL( rt_indir2bounces ),
         .cellWorldSize                      = METRIC_TO_QUAKEUNIT( 2.0f ),
@@ -1667,7 +1703,7 @@ void R_EndFrame( void )
     };
 
     RgDrawFrameTonemappingParams tnmp_params = {
-        .sType                = RG_STRUCTURE_TYPE_TONEMAPPING,
+        .sType                = RG_STRUCTURE_TYPE_DRAW_FRAME_TONEMAPPING_PARAMS,
         .pNext                = &illum_params,
         .disableEyeAdaptation = false,
         .ev100Min             = RT_CVAR_TO_FLOAT( rt_tnmp_ev100_min ),
@@ -1682,7 +1718,7 @@ void R_EndFrame( void )
     };
 
     RgDrawFrameBloomParams bloom_params = {
-        .sType          = RG_STRUCTURE_TYPE_BLOOM,
+        .sType          = RG_STRUCTURE_TYPE_DRAW_FRAME_BLOOM_PARAMS,
         .pNext          = &tnmp_params,
         .bloomIntensity = RT_CVAR_TO_BOOL( rt_bloom ) && RT_CVAR_TO_FLOAT( rt_classic ) < 0.5f
                               ? RT_CVAR_TO_FLOAT( rt_bloom_intensity )
@@ -1697,7 +1733,7 @@ void R_EndFrame( void )
         ENGINE_GET_PARM( PARM_WATER_LEVEL ) > 2 ? RG_MEDIA_TYPE_WATER : RG_MEDIA_TYPE_VACUUM;
 
     RgDrawFrameReflectRefractParams refl_refr_params = {
-        .sType                   = RG_STRUCTURE_TYPE_REFLECTREFRACT,
+        .sType                   = RG_STRUCTURE_TYPE_DRAW_FRAME_REFLECT_REFRACT_PARAMS,
         .pNext                   = &bloom_params,
         .maxReflectRefractDepth  = RT_CVAR_TO_UINT32( rt_reflrefr_depth ),
         .typeOfMediaAroundCamera = cameramedia,
@@ -1725,7 +1761,7 @@ void R_EndFrame( void )
     VectorPow( refl_refr_params.waterColor.data, QUAKEUNIT_IN_METERS );
 
     RgDrawFrameSkyParams sky_params = {
-        .sType              = RG_STRUCTURE_TYPE_SKY,
+        .sType              = RG_STRUCTURE_TYPE_DRAW_FRAME_SKY_PARAMS,
         .pNext              = &refl_refr_params,
         .skyType            = RI.isSkyVisible ? RG_SKY_TYPE_RASTERIZED_GEOMETRY : RG_SKY_TYPE_COLOR,
         .skyColorDefault    = { 0, 0, 0 },
@@ -1735,7 +1771,7 @@ void R_EndFrame( void )
     };
 	
     RgDrawFrameVolumetricParams volumetric_params = {
-        .sType  = RG_STRUCTURE_TYPE_VOLUMETRIC,
+        .sType  = RG_STRUCTURE_TYPE_DRAW_FRAME_VOLUMETRIC_PARAMS,
         .pNext  = &sky_params,
         .enable = RT_CVAR_TO_UINT32( rt_volume_type ) != 0 && RT_CVAR_TO_FLOAT( rt_classic ) < 0.5f,
         .maxHistoryLength =
@@ -1754,7 +1790,7 @@ void R_EndFrame( void )
     };
 
     RgDrawFrameTexturesParams texture_params = {
-        .sType                  = RG_STRUCTURE_TYPE_TEXTURES,
+        .sType                  = RG_STRUCTURE_TYPE_DRAW_FRAME_TEXTURES_PARAMS,
         .pNext                  = &volumetric_params,
         .dynamicSamplerFilter   = RT_CVAR_TO_BOOL( rt_texture_nearest ) ? RG_SAMPLER_FILTER_NEAREST
                                                                         : RG_SAMPLER_FILTER_LINEAR,
@@ -1764,7 +1800,7 @@ void R_EndFrame( void )
     };
 
     RgDrawFrameLightmapParams lightmap_params = {
-        .sType                  = RG_STRUCTURE_TYPE_LIGHTMAP,
+        .sType                  = RG_STRUCTURE_TYPE_DRAW_FRAME_LIGHTMAP_PARAMS,
         .pNext                  = &texture_params,
         .lightmapScreenCoverage = RT_CVAR_TO_FLOAT( rt_classic ),
     };
@@ -1804,7 +1840,7 @@ void R_EndFrame( void )
     };
 
     RgDrawFramePostEffectsParams posteffect_params = {
-        .sType                = RG_STRUCTURE_TYPE_POSTEFFECTS,
+        .sType                = RG_STRUCTURE_TYPE_DRAW_FRAME_POST_EFFECTS_PARAMS,
         .pNext                = &lightmap_params,
         .pChromaticAberration = &chromatic_aberration_effect,
         .pTeleport            = RT_IsPortalPosteffectActive() ? &teleport_effect : NULL,
@@ -1813,21 +1849,14 @@ void R_EndFrame( void )
     };
 
     RgDrawFrameInfo info = {
-        .fovYRadians      = DEG2RAD( RI.fov_y ),
-        .cameraNear       = R_GetNearClip(),
-        .cameraFar        = R_GetFarClip(),
+        .sType            = RG_STRUCTURE_TYPE_DRAW_FRAME_INFO,
+        .pNext            = &posteffect_params,
         .rayLength        = R_GetFarClip(),
         .rayCullMaskWorld = RG_DRAW_FRAME_RAY_CULL_WORLD_0_BIT |
                             RG_DRAW_FRAME_RAY_CULL_WORLD_1_BIT | RG_DRAW_FRAME_RAY_CULL_SKY_BIT,
         .presentPrevFrame = skipframe,
         .currentTime      = gpGlobals->realtime,
-        .vsync            = RT_CVAR_TO_BOOL( rt_vsync ),
-        .pParams          = &posteffect_params,
     };
-
-    // reinterpret cast to make matrices column-major
-    matrix4x4* v = ( matrix4x4* )&info.view;
-    Matrix4x4_Transpose( *v, RI.worldviewMatrix );
 
     RgResult r = rgDrawFrame( rg_instance, &info );
     RG_CHECK( r );
