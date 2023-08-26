@@ -1472,8 +1472,7 @@ enum
 // this enum must match pVintageNames from VideoModes.cpp
 
 static void ResolutionToRtgl( RgDrawFrameRenderResolutionParams* dst,
-                              const RgExtent2D                   winsize,
-                              RgExtent2D*                        storage )
+                              const RgExtent2D                   winsize )
 {
     const float aspect = ( float )winsize.width / ( float )winsize.height;
 
@@ -1484,7 +1483,7 @@ static void ResolutionToRtgl( RgDrawFrameRenderResolutionParams* dst,
 
         dst->customRenderSize.width  = ( uint32_t )( scale * ( float )winsize.width );
         dst->customRenderSize.height = ( uint32_t )( scale * ( float )winsize.height );
-        dst->pPixelizedRenderSize    = NULL;
+        dst->pixelizedRenderSizeEnable = false;
 
         return;
     }
@@ -1520,15 +1519,15 @@ static void ResolutionToRtgl( RgDrawFrameRenderResolutionParams* dst,
                 default:
                     gEngfuncs.Cvar_SetValue( rt_cvars.rt_ef_vintage->name, 0 );
                     dst->customRenderSize     = winsize;
-                    dst->pPixelizedRenderSize = NULL;
+                    dst->pixelizedRenderSizeEnable = false;
                     return;
             }
 
             assert( h_render > 0 && h_pixelized > 0 );
 
-            storage->height              = h_pixelized;
-            storage->width               = ( uint32_t )( h_pixelized * aspect );
-            dst->pPixelizedRenderSize    = storage;
+            dst->pixelizedRenderSize.height = h_pixelized;
+            dst->pixelizedRenderSize.width  = ( uint32_t )( h_pixelized * aspect );
+            dst->pixelizedRenderSizeEnable  = true;
             dst->customRenderSize.height = h_render;
             dst->customRenderSize.width  = ( uint32_t )( h_render * aspect );
 
@@ -1537,7 +1536,7 @@ static void ResolutionToRtgl( RgDrawFrameRenderResolutionParams* dst,
     }
 
     dst->customRenderSize     = winsize;
-    dst->pPixelizedRenderSize = NULL;
+    dst->pixelizedRenderSizeEnable = false;
 }
 
 static RgRenderSharpenTechnique GetSharpenTechniqueFromCvar()
@@ -1657,15 +1656,14 @@ void R_EndFrame( void )
 #if XASH_RAYTRACING
     RT_OnBeforeDrawFrame();
     RT_UploadAllLights();
-
-    RgExtent2D       pixstorage = { 0 };
+	
     const RgExtent2D winsize    = { .width = gpGlobals->width, .height = gpGlobals->height };
 
     RgDrawFrameRenderResolutionParams resolution_params = {
         .sType = RG_STRUCTURE_TYPE_DRAW_FRAME_RENDER_RESOLUTION_PARAMS,
         .pNext = NULL,
     };
-    ResolutionToRtgl( &resolution_params, winsize, &pixstorage );
+    ResolutionToRtgl( &resolution_params, winsize );
     UpscaleCvarsToRtgl( &resolution_params );
 
     {
